@@ -2,9 +2,7 @@ services:
   - type: web
     name: celestix-backend
     runtime: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
-    plan: free
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
@@ -18,17 +16,16 @@ services:
         value: "10000"
       - key: AUTH_RATE_LIMIT_MAX
         value: "500"
-      - key: UPLOAD_RATE_LIMIT_MAX
-        value: "50"
       - key: LOG_LEVEL
         value: info
-      - key: STORAGE_PATH
-        value: ./storage
-      - key: REDIS_URL
-        value: none
       - key: DATABASE_URL
         fromDatabase:
           name: celestix-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: celestix-redis
+          type: redis
           property: connectionString
 
 databases:
@@ -36,3 +33,7 @@ databases:
     plan: free
     databaseName: celestix
     user: celestix
+
+  - name: celestix-redis
+    plan: free
+    type: redis

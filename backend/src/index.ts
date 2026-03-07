@@ -112,8 +112,12 @@ async function start() {
     logger.info('Database connected');
 
     // Test redis connection
-    await redis.ping();
-    logger.info('Redis connected');
+    try {
+      await redis.ping();
+      logger.info('Redis connected');
+    } catch {
+      logger.warn('Redis not available — running without Redis');
+    }
 
     server.listen(config.port, () => {
       logger.info(`Celestix Workspace backend running on port ${config.port}`);
