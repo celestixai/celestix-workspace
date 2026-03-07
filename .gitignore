@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+*.log
+storage/
+frontend/release/
+screenshots/
+design-screenshots/
+*.png
+*.mjs
