@@ -30,9 +30,7 @@ jobs:
 
       - name: Build macOS DMG
         working-directory: frontend
-        run: npx electron-builder --mac --config electron-builder.yml
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --mac --publish never --config electron-builder.yml
 
       - name: Upload macOS artifacts
         uses: actions/upload-artifact@v4
@@ -66,9 +64,7 @@ jobs:
 
       - name: Build Windows installer
         working-directory: frontend
-        run: npx electron-builder --win --config electron-builder.yml
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish never --config electron-builder.yml
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -100,9 +96,7 @@ jobs:
 
       - name: Build Linux AppImage
         working-directory: frontend
-        run: npx electron-builder --linux --config electron-builder.yml
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --linux --publish never --config electron-builder.yml
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
