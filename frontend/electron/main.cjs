@@ -3,8 +3,7 @@ const { autoUpdater } = require('electron-updater');
 const path = require('path');
 
 const isDev = !app.isPackaged;
-// Production: reads from env or uses the built-in URL (update after Railway deploy)
-const BACKEND_URL = process.env.CELESTIX_BACKEND || 'http://localhost:3001';
+const BACKEND_URL = process.env.CELESTIX_BACKEND || 'https://celestix-backend-053h.onrender.com';
 let mainWindow = null;
 
 function createWindow() {
@@ -59,28 +58,27 @@ function createWindow() {
 function setupAutoUpdater() {
   if (isDev) return;
 
-  autoUpdater.autoDownload = true;
-  autoUpdater.autoInstallOnAppQuit = true;
+  try {
+    autoUpdater.autoDownload = true;
+    autoUpdater.autoInstallOnAppQuit = true;
 
-  autoUpdater.on('update-available', (info) => {
-    console.log('Update available:', info.version);
-    mainWindow?.webContents.send('update-available', info.version);
-  });
+    autoUpdater.on('update-available', (info) => {
+      mainWindow?.webContents.send('update-available', info.version);
+    });
 
-  autoUpdater.on('update-downloaded', (info) => {
-    console.log('Update downloaded:', info.version);
-    mainWindow?.webContents.send('update-downloaded', info.version);
-  });
+    autoUpdater.on('update-downloaded', (info) => {
+      mainWindow?.webContents.send('update-downloaded', info.version);
+    });
 
-  autoUpdater.on('error', (err) => {
-    console.error('Auto-updater error:', err.message);
-  });
+    autoUpdater.on('error', () => {});
 
-  // Check for updates every 30 minutes
-  autoUpdater.checkForUpdatesAndNotify();
-  setInterval(() => {
-    autoUpdater.checkForUpdatesAndNotify();
-  }, 30 * 60 * 1000);
+    autoUpdater.checkForUpdatesAndNotify().catch(() => {});
+    setInterval(() => {
+      autoUpdater.checkForUpdatesAndNotify().catch(() => {});
+    }, 30 * 60 * 1000);
+  } catch {
+    // Auto-updater not configured — skip silently
+  }
 }
 
 // IPC handlers
