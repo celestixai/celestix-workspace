@@ -111,6 +111,12 @@ enum NotificationType {
   CALENDAR_INVITE
   REACTION
   THREAD_REPLY
+  FORM_RESPONSE
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  WORKFLOW_COMPLETED
+  LIST_ITEM_ASSIGNED
+  VIDEO_COMMENT
 }
 
 enum AuditAction {
@@ -120,6 +126,11 @@ enum AuditAction {
   PASSWORD_RESET
   SETTINGS_CHANGED
   QUOTA_CHANGED
+  FORM_CREATED
+  BOOKING_CREATED
+  WORKFLOW_EXECUTED
+  LIST_CREATED
+  VIDEO_UPLOADED
 }
 
 // ==========================================
@@ -185,6 +196,19 @@ model User {
   notifications     Notification[]
   sentNotifications Notification[]    @relation("NotificationSender")
   auditLogs         AuditLog[]
+  bookingPages      BookingPage[]
+  appointments      Appointment[]     @relation("AppointmentStaff")
+  forms             Form[]
+  formResponses     FormResponse[]
+  lists             CxList[]
+  listItems         ListItem[]
+  loopComponents    LoopComponent[]
+  loopPages         LoopPage[]
+  whiteboards       Whiteboard[]
+  videos            Video[]
+  videoComments     VideoComment[]
+  workflows         Workflow[]
+  dashboardLayout   DashboardLayout?
 
   @@map("users")
 }
@@ -1177,4 +1201,755 @@ model SystemSetting {
   value String
 
   @@map("system_settings")
+}
+
+// ==========================================
+// BOOKINGS MODULE
+// ==========================================
+
+enum BookingType {
+  PERSONAL
+  SHARED
+}
+
+enum AppointmentStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum StaffAssignment {
+  ROUND_ROBIN
+  RANDOM
+  SPECIFIC
+}
+
+model BookingPage {
+  id          String      @id @default(uuid()) @db.Uuid
+  userId      String      @map("user_id") @db.Uuid
+  type        BookingType @default(PERSONAL)
+  name        String
+  slug        String      @unique
+  description String?
+  branding    Json?
+  settings    Json?
+  isActive    Boolean     @default(true) @map("is_active")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services BookingService[]
+
+  @@map("booking_pages")
+}
+
+model BookingService {
+  id                  String          @id @default(uuid()) @db.Uuid
+  bookingPageId       String          @map("booking_page_id") @db.Uuid
+  name                String
+  description         String?
+  durationMinutes     Int             @map("duration_minutes")
+  bufferMinutes       Int             @default(0) @map("buffer_minutes")
+  price               Float?
+  maxAttendees        Int             @default(1) @map("max_attendees")
+  intakeForm          Json?           @map("intake_form")
+  staffAssignmentType StaffAssignment @default(ROUND_ROBIN) @map("staff_assignment_type")
+  isActive            Boolean         @default(true) @map("is_active")
+  createdAt           DateTime        @default(now()) @map("created_at")
+
+  bookingPage  BookingPage    @relation(fields: [bookingPageId], references: [id], onDelete: Cascade)
+  staff        ServiceStaff[]
+  appointments Appointment[]
+
+  @@map("booking_services")
+}
+
+model ServiceStaff {
+  id        String @id @default(uuid()) @db.Uuid
+  serviceId String @map("service_id") @db.Uuid
+  userId    String @map("user_id") @db.Uuid
+  schedule  Json?
+
+  service BookingService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, userId])
+  @@map("service_staff")
+}
+
+model Appointment {
+  id              String            @id @default(uuid()) @db.Uuid
+  serviceId       String            @map("service_id") @db.Uuid
+  staffUserId     String?           @map("staff_user_id") @db.Uuid
+  guestName       String            @map("guest_name")
+  guestEmail      String            @map("guest_email")
+  guestPhone      String?           @map("guest_phone")
+  startAt         DateTime          @map("start_at")
+  endAt           DateTime          @map("end_at")
+  status          AppointmentStatus @default(CONFIRMED)
+  intakeResponses Json?             @map("intake_responses")
+  cancelToken     String?           @unique @map("cancel_token")
+  notes           String?
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  service   BookingService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  staffUser User?          @relation("AppointmentStaff", fields: [staffUserId], references: [id])
+
+  @@index([serviceId, startAt])
+  @@index([staffUserId, startAt])
+  @@map("appointments")
+}
+
+// ==========================================
+// FORMS & SURVEYS MODULE
+// ==========================================
+
+enum FormType {
+  FORM
+  QUIZ
+}
+
+enum QuestionType {
+  SHORT_TEXT
+  LONG_TEXT
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  DROPDOWN
+  STAR_RATING
+  LIKERT
+  DATE
+  TIME
+  DATETIME
+  NUMBER
+  RANGE
+  FILE_UPLOAD
+  NPS
+  RANKING
+  MATRIX
+  SECTION
+}
+
+model Form {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  title           String
+  description     String?
+  type            FormType  @default(FORM)
+  settings        Json?
+  theme           Json?
+  isPublished     Boolean   @default(false) @map("is_published")
+  acceptResponses Boolean   @default(true) @map("accept_responses")
+  responseLimit   Int?      @map("response_limit")
+  startDate       DateTime? @map("start_date")
+  endDate         DateTime? @map("end_date")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions FormQuestion[]
+  responses FormResponse[]
+
+  @@index([userId])
+  @@map("forms")
+}
+
+model FormQuestion {
+  id            String       @id @default(uuid()) @db.Uuid
+  formId        String       @map("form_id") @db.Uuid
+  type          QuestionType
+  label         String
+  description   String?
+  options       Json?
+  validation    Json?
+  isRequired    Boolean      @default(false) @map("is_required")
+  position      Int          @default(0)
+  points        Int?
+  correctAnswer Json?        @map("correct_answer")
+  logic         Json?
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([formId, position])
+  @@map("form_questions")
+}
+
+model FormResponse {
+  id              String   @id @default(uuid()) @db.Uuid
+  formId          String   @map("form_id") @db.Uuid
+  respondentId    String?  @map("respondent_id") @db.Uuid
+  respondentName  String?  @map("respondent_name")
+  respondentEmail String?  @map("respondent_email")
+  answers         Json
+  score           Int?
+  submittedAt     DateTime @default(now()) @map("submitted_at")
+
+  form       Form  @relation(fields: [formId], references: [id], onDelete: Cascade)
+  respondent User? @relation(fields: [respondentId], references: [id])
+
+  @@index([formId, submittedAt])
+  @@map("form_responses")
+}
+
+// ==========================================
+// LISTS MODULE
+// ==========================================
+
+enum ListColumnType {
+  TEXT
+  MULTILINE
+  NUMBER
+  CURRENCY
+  PERCENTAGE
+  CHOICE
+  MULTI_CHOICE
+  DATE
+  DATETIME
+  PERSON
+  BOOLEAN
+  HYPERLINK
+  IMAGE
+  LOOKUP
+  CALCULATED
+}
+
+enum ListViewType {
+  LIST
+  GRID
+  GALLERY
+  CALENDAR
+  BOARD
+}
+
+model CxList {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  workspaceId String?  @map("workspace_id") @db.Uuid
+  name        String
+  description String?
+  icon        String?
+  color       String   @default("#4F8EF7")
+  templateId  String?  @map("template_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  columns ListColumn[]
+  items   ListItem[]
+  views   ListView[]
+
+  @@index([userId])
+  @@map("cx_lists")
+}
+
+model ListColumn {
+  id         String         @id @default(uuid()) @db.Uuid
+  listId     String         @map("list_id") @db.Uuid
+  name       String
+  type       ListColumnType
+  settings   Json?
+  position   Int            @default(0)
+  isRequired Boolean        @default(false) @map("is_required")
+  createdAt  DateTime       @default(now()) @map("created_at")
+
+  list    CxList            @relation(fields: [listId], references: [id], onDelete: Cascade)
+  history ListItemHistory[]
+
+  @@index([listId, position])
+  @@map("list_columns")
+}
+
+model ListItem {
+  id        String   @id @default(uuid()) @db.Uuid
+  listId    String   @map("list_id") @db.Uuid
+  values    Json     @default("{}")
+  createdBy String   @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  list     CxList            @relation(fields: [listId], references: [id], onDelete: Cascade)
+  creator  User              @relation(fields: [createdBy], references: [id])
+  comments ListItemComment[]
+  history  ListItemHistory[]
+
+  @@index([listId])
+  @@map("list_items")
+}
+
+model ListView {
+  id          String       @id @default(uuid()) @db.Uuid
+  listId      String       @map("list_id") @db.Uuid
+  name        String
+  type        ListViewType @default(LIST)
+  filters     Json?
+  sort        Json?
+  groupBy     String?      @map("group_by")
+  columnOrder Json?        @map("column_order")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  list CxList @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@map("list_views")
+}
+
+model ListItemComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  itemId    String   @map("item_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  item ListItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("list_item_comments")
+}
+
+model ListItemHistory {
+  id        String   @id @default(uuid()) @db.Uuid
+  itemId    String   @map("item_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  columnId  String   @map("column_id") @db.Uuid
+  oldValue  String?  @map("old_value")
+  newValue  String?  @map("new_value")
+  changedAt DateTime @default(now()) @map("changed_at")
+
+  item   ListItem   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  column ListColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
+
+  @@index([itemId, changedAt])
+  @@map("list_item_history")
+}
+
+// ==========================================
+// LOOP COMPONENTS MODULE
+// ==========================================
+
+enum LoopComponentType {
+  TABLE
+  TASK_LIST
+  VOTING_TABLE
+  STATUS_TRACKER
+  QA
+  BULLETED_LIST
+  NUMBERED_LIST
+  PARAGRAPH
+  CODE_SNIPPET
+  DIVIDER
+  REACTION_BAR
+}
+
+model LoopComponent {
+  id          String            @id @default(uuid()) @db.Uuid
+  type        LoopComponentType
+  content     Json              @default("{}")
+  createdBy   String            @map("created_by") @db.Uuid
+  workspaceId String?           @map("workspace_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  creator User        @relation(fields: [createdBy], references: [id])
+  embeds  LoopEmbed[]
+
+  @@map("loop_components")
+}
+
+model LoopPage {
+  id           String   @id @default(uuid()) @db.Uuid
+  title        String   @default("Untitled")
+  componentIds Json     @default("[]") @map("component_ids")
+  createdBy    String   @map("created_by") @db.Uuid
+  workspaceId  String?  @map("workspace_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("loop_pages")
+}
+
+model LoopEmbed {
+  id          String @id @default(uuid()) @db.Uuid
+  componentId String @map("component_id") @db.Uuid
+  contextType String @map("context_type") // message, email, note, task, event
+  contextId   String @map("context_id") @db.Uuid
+
+  component LoopComponent @relation(fields: [componentId], references: [id], onDelete: Cascade)
+
+  @@index([contextType, contextId])
+  @@map("loop_embeds")
+}
+
+// ==========================================
+// WHITEBOARD MODULE
+// ==========================================
+
+model Whiteboard {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @default("Untitled Whiteboard")
+  userId       String   @map("user_id") @db.Uuid
+  workspaceId  String?  @map("workspace_id") @db.Uuid
+  canvasData   Json     @default("[]") @map("canvas_data")
+  templateId   String?  @map("template_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user          User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators WhiteboardCollaborator[]
+
+  @@index([userId])
+  @@map("whiteboards")
+}
+
+model WhiteboardCollaborator {
+  id           String          @id @default(uuid()) @db.Uuid
+  whiteboardId String          @map("whiteboard_id") @db.Uuid
+  userId       String          @map("user_id") @db.Uuid
+  permission   SharePermission @default(VIEW)
+
+  whiteboard Whiteboard @relation(fields: [whiteboardId], references: [id], onDelete: Cascade)
+
+  @@unique([whiteboardId, userId])
+  @@map("whiteboard_collaborators")
+}
+
+// ==========================================
+// STREAM / VIDEO LIBRARY MODULE
+// ==========================================
+
+enum VideoPrivacy {
+  PUBLIC
+  PRIVATE
+  UNLISTED
+}
+
+enum VideoStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+model Video {
+  id              String       @id @default(uuid()) @db.Uuid
+  userId          String       @map("user_id") @db.Uuid
+  channelId       String?      @map("channel_id") @db.Uuid
+  title           String
+  description     String?
+  storagePath     String       @map("storage_path")
+  thumbnailPath   String?      @map("thumbnail_path")
+  durationSeconds Int?         @map("duration_seconds")
+  transcriptText  String?      @map("transcript_text")
+  transcriptVtt   String?      @map("transcript_vtt")
+  status          VideoStatus  @default(PROCESSING)
+  viewCount       Int          @default(0) @map("view_count")
+  tags            Json?
+  privacy         VideoPrivacy @default(PUBLIC)
+  chapters        Json?
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel  VideoChannel?   @relation(fields: [channelId], references: [id])
+  comments VideoComment[]
+  views    VideoView[]
+
+  @@index([userId])
+  @@index([channelId])
+  @@map("videos")
+}
+
+model VideoChannel {
+  id          String   @id @default(uuid()) @db.Uuid
+  workspaceId String?  @map("workspace_id") @db.Uuid
+  name        String
+  description String?
+  thumbnail   String?
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  videos Video[]
+
+  @@map("video_channels")
+}
+
+model VideoComment {
+  id               String   @id @default(uuid()) @db.Uuid
+  videoId          String   @map("video_id") @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  body             String
+  timestampSeconds Int?     @map("timestamp_seconds")
+  parentCommentId  String?  @map("parent_comment_id") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  video         Video         @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id])
+  parentComment VideoComment? @relation("VideoCommentReplies", fields: [parentCommentId], references: [id])
+  replies       VideoComment[] @relation("VideoCommentReplies")
+
+  @@index([videoId, createdAt])
+  @@map("video_comments")
+}
+
+model VideoView {
+  id             String   @id @default(uuid()) @db.Uuid
+  videoId        String   @map("video_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  watchedSeconds Int      @default(0) @map("watched_seconds")
+  lastWatchedAt  DateTime @default(now()) @map("last_watched_at")
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, userId])
+  @@map("video_views")
+}
+
+model Playlist {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  name        String
+  description String?
+  videoIds    Json     @default("[]") @map("video_ids")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("playlists")
+}
+
+// ==========================================
+// AUTOMATION / WORKFLOWS MODULE
+// ==========================================
+
+enum WorkflowStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+model Workflow {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  workspaceId String?  @map("workspace_id") @db.Uuid
+  name        String
+  description String?
+  trigger     Json
+  actions     Json     @default("[]")
+  isEnabled   Boolean  @default(true) @map("is_enabled")
+  lastRunAt   DateTime? @map("last_run_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  runs WorkflowRun[]
+
+  @@index([userId])
+  @@map("workflows")
+}
+
+model WorkflowRun {
+  id            String         @id @default(uuid()) @db.Uuid
+  workflowId    String         @map("workflow_id") @db.Uuid
+  triggerData   Json?          @map("trigger_data")
+  status        WorkflowStatus @default(RUNNING)
+  startedAt     DateTime       @default(now()) @map("started_at")
+  completedAt   DateTime?      @map("completed_at")
+  errorMessage  String?        @map("error_message")
+  actionResults Json?          @map("action_results")
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId, startedAt])
+  @@map("workflow_runs")
+}
+
+// ==========================================
+// DASHBOARD MODULE
+// ==========================================
+
+model DashboardLayout {
+  id      String @id @default(uuid()) @db.Uuid
+  userId  String @unique @map("user_id") @db.Uuid
+  widgets Json   @default("[]")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("dashboard_layouts")
+}
+
+// ==========================================
+// MESSENGER ENHANCEMENTS
+// ==========================================
+
+model Poll {
+  id           String   @id @default(uuid()) @db.Uuid
+  chatId       String   @map("chat_id") @db.Uuid
+  messageId    String?  @map("message_id") @db.Uuid
+  creatorId    String   @map("creator_id") @db.Uuid
+  question     String
+  options      Json
+  isMultiVote  Boolean  @default(false) @map("is_multi_vote")
+  isAnonymous  Boolean  @default(false) @map("is_anonymous")
+  isQuiz       Boolean  @default(false) @map("is_quiz")
+  correctOption Int?    @map("correct_option")
+  closesAt     DateTime? @map("closes_at")
+  isClosed     Boolean  @default(false) @map("is_closed")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  votes PollVote[]
+
+  @@map("polls")
+}
+
+model PollVote {
+  id          String   @id @default(uuid()) @db.Uuid
+  pollId      String   @map("poll_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  optionIndex Int      @map("option_index")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId, optionIndex])
+  @@map("poll_votes")
+}
+
+model SavedMessage {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  messageId String   @map("message_id") @db.Uuid
+  contextType String @map("context_type") // messenger, workspace
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, messageId, contextType])
+  @@index([userId])
+  @@map("saved_messages")
+}
+
+model ChatFolder {
+  id      String @id @default(uuid()) @db.Uuid
+  userId  String @map("user_id") @db.Uuid
+  name    String
+  chatIds Json   @default("[]") @map("chat_ids")
+  position Int   @default(0)
+
+  @@index([userId])
+  @@map("chat_folders")
+}
+
+model ScheduledMessage {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  chatId      String?  @map("chat_id") @db.Uuid
+  channelId   String?  @map("channel_id") @db.Uuid
+  content     String
+  contentHtml String?  @map("content_html")
+  scheduledAt DateTime @map("scheduled_at")
+  sent        Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([scheduledAt, sent])
+  @@map("scheduled_messages")
+}
+
+// ==========================================
+// EMAIL ENHANCEMENTS
+// ==========================================
+
+model EmailQuickStep {
+  id      String @id @default(uuid()) @db.Uuid
+  userId  String @map("user_id") @db.Uuid
+  name    String
+  icon    String @default("zap")
+  actions Json
+
+  @@index([userId])
+  @@map("email_quick_steps")
+}
+
+model EmailRule {
+  id         String  @id @default(uuid()) @db.Uuid
+  userId     String  @map("user_id") @db.Uuid
+  name       String
+  conditions Json
+  actions    Json
+  isEnabled  Boolean @default(true) @map("is_enabled")
+  position   Int     @default(0)
+
+  @@index([userId])
+  @@map("email_rules")
+}
+
+model EmailTemplate {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  name        String
+  subject     String?
+  bodyHtml    String   @map("body_html")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("email_templates")
+}
+
+// ==========================================
+// CALENDAR ENHANCEMENTS
+// ==========================================
+
+model Resource {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  type        String   @default("room") // room, equipment, vehicle
+  description String?
+  capacity    Int?
+  location    String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  bookings ResourceBooking[]
+
+  @@map("resources")
+}
+
+model ResourceBooking {
+  id         String   @id @default(uuid()) @db.Uuid
+  resourceId String   @map("resource_id") @db.Uuid
+  eventId    String   @map("event_id") @db.Uuid
+  bookedBy   String   @map("booked_by") @db.Uuid
+  startAt    DateTime @map("start_at")
+  endAt      DateTime @map("end_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([resourceId, startAt, endAt])
+  @@map("resource_bookings")
+}
+
+// ==========================================
+// TASKS ENHANCEMENTS
+// ==========================================
+
+model Sprint {
+  id        String    @id @default(uuid()) @db.Uuid
+  projectId String    @map("project_id") @db.Uuid
+  name      String
+  startDate DateTime  @map("start_date")
+  endDate   DateTime  @map("end_date")
+  goal      String?
+  status    String    @default("planned") // planned, active, completed
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([projectId])
+  @@map("sprints")
+}
+
+model TaskCustomField {
+  id        String @id @default(uuid()) @db.Uuid
+  projectId String @map("project_id") @db.Uuid
+  name      String
+  type      String // text, number, dropdown, date
+  options   Json?
+  position  Int    @default(0)
+
+  @@index([projectId])
+  @@map("task_custom_fields")
 }

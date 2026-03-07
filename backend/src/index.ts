@@ -36,6 +36,14 @@ import meetingsRoutes from './modules/meetings/meetings.routes';
 import notificationsRoutes from './modules/notifications/notifications.routes';
 import searchRoutes from './modules/search/search.routes';
 import adminRoutes from './modules/admin/admin.routes';
+import dashboardRoutes from './modules/dashboard/dashboard.routes';
+import formsRoutes from './modules/forms/forms.routes';
+import listsRoutes from './modules/lists/lists.routes';
+import bookingsRoutes from './modules/bookings/bookings.routes';
+import loopRoutes from './modules/loop/loop.routes';
+import whiteboardRoutes from './modules/whiteboard/whiteboard.routes';
+import streamRoutes from './modules/stream/stream.routes';
+import workflowsRoutes from './modules/workflows/workflows.routes';
 
 const app = express();
 const server = createServer(app);
@@ -99,6 +107,14 @@ app.use('/api/v1/meetings', meetingsRoutes);
 app.use('/api/v1/notifications', notificationsRoutes);
 app.use('/api/v1/search', searchRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/forms', formsRoutes);
+app.use('/api/v1/lists', listsRoutes);
+app.use('/api/v1/bookings', bookingsRoutes);
+app.use('/api/v1/loop', loopRoutes);
+app.use('/api/v1/whiteboard', whiteboardRoutes);
+app.use('/api/v1/stream', streamRoutes);
+app.use('/api/v1/workflows', workflowsRoutes);
 
 // Error handling
 app.use(notFoundHandler);

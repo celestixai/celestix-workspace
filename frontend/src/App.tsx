@@ -29,6 +29,14 @@ const NotesPage = lazy(() => import('@/modules/notes/notes-page').then((m) => ({
 const ContactsPage = lazy(() => import('@/modules/contacts/contacts-page').then((m) => ({ default: m.ContactsPage })));
 const MeetingsPage = lazy(() => import('@/modules/meetings/meetings-page').then((m) => ({ default: m.MeetingsPage })));
 const SettingsPage = lazy(() => import('@/modules/settings/settings-page').then((m) => ({ default: m.SettingsPage })));
+const DashboardPage = lazy(() => import('@/modules/dashboard/dashboard-page').then((m) => ({ default: m.DashboardPage })));
+const FormsPage = lazy(() => import('@/modules/forms/forms-page').then((m) => ({ default: m.FormsPage })));
+const ListsPage = lazy(() => import('@/modules/lists/lists-page').then((m) => ({ default: m.ListsPage })));
+const BookingsPage = lazy(() => import('@/modules/bookings/bookings-page').then((m) => ({ default: m.BookingsPage })));
+const LoopPage = lazy(() => import('@/modules/loop/loop-page').then((m) => ({ default: m.LoopPage })));
+const WhiteboardPage = lazy(() => import('@/modules/whiteboard/whiteboard-page').then((m) => ({ default: m.WhiteboardPage })));
+const StreamPage = lazy(() => import('@/modules/stream/stream-page').then((m) => ({ default: m.StreamPage })));
+const WorkflowsPage = lazy(() => import('@/modules/workflows/workflows-page').then((m) => ({ default: m.WorkflowsPage })));
 
 function LoadingFallback() {
   return (
@@ -109,6 +117,14 @@ function AuthenticatedLayout() {
     contacts: <ContactsPage />,
     meetings: <MeetingsPage />,
     settings: <SettingsPage />,
+    dashboard: <DashboardPage />,
+    forms: <FormsPage />,
+    lists: <ListsPage />,
+    bookings: <BookingsPage />,
+    loop: <LoopPage />,
+    whiteboard: <WhiteboardPage />,
+    stream: <StreamPage />,
+    workflows: <WorkflowsPage />,
   };
 
   return (

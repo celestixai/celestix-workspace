@@ -9,6 +9,14 @@ import {
   Users,
   Video,
   Settings,
+  LayoutDashboard,
+  ClipboardList,
+  Table2,
+  CalendarClock,
+  Puzzle,
+  PenTool,
+  PlayCircle,
+  Workflow,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/ui.store';
@@ -19,6 +27,7 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import logoIcon from '@/assets/logo-icon-blue.png';
 
 const navItems = [
+  { id: 'dashboard' as const, icon: LayoutDashboard, label: 'Home' },
   { id: 'messenger' as const, icon: MessageCircle, label: 'Messenger' },
   { id: 'workspace' as const, icon: Hash, label: 'Workspace' },
   { id: 'email' as const, icon: Mail, label: 'Email' },
@@ -28,6 +37,13 @@ const navItems = [
   { id: 'notes' as const, icon: FileText, label: 'Notes' },
   { id: 'contacts' as const, icon: Users, label: 'Contacts' },
   { id: 'meetings' as const, icon: Video, label: 'Meetings' },
+  { id: 'forms' as const, icon: ClipboardList, label: 'Forms' },
+  { id: 'lists' as const, icon: Table2, label: 'Lists' },
+  { id: 'bookings' as const, icon: CalendarClock, label: 'Bookings' },
+  { id: 'loop' as const, icon: Puzzle, label: 'Loop' },
+  { id: 'whiteboard' as const, icon: PenTool, label: 'Whiteboard' },
+  { id: 'stream' as const, icon: PlayCircle, label: 'Stream' },
+  { id: 'workflows' as const, icon: Workflow, label: 'Workflows' },
 ];
 
 export function NavRail() {
