@@ -1,0 +1,134 @@
+name: Build Desktop Apps
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Vite app
+        working-directory: frontend
+        run: npx cross-env ELECTRON=true npx vite build
+        env:
+          VITE_BACKEND_URL: https://celestix-backend-053h.onrender.com
+
+      - name: Build macOS DMG
+        working-directory: frontend
+        run: npx electron-builder --mac --config electron-builder.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: celestix-macos
+          path: |
+            frontend/release/*.dmg
+            frontend/release/*.zip
+          if-no-files-found: error
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Vite app
+        working-directory: frontend
+        run: npx cross-env ELECTRON=true npx vite build
+        env:
+          VITE_BACKEND_URL: https://celestix-backend-053h.onrender.com
+
+      - name: Build Windows installer
+        working-directory: frontend
+        run: npx electron-builder --win --config electron-builder.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: celestix-windows
+          path: frontend/release/*.exe
+          if-no-files-found: error
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Vite app
+        working-directory: frontend
+        run: npx cross-env ELECTRON=true npx vite build
+        env:
+          VITE_BACKEND_URL: https://celestix-backend-053h.onrender.com
+
+      - name: Build Linux AppImage
+        working-directory: frontend
+        run: npx electron-builder --linux --config electron-builder.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: celestix-linux
+          path: frontend/release/*.AppImage
+          if-no-files-found: error
+
+  release:
+    needs: [build-mac, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: |
+            artifacts/celestix-macos/*
+            artifacts/celestix-windows/*
+            artifacts/celestix-linux/*
