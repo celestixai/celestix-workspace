@@ -7,4 +7,6 @@ frontend/release/
 screenshots/
 design-screenshots/
 *.png
+!frontend/src/assets/*.png
+!frontend/build/*.png
 *.mjs
