@@ -20,7 +20,9 @@ const primaryItems = [
 
 const moreItems = [
   'workspace', 'files', 'notes', 'contacts', 'meetings',
-  'forms', 'lists', 'bookings', 'loop', 'whiteboard', 'stream', 'workflows', 'settings',
+  'forms', 'lists', 'bookings', 'loop', 'whiteboard', 'stream', 'workflows',
+  'documents', 'spreadsheets', 'presentations', 'pdf', 'diagrams', 'analytics',
+  'todo', 'video-editor', 'designer', 'sites', 'social', 'settings',
 ] as const;
 
 const moreLabels: Record<string, string> = {
@@ -36,6 +38,17 @@ const moreLabels: Record<string, string> = {
   whiteboard: 'Whiteboard',
   stream: 'Stream',
   workflows: 'Workflows',
+  documents: 'Docs',
+  spreadsheets: 'Sheets',
+  presentations: 'Slides',
+  pdf: 'PDF',
+  diagrams: 'Diagrams',
+  analytics: 'Analytics',
+  todo: 'To Do',
+  'video-editor': 'Editor',
+  designer: 'Designer',
+  sites: 'Sites',
+  social: 'Social',
   settings: 'Settings',
 };
 

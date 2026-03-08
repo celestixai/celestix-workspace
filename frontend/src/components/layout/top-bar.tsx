@@ -26,6 +26,17 @@ const moduleNames: Record<string, string> = {
   whiteboard: 'Whiteboard',
   stream: 'Stream',
   workflows: 'Workflows',
+  documents: 'Documents',
+  spreadsheets: 'Spreadsheets',
+  presentations: 'Presentations',
+  pdf: 'PDF Tools',
+  diagrams: 'Diagrams',
+  analytics: 'Analytics',
+  todo: 'To Do',
+  'video-editor': 'Video Editor',
+  designer: 'Designer',
+  sites: 'Sites',
+  social: 'Social',
 };
 
 export function TopBar() {

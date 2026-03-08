@@ -38,6 +38,17 @@ const LoopPage = lazy(() => import('@/modules/loop/loop-page').then((m) => ({ de
 const WhiteboardPage = lazy(() => import('@/modules/whiteboard/whiteboard-page').then((m) => ({ default: m.WhiteboardPage })));
 const StreamPage = lazy(() => import('@/modules/stream/stream-page').then((m) => ({ default: m.StreamPage })));
 const WorkflowsPage = lazy(() => import('@/modules/workflows/workflows-page').then((m) => ({ default: m.WorkflowsPage })));
+const DocumentsPage = lazy(() => import('@/modules/documents/documents-page').then((m) => ({ default: m.DocumentsPage })));
+const SpreadsheetsPage = lazy(() => import('@/modules/spreadsheets/spreadsheets-page').then((m) => ({ default: m.SpreadsheetsPage })));
+const PresentationsPage = lazy(() => import('@/modules/presentations/presentations-page').then((m) => ({ default: m.PresentationsPage })));
+const PdfPage = lazy(() => import('@/modules/pdf/pdf-page').then((m) => ({ default: m.PdfPage })));
+const DiagramsPage = lazy(() => import('@/modules/diagrams/diagrams-page').then((m) => ({ default: m.DiagramsPage })));
+const AnalyticsPage = lazy(() => import('@/modules/analytics/analytics-page').then((m) => ({ default: m.AnalyticsPage })));
+const TodoPage = lazy(() => import('@/modules/todo/todo-page').then((m) => ({ default: m.TodoPage })));
+const VideoEditorPage = lazy(() => import('@/modules/video-editor/video-editor-page').then((m) => ({ default: m.VideoEditorPage })));
+const DesignerPage = lazy(() => import('@/modules/designer/designer-page').then((m) => ({ default: m.DesignerPage })));
+const SitesPage = lazy(() => import('@/modules/sites/sites-page').then((m) => ({ default: m.SitesPage })));
+const SocialPage = lazy(() => import('@/modules/social/social-page').then((m) => ({ default: m.SocialPage })));
 
 function LoadingFallback() {
   return (
@@ -126,6 +137,17 @@ function AuthenticatedLayout() {
     whiteboard: <WhiteboardPage />,
     stream: <StreamPage />,
     workflows: <WorkflowsPage />,
+    documents: <DocumentsPage />,
+    spreadsheets: <SpreadsheetsPage />,
+    presentations: <PresentationsPage />,
+    pdf: <PdfPage />,
+    diagrams: <DiagramsPage />,
+    analytics: <AnalyticsPage />,
+    todo: <TodoPage />,
+    'video-editor': <VideoEditorPage />,
+    designer: <DesignerPage />,
+    sites: <SitesPage />,
+    social: <SocialPage />,
   };
 
   return (

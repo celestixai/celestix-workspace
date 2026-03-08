@@ -267,6 +267,12 @@ export class DashboardService {
       { id: 'new-whiteboard', label: 'New Whiteboard', module: 'whiteboard', icon: 'pen-tool' },
       { id: 'upload-file', label: 'Upload File', module: 'files', icon: 'upload' },
       { id: 'new-workflow', label: 'Create Workflow', module: 'workflows', icon: 'workflow' },
+      { id: 'new-document', label: 'New Document', module: 'documents', icon: 'file-type' },
+      { id: 'new-spreadsheet', label: 'New Spreadsheet', module: 'spreadsheets', icon: 'sheet' },
+      { id: 'new-presentation', label: 'New Presentation', module: 'presentations', icon: 'presentation' },
+      { id: 'new-diagram', label: 'New Diagram', module: 'diagrams', icon: 'git-fork' },
+      { id: 'new-design', label: 'New Design', module: 'designer', icon: 'palette' },
+      { id: 'new-todo', label: 'Add To Do', module: 'todo', icon: 'list-todo' },
     ];
   }
 
@@ -286,6 +292,12 @@ export class DashboardService {
       pendingAppointments,
       formResponses,
       activeWorkflows,
+      totalDocuments,
+      totalSpreadsheets,
+      totalPresentations,
+      pendingTodos,
+      totalDesigns,
+      totalDiagrams,
     ] = await Promise.all([
       prisma.email.count({ where: { userId, folder: 'INBOX', isRead: false, deletedAt: null } }),
       prisma.task.count({ where: { assignees: { some: { userId } }, status: { not: 'DONE' }, deletedAt: null } }),
@@ -297,6 +309,12 @@ export class DashboardService {
       prisma.appointment.count({ where: { bookingPage: { userId }, status: 'PENDING' } }),
       prisma.formResponse.count({ where: { form: { userId } } }),
       prisma.workflow.count({ where: { userId, isActive: true } }),
+      prisma.document.count({ where: { userId } }),
+      prisma.spreadsheet.count({ where: { userId } }),
+      prisma.presentation.count({ where: { userId } }),
+      prisma.todoItem.count({ where: { userId, isCompleted: false } }),
+      prisma.design.count({ where: { userId } }),
+      prisma.diagram.count({ where: { userId } }),
     ]);
 
     return {
@@ -310,6 +328,12 @@ export class DashboardService {
       pendingAppointments,
       formResponses,
       activeWorkflows,
+      totalDocuments,
+      totalSpreadsheets,
+      totalPresentations,
+      pendingTodos,
+      totalDesigns,
+      totalDiagrams,
     };
   }
 }

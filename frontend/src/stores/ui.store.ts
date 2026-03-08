@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 type Theme = 'dark' | 'light' | 'system';
-type ActiveModule = 'dashboard' | 'messenger' | 'workspace' | 'email' | 'calendar' | 'tasks' | 'files' | 'notes' | 'contacts' | 'meetings' | 'settings' | 'forms' | 'lists' | 'bookings' | 'loop' | 'whiteboard' | 'stream' | 'workflows';
+type ActiveModule = 'dashboard' | 'messenger' | 'workspace' | 'email' | 'calendar' | 'tasks' | 'files' | 'notes' | 'contacts' | 'meetings' | 'settings' | 'forms' | 'lists' | 'bookings' | 'loop' | 'whiteboard' | 'stream' | 'workflows' | 'documents' | 'spreadsheets' | 'presentations' | 'pdf' | 'diagrams' | 'analytics' | 'todo' | 'video-editor' | 'designer' | 'sites' | 'social';
 
 interface UIState {
   theme: Theme;

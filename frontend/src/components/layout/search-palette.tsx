@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, MessageCircle, Mail, FileText, Users, CheckSquare, CalendarDays, Hash, X, ClipboardList, Table2, CalendarClock, PenTool, PlayCircle, Workflow } from 'lucide-react';
+import { Search, MessageCircle, Mail, FileText, Users, CheckSquare, CalendarDays, Hash, X, ClipboardList, Table2, CalendarClock, PenTool, PlayCircle, Workflow, FileType, Sheet, Presentation, GitFork, ListTodo, Palette, Globe, Heart, BarChart3 } from 'lucide-react';
 import { useUIStore } from '@/stores/ui.store';
 import { api } from '@/lib/api';
 import { cn, formatRelativeTime } from '@/lib/utils';
@@ -20,6 +20,15 @@ const categoryIcons: Record<string, React.ReactNode> = {
   video: <PlayCircle size={14} />,
   whiteboard: <PenTool size={14} />,
   workflow: <Workflow size={14} />,
+  document: <FileType size={14} />,
+  spreadsheet: <Sheet size={14} />,
+  presentation: <Presentation size={14} />,
+  diagram: <GitFork size={14} />,
+  todo: <ListTodo size={14} />,
+  design: <Palette size={14} />,
+  site: <Globe size={14} />,
+  social_post: <Heart size={14} />,
+  report: <BarChart3 size={14} />,
 };
 
 interface SearchResult {

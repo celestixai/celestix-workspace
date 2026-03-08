@@ -44,6 +44,17 @@ import loopRoutes from './modules/loop/loop.routes';
 import whiteboardRoutes from './modules/whiteboard/whiteboard.routes';
 import streamRoutes from './modules/stream/stream.routes';
 import workflowsRoutes from './modules/workflows/workflows.routes';
+import documentsRoutes from './modules/documents/documents.routes';
+import spreadsheetsRoutes from './modules/spreadsheets/spreadsheets.routes';
+import presentationsRoutes from './modules/presentations/presentations.routes';
+import pdfRoutes from './modules/pdf/pdf.routes';
+import diagramsRoutes from './modules/diagrams/diagrams.routes';
+import analyticsRoutes from './modules/analytics/analytics.routes';
+import todoRoutes from './modules/todo/todo.routes';
+import videoEditorRoutes from './modules/video-editor/video-editor.routes';
+import designerRoutes from './modules/designer/designer.routes';
+import sitesRoutes from './modules/sites/sites.routes';
+import socialRoutes from './modules/social/social.routes';
 
 const app = express();
 const server = createServer(app);
@@ -116,6 +127,17 @@ app.use('/api/v1/loop', loopRoutes);
 app.use('/api/v1/whiteboard', whiteboardRoutes);
 app.use('/api/v1/stream', streamRoutes);
 app.use('/api/v1/workflows', workflowsRoutes);
+app.use('/api/v1/documents', documentsRoutes);
+app.use('/api/v1/spreadsheets', spreadsheetsRoutes);
+app.use('/api/v1/presentations', presentationsRoutes);
+app.use('/api/v1/pdf', pdfRoutes);
+app.use('/api/v1/diagrams', diagramsRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/todo', todoRoutes);
+app.use('/api/v1/video-editor', videoEditorRoutes);
+app.use('/api/v1/designer', designerRoutes);
+app.use('/api/v1/sites', sitesRoutes);
+app.use('/api/v1/social', socialRoutes);
 
 // Error handling
 app.use(notFoundHandler);

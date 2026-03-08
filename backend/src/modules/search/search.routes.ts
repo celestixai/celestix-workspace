@@ -413,6 +413,164 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     );
   }
 
+  // Documents
+  if (!category || category === 'documents') {
+    searches.push(
+      prisma.document.findMany({
+        where: { userId, title: { contains: query, mode: 'insensitive' } },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((docs) =>
+        docs.forEach((d) =>
+          results.push({
+            type: 'document', id: d.id, title: d.title,
+            preview: `${d.wordCount} words`,
+            module: 'documents', timestamp: d.updatedAt, link: `/documents/${d.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Spreadsheets
+  if (!category || category === 'spreadsheets') {
+    searches.push(
+      prisma.spreadsheet.findMany({
+        where: { userId, title: { contains: query, mode: 'insensitive' } },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((sheets) =>
+        sheets.forEach((s) =>
+          results.push({
+            type: 'spreadsheet', id: s.id, title: s.title,
+            module: 'spreadsheets', timestamp: s.updatedAt, link: `/spreadsheets/${s.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Presentations
+  if (!category || category === 'presentations') {
+    searches.push(
+      prisma.presentation.findMany({
+        where: { userId, title: { contains: query, mode: 'insensitive' } },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((pres) =>
+        pres.forEach((p) =>
+          results.push({
+            type: 'presentation', id: p.id, title: p.title,
+            preview: `${p.theme} theme`,
+            module: 'presentations', timestamp: p.updatedAt, link: `/presentations/${p.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Diagrams
+  if (!category || category === 'diagrams') {
+    searches.push(
+      prisma.diagram.findMany({
+        where: { userId, title: { contains: query, mode: 'insensitive' } },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((diags) =>
+        diags.forEach((d) =>
+          results.push({
+            type: 'diagram', id: d.id, title: d.title,
+            preview: d.type,
+            module: 'diagrams', timestamp: d.updatedAt, link: `/diagrams/${d.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // To Do items
+  if (!category || category === 'todo') {
+    searches.push(
+      prisma.todoItem.findMany({
+        where: { userId, title: { contains: query, mode: 'insensitive' } },
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { list: { select: { name: true } } },
+      }).then((items) =>
+        items.forEach((t) =>
+          results.push({
+            type: 'todo', id: t.id, title: t.title,
+            preview: t.list.name,
+            module: 'todo', timestamp: t.createdAt, link: `/todo/${t.listId}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Designs
+  if (!category || category === 'designs') {
+    searches.push(
+      prisma.design.findMany({
+        where: { userId, title: { contains: query, mode: 'insensitive' } },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((designs) =>
+        designs.forEach((d) =>
+          results.push({
+            type: 'design', id: d.id, title: d.title,
+            module: 'designer', timestamp: d.updatedAt, link: `/designer/${d.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Sites
+  if (!category || category === 'sites') {
+    searches.push(
+      prisma.site.findMany({
+        where: { createdBy: userId, name: { contains: query, mode: 'insensitive' } },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((sites) =>
+        sites.forEach((s) =>
+          results.push({
+            type: 'site', id: s.id, title: s.name,
+            preview: s.description || undefined,
+            module: 'sites', timestamp: s.updatedAt, link: `/sites/${s.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Social posts
+  if (!category || category === 'social') {
+    searches.push(
+      prisma.socialPost.findMany({
+        where: {
+          community: { members: { some: { userId } } },
+          OR: [
+            { title: { contains: query, mode: 'insensitive' } },
+            { bodyHtml: { contains: query, mode: 'insensitive' } },
+          ],
+        },
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { community: { select: { name: true } } },
+      }).then((posts) =>
+        posts.forEach((p) =>
+          results.push({
+            type: 'social_post', id: p.id, title: p.title || 'Post',
+            preview: p.community.name,
+            module: 'social', timestamp: p.createdAt, link: `/social/${p.communityId}`,
+          })
+        )
+      )
+    );
+  }
+
   await Promise.all(searches);
 
   // Sort by timestamp (most recent first)

@@ -17,6 +17,17 @@ import {
   PenTool,
   PlayCircle,
   Workflow,
+  FileType,
+  Sheet,
+  Presentation,
+  FileSearch,
+  GitFork,
+  BarChart3,
+  ListTodo,
+  Film,
+  Palette,
+  Globe,
+  Heart,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/ui.store';
@@ -44,6 +55,17 @@ const navItems = [
   { id: 'whiteboard' as const, icon: PenTool, label: 'Whiteboard' },
   { id: 'stream' as const, icon: PlayCircle, label: 'Stream' },
   { id: 'workflows' as const, icon: Workflow, label: 'Workflows' },
+  { id: 'documents' as const, icon: FileType, label: 'Docs' },
+  { id: 'spreadsheets' as const, icon: Sheet, label: 'Sheets' },
+  { id: 'presentations' as const, icon: Presentation, label: 'Slides' },
+  { id: 'pdf' as const, icon: FileSearch, label: 'PDF' },
+  { id: 'diagrams' as const, icon: GitFork, label: 'Diagrams' },
+  { id: 'analytics' as const, icon: BarChart3, label: 'Analytics' },
+  { id: 'todo' as const, icon: ListTodo, label: 'To Do' },
+  { id: 'video-editor' as const, icon: Film, label: 'Editor' },
+  { id: 'designer' as const, icon: Palette, label: 'Designer' },
+  { id: 'sites' as const, icon: Globe, label: 'Sites' },
+  { id: 'social' as const, icon: Heart, label: 'Social' },
 ];
 
 export function NavRail() {

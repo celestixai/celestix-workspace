@@ -3,6 +3,8 @@ import {
   LayoutDashboard, MessageCircle, Hash, Mail, CalendarDays, CheckSquare,
   FolderOpen, FileText, Users, Video, ClipboardList, Table2, CalendarClock,
   Puzzle, PenTool, PlayCircle, Workflow, Settings, Grid3x3, X,
+  FileType, Sheet, Presentation, FileSearch, GitFork, BarChart3,
+  ListTodo, Film, Palette, Globe, Heart,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/ui.store';
@@ -25,6 +27,17 @@ const apps = [
   { id: 'whiteboard' as const, icon: PenTool, label: 'Whiteboard', color: 'text-accent-emerald' },
   { id: 'stream' as const, icon: PlayCircle, label: 'Stream', color: 'text-accent-red' },
   { id: 'workflows' as const, icon: Workflow, label: 'Workflows', color: 'text-accent-amber' },
+  { id: 'documents' as const, icon: FileType, label: 'Documents', color: 'text-accent-blue' },
+  { id: 'spreadsheets' as const, icon: Sheet, label: 'Sheets', color: 'text-accent-emerald' },
+  { id: 'presentations' as const, icon: Presentation, label: 'Slides', color: 'text-accent-amber' },
+  { id: 'pdf' as const, icon: FileSearch, label: 'PDF Tools', color: 'text-accent-red' },
+  { id: 'diagrams' as const, icon: GitFork, label: 'Diagrams', color: 'text-accent-violet' },
+  { id: 'analytics' as const, icon: BarChart3, label: 'Analytics', color: 'text-accent-cyan' },
+  { id: 'todo' as const, icon: ListTodo, label: 'To Do', color: 'text-accent-blue' },
+  { id: 'video-editor' as const, icon: Film, label: 'Video Editor', color: 'text-accent-violet' },
+  { id: 'designer' as const, icon: Palette, label: 'Designer', color: 'text-accent-amber' },
+  { id: 'sites' as const, icon: Globe, label: 'Sites', color: 'text-accent-emerald' },
+  { id: 'social' as const, icon: Heart, label: 'Social', color: 'text-accent-red' },
   { id: 'settings' as const, icon: Settings, label: 'Settings', color: 'text-text-secondary' },
 ];
 

@@ -131,6 +131,17 @@ enum AuditAction {
   WORKFLOW_EXECUTED
   LIST_CREATED
   VIDEO_UPLOADED
+  DOCUMENT_SHARED
+  DOCUMENT_COMMENT
+  SPREADSHEET_SHARED
+  PRESENTATION_SHARED
+  TODO_REMINDER
+  TODO_ASSIGNED
+  SOCIAL_POST_REPLY
+  SOCIAL_PRAISE
+  SOCIAL_MENTION
+  NEWS_PUBLISHED
+  SITE_UPDATE
 }
 
 // ==========================================
@@ -209,6 +220,27 @@ model User {
   videoComments     VideoComment[]
   workflows         Workflow[]
   dashboardLayout   DashboardLayout?
+  // Additional #2 relations
+  documents         Document[]
+  docComments       DocumentComment[]
+  docCollaborators  DocumentCollaborator[]
+  spreadsheets      Spreadsheet[]
+  presentations     Presentation[]
+  pdfAnnotations    PdfAnnotation[]
+  diagrams          Diagram[]
+  analyticsReports  AnalyticsReport[]
+  dataSources       DataSource[]
+  todoLists         TodoList[]
+  todoItems         TodoItem[]
+  videoProjects     VideoProject[]
+  designs           Design[]
+  sites             Site[]
+  sitePages         SitePage[]        @relation("SitePageCreator")
+  newsPosts         NewsPost[]
+  newsComments      NewsComment[]
+  communities       CommunityMember[]
+  socialPosts       SocialPost[]
+  socialComments    SocialComment[]
 
   @@map("users")
 }
@@ -1952,4 +1984,525 @@ model TaskCustomField {
 
   @@index([projectId])
   @@map("task_custom_fields")
+}
+
+// ==========================================
+// MODULE 19: DOCUMENTS (Word)
+// ==========================================
+
+model Document {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  title         String   @default("Untitled Document")
+  contentJson   Json?    @map("content_json")
+  contentHtml   String?  @map("content_html")
+  fileId        String?  @map("file_id") @db.Uuid
+  templateId    String?  @map("template_id")
+  wordCount     Int      @default(0) @map("word_count")
+  isPublic      Boolean  @default(false) @map("is_public")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user          User                  @relation(fields: [userId], references: [id])
+  versions      DocumentVersion[]
+  comments      DocumentComment[]
+  collaborators DocumentCollaborator[]
+
+  @@index([userId])
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id          String   @id @default(uuid()) @db.Uuid
+  documentId  String   @map("document_id") @db.Uuid
+  contentJson Json     @map("content_json")
+  version     Int
+  comment     String?
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("document_versions")
+}
+
+model DocumentComment {
+  id             String   @id @default(uuid()) @db.Uuid
+  documentId     String   @map("document_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  text           String
+  selectionFrom  Int?     @map("selection_from")
+  selectionTo    Int?     @map("selection_to")
+  resolved       Boolean  @default(false)
+  parentId       String?  @map("parent_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  document       Document          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user           User              @relation(fields: [userId], references: [id])
+  parent         DocumentComment?  @relation("DocCommentThread", fields: [parentId], references: [id])
+  replies        DocumentComment[] @relation("DocCommentThread")
+
+  @@index([documentId])
+  @@map("document_comments")
+}
+
+model DocumentCollaborator {
+  id         String   @id @default(uuid()) @db.Uuid
+  documentId String   @map("document_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  permission String   @default("edit") // view, comment, edit
+  cursorPos  Json?    @map("cursor_pos")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([documentId, userId])
+  @@map("document_collaborators")
+}
+
+// ==========================================
+// MODULE 20: SPREADSHEETS (Excel)
+// ==========================================
+
+model Spreadsheet {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  title     String   @default("Untitled Spreadsheet")
+  data      Json     @default("{\"sheets\":[{\"name\":\"Sheet1\",\"cells\":{},\"merges\":[],\"columnWidths\":{},\"rowHeights\":{}}]}")
+  fileId    String?  @map("file_id") @db.Uuid
+  isPublic  Boolean  @default(false) @map("is_public")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("spreadsheets")
+}
+
+// ==========================================
+// MODULE 21: PRESENTATIONS (PowerPoint)
+// ==========================================
+
+model Presentation {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  title     String   @default("Untitled Presentation")
+  theme     String   @default("default")
+  slideSize String   @default("16:9") @map("slide_size")
+  slides    Json     @default("[]")
+  fileId    String?  @map("file_id") @db.Uuid
+  isPublic  Boolean  @default(false) @map("is_public")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("presentations")
+}
+
+// ==========================================
+// MODULE 22: PDF VIEWER & TOOLS
+// ==========================================
+
+model PdfAnnotation {
+  id         String   @id @default(uuid()) @db.Uuid
+  fileId     String   @map("file_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  pageNumber Int      @map("page_number")
+  type       String   // highlight, underline, strikethrough, note, drawing, textbox, shape, signature
+  data       Json     // position, content, color, etc.
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([fileId, pageNumber])
+  @@map("pdf_annotations")
+}
+
+// ==========================================
+// MODULE 23: DIAGRAMS (Visio)
+// ==========================================
+
+enum DiagramType {
+  FLOWCHART
+  ORGCHART
+  MINDMAP
+  UML
+  NETWORK
+  ER_DIAGRAM
+  BPMN
+  WIREFRAME
+  BLANK
+}
+
+model Diagram {
+  id         String      @id @default(uuid()) @db.Uuid
+  userId     String      @map("user_id") @db.Uuid
+  title      String      @default("Untitled Diagram")
+  type       DiagramType @default(BLANK)
+  canvasData Json        @default("{\"shapes\":[],\"connectors\":[],\"layers\":[],\"viewport\":{\"x\":0,\"y\":0,\"zoom\":1}}") @map("canvas_data")
+  templateId String?     @map("template_id")
+  isPublic   Boolean     @default(false) @map("is_public")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  user       User        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("diagrams")
+}
+
+// ==========================================
+// MODULE 24: ANALYTICS DASHBOARD (Power BI)
+// ==========================================
+
+model AnalyticsReport {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  title          String   @default("Untitled Report")
+  pages          Json     @default("[]")
+  dataSourceId   String?  @map("data_source_id") @db.Uuid
+  filters        Json?
+  theme          String   @default("default")
+  refreshSchedule String? @map("refresh_schedule")
+  isPublic       Boolean  @default(false) @map("is_public")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user           User        @relation(fields: [userId], references: [id])
+  dataSource     DataSource? @relation(fields: [dataSourceId], references: [id])
+
+  @@index([userId])
+  @@map("analytics_reports")
+}
+
+model DataSource {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  name          String
+  type          String   // csv, spreadsheet, list, form, api
+  config        Json     // file_id, spreadsheet_id, list_id, form_id, api_url
+  cachedData    Json?    @map("cached_data")
+  lastRefreshed DateTime? @map("last_refreshed")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user          User              @relation(fields: [userId], references: [id])
+  reports       AnalyticsReport[]
+
+  @@index([userId])
+  @@map("data_sources")
+}
+
+// ==========================================
+// MODULE 25: PERSONAL TO DO
+// ==========================================
+
+model TodoList {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  name      String
+  color     String   @default("#4F8EF7")
+  icon      String?
+  isSmart   Boolean  @default(false) @map("is_smart")
+  smartType String?  @map("smart_type") // myday, important, planned, assigned, completed
+  position  Int      @default(0)
+  sharedWith Json?   @map("shared_with") // array of user ids
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User       @relation(fields: [userId], references: [id])
+  items     TodoItem[]
+
+  @@index([userId])
+  @@map("todo_lists")
+}
+
+model TodoItem {
+  id          String    @id @default(uuid()) @db.Uuid
+  listId      String    @map("list_id") @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  title       String
+  notes       String?
+  dueDate     DateTime? @map("due_date")
+  reminderAt  DateTime? @map("reminder_at")
+  repeatRule  String?   @map("repeat_rule")
+  isImportant Boolean   @default(false) @map("is_important")
+  isMyDay     Boolean   @default(false) @map("is_my_day")
+  isCompleted Boolean   @default(false) @map("is_completed")
+  completedAt DateTime? @map("completed_at")
+  position    Int       @default(0)
+  sourceType  String?   @map("source_type") // manual, email, project_task
+  sourceId    String?   @map("source_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  list        TodoList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+  user        User       @relation(fields: [userId], references: [id])
+  steps       TodoStep[]
+
+  @@index([listId])
+  @@index([userId])
+  @@map("todo_items")
+}
+
+model TodoStep {
+  id          String  @id @default(uuid()) @db.Uuid
+  todoItemId  String  @map("todo_item_id") @db.Uuid
+  title       String
+  isCompleted Boolean @default(false) @map("is_completed")
+  position    Int     @default(0)
+
+  todoItem    TodoItem @relation(fields: [todoItemId], references: [id], onDelete: Cascade)
+
+  @@index([todoItemId])
+  @@map("todo_steps")
+}
+
+// ==========================================
+// MODULE 26: VIDEO EDITOR (Clipchamp)
+// ==========================================
+
+model VideoProject {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  title       String   @default("Untitled Project")
+  timeline    Json     @default("{\"tracks\":[],\"duration\":0}") // tracks, clips, transitions
+  aspectRatio String   @default("16:9") @map("aspect_ratio")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User          @relation(fields: [userId], references: [id])
+  exportJobs  ExportJob[]
+
+  @@index([userId])
+  @@map("video_projects")
+}
+
+model ExportJob {
+  id          String    @id @default(uuid()) @db.Uuid
+  projectId   String    @map("project_id") @db.Uuid
+  status      String    @default("queued") // queued, processing, done, failed
+  outputPath  String?   @map("output_path")
+  resolution  String    @default("1080p")
+  format      String    @default("mp4")
+  error       String?
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  project     VideoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("export_jobs")
+}
+
+// ==========================================
+// MODULE 27: GRAPHIC DESIGNER
+// ==========================================
+
+model Design {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  title       String   @default("Untitled Design")
+  canvasSize  Json     @default("{\"width\":1080,\"height\":1080}") @map("canvas_size")
+  elements    Json     @default("[]")
+  templateId  String?  @map("template_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("designs")
+}
+
+// ==========================================
+// MODULE 28: INTRANET / SITES (SharePoint)
+// ==========================================
+
+enum SiteType {
+  TEAM
+  COMMUNICATION
+}
+
+model Site {
+  id          String   @id @default(uuid()) @db.Uuid
+  workspaceId String?  @map("workspace_id") @db.Uuid
+  type        SiteType @default(TEAM)
+  name        String
+  description String?
+  logoPath    String?  @map("logo_path")
+  theme       Json     @default("{\"primaryColor\":\"#4F8EF7\",\"font\":\"Inter\"}")
+  navigation  Json     @default("[]")
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  creator     User       @relation(fields: [createdBy], references: [id])
+  pages       SitePage[]
+  newsPosts   NewsPost[]
+
+  @@index([createdBy])
+  @@map("sites")
+}
+
+model SitePage {
+  id          String   @id @default(uuid()) @db.Uuid
+  siteId      String   @map("site_id") @db.Uuid
+  title       String
+  slug        String
+  sections    Json     @default("[]") // layout with web parts
+  isPublished Boolean  @default(false) @map("is_published")
+  isHomepage  Boolean  @default(false) @map("is_homepage")
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  creator     User     @relation("SitePageCreator", fields: [createdBy], references: [id])
+
+  @@unique([siteId, slug])
+  @@map("site_pages")
+}
+
+model NewsPost {
+  id          String    @id @default(uuid()) @db.Uuid
+  siteId      String    @map("site_id") @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  title       String
+  coverImage  String?   @map("cover_image")
+  bodyHtml    String    @map("body_html")
+  isPinned    Boolean   @default(false) @map("is_pinned")
+  categories  Json      @default("[]")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  site        Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  author      User          @relation(fields: [userId], references: [id])
+  comments    NewsComment[]
+
+  @@index([siteId])
+  @@map("news_posts")
+}
+
+model NewsComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post      NewsPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([postId])
+  @@map("news_comments")
+}
+
+// ==========================================
+// MODULE 29: SOCIAL FEED (Viva Engage)
+// ==========================================
+
+model Community {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  coverImage  String?  @map("cover_image")
+  isOfficial  Boolean  @default(false) @map("is_official")
+  isPrivate   Boolean  @default(false) @map("is_private")
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  members     CommunityMember[]
+  posts       SocialPost[]
+
+  @@map("communities")
+}
+
+model CommunityMember {
+  id          String   @id @default(uuid()) @db.Uuid
+  communityId String   @map("community_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  role        String   @default("member") // admin, member
+  joinedAt    DateTime @default(now()) @map("joined_at")
+
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@unique([communityId, userId])
+  @@map("community_members")
+}
+
+enum SocialPostType {
+  DISCUSSION
+  QUESTION
+  POLL
+  PRAISE
+  ANNOUNCEMENT
+  EVENT
+}
+
+model SocialPost {
+  id              String         @id @default(uuid()) @db.Uuid
+  communityId     String         @map("community_id") @db.Uuid
+  userId          String         @map("user_id") @db.Uuid
+  type            SocialPostType @default(DISCUSSION)
+  title           String?
+  bodyHtml        String?        @map("body_html")
+  images          Json           @default("[]")
+  pollOptions     Json?          @map("poll_options")
+  pollExpiresAt   DateTime?      @map("poll_expires_at")
+  praiseUserId    String?        @map("praise_user_id") @db.Uuid
+  praiseBadge     String?        @map("praise_badge")
+  eventDate       DateTime?      @map("event_date")
+  isPinned        Boolean        @default(false) @map("is_pinned")
+  bestAnswerId    String?        @map("best_answer_id") @db.Uuid
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  community       Community       @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user            User            @relation(fields: [userId], references: [id])
+  comments        SocialComment[]
+  reactions       SocialReaction[]
+
+  @@index([communityId])
+  @@index([userId])
+  @@map("social_posts")
+}
+
+model SocialComment {
+  id            String   @id @default(uuid()) @db.Uuid
+  postId        String   @map("post_id") @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  body          String
+  parentId      String?  @map("parent_id") @db.Uuid
+  isBestAnswer  Boolean  @default(false) @map("is_best_answer")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  post          SocialPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [userId], references: [id])
+  parent        SocialComment?  @relation("SocialCommentThread", fields: [parentId], references: [id])
+  replies       SocialComment[] @relation("SocialCommentThread")
+
+  @@index([postId])
+  @@map("social_comments")
+}
+
+model SocialReaction {
+  id     String @id @default(uuid()) @db.Uuid
+  postId String @map("post_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  type   String // like, love, celebrate, insightful, curious
+
+  post   SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("social_reactions")
 }
