@@ -18,10 +18,14 @@ import type { MessageData } from './message-bubble';
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
+interface Attachment {
+  file: File;
+  preview?: string;
+}
+
 interface MessageInputProps {
-  onSend: (content: string, replyToId?: string) => void;
+  onSend: (content: string, replyToId?: string, attachments?: File[]) => void;
   onTyping: () => void;
-  onAttach: () => void;
   replyTo: MessageData | null;
   editingMessage: MessageData | null;
   onCancelReply: () => void;
@@ -60,7 +64,6 @@ const EMOJI_SECTIONS: { label: string; emojis: string[] }[] = [
 export function MessageInput({
   onSend,
   onTyping,
-  onAttach,
   replyTo,
   editingMessage,
   onCancelReply,
@@ -71,7 +74,9 @@ export function MessageInput({
   const [text, setText] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
   const [showFormatting, setShowFormatting] = useState(false);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* Pre-fill when editing */
@@ -99,21 +104,41 @@ export function MessageInput({
 
   const handleSend = useCallback(() => {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed && attachments.length === 0) return;
 
     if (editingMessage) {
       onSaveEdit(editingMessage.id, trimmed);
       onCancelEdit();
     } else {
-      onSend(trimmed, replyTo?.id);
+      onSend(trimmed || (attachments.length > 0 ? `📎 ${attachments.length} file(s)` : ''), replyTo?.id, attachments.map((a) => a.file));
       if (replyTo) onCancelReply();
     }
 
     setText('');
+    setAttachments([]);
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
-  }, [text, editingMessage, replyTo, onSend, onSaveEdit, onCancelEdit, onCancelReply]);
+  }, [text, attachments, editingMessage, replyTo, onSend, onSaveEdit, onCancelEdit, onCancelReply]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const newAttachments: Attachment[] = Array.from(files).map((file) => {
+      const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined;
+      return { file, preview };
+    });
+    setAttachments((prev) => [...prev, ...newAttachments]);
+    e.target.value = '';
+  }, []);
+
+  const removeAttachment = useCallback((index: number) => {
+    setAttachments((prev) => {
+      const removed = prev[index];
+      if (removed?.preview) URL.revokeObjectURL(removed.preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -228,20 +253,52 @@ export function MessageInput({
         </div>
       )}
 
-      {/* Input row */}
-      <div className="flex items-end gap-2 px-3 py-2">
-        {/* Attach */}
-        <button
-          onClick={onAttach}
-          disabled={disabled}
-          className="p-2 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-secondary transition-colors disabled:opacity-40 flex-shrink-0 focus-visible:outline-2 focus-visible:outline-accent-blue"
-          aria-label="Attach file"
-        >
-          <Paperclip size={18} />
-        </button>
+      {/* Attachment previews */}
+      {attachments.length > 0 && (
+        <div className="flex gap-2 px-4 py-2 overflow-x-auto border-b border-border-primary">
+          {attachments.map((att, i) => (
+            <div key={i} className="relative flex-shrink-0 group/att">
+              {att.preview ? (
+                <img src={att.preview} alt={att.file.name} className="h-16 w-16 object-cover rounded-lg border border-border-secondary" />
+              ) : (
+                <div className="h-16 w-16 rounded-lg border border-border-secondary bg-bg-tertiary flex flex-col items-center justify-center">
+                  <Paperclip size={16} className="text-text-tertiary" />
+                  <span className="text-[9px] text-text-tertiary mt-0.5 truncate max-w-[56px]">{att.file.name.split('.').pop()}</span>
+                </div>
+              )}
+              <button
+                onClick={() => removeAttachment(i)}
+                className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-accent-red text-white flex items-center justify-center opacity-0 group-hover/att:opacity-100 transition-opacity"
+              >
+                <X size={10} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
-        {/* Textarea wrapper */}
-        <div className="flex-1 relative">
+      {/* Input row — buttons level with message box */}
+      <div className="flex items-end gap-1.5 px-3 py-2">
+        {/* Message box with inline buttons */}
+        <div className="flex-1 flex items-end bg-bg-tertiary border border-border-secondary rounded-xl focus-within:border-accent-blue focus-within:ring-1 focus-within:ring-accent-blue/30 transition-all duration-150">
+          {/* Attach button - inside box, left side */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={disabled}
+            className="p-2.5 text-text-tertiary hover:text-text-secondary transition-colors disabled:opacity-40 flex-shrink-0"
+            aria-label="Attach file"
+          >
+            <Paperclip size={20} />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+
+          {/* Textarea */}
           <textarea
             ref={textareaRef}
             value={text}
@@ -254,85 +311,84 @@ export function MessageInput({
             disabled={disabled}
             rows={1}
             className={cn(
-              'w-full resize-none rounded-lg bg-bg-tertiary border border-border-secondary px-3 py-2 text-sm text-text-primary',
+              'flex-1 resize-none bg-transparent py-2.5 text-sm text-text-primary',
               'placeholder:text-text-tertiary',
-              'focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 focus:outline-none',
-              'transition-all duration-150 ease-out',
+              'focus:outline-none',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               'leading-[22px]',
             )}
           />
-        </div>
 
-        {/* Formatting toggle */}
-        <button
-          onClick={() => setShowFormatting(!showFormatting)}
-          className={cn(
-            'p-2 rounded-lg transition-colors flex-shrink-0 focus-visible:outline-2 focus-visible:outline-accent-blue',
-            showFormatting
-              ? 'bg-accent-blue/10 text-accent-blue'
-              : 'hover:bg-bg-hover text-text-tertiary hover:text-text-secondary',
-          )}
-          aria-label="Formatting"
-          aria-pressed={showFormatting}
-        >
-          <Bold size={18} />
-        </button>
-
-        {/* Emoji */}
-        <div className="relative flex-shrink-0">
+          {/* Formatting toggle - inside box */}
           <button
-            onClick={() => setShowEmoji(!showEmoji)}
+            onClick={() => setShowFormatting(!showFormatting)}
             className={cn(
-              'p-2 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue',
-              showEmoji
-                ? 'bg-accent-blue/10 text-accent-blue'
-                : 'hover:bg-bg-hover text-text-tertiary hover:text-text-secondary',
+              'p-2.5 transition-colors flex-shrink-0',
+              showFormatting
+                ? 'text-accent-blue'
+                : 'text-text-tertiary hover:text-text-secondary',
             )}
-            aria-label="Emoji"
-            aria-pressed={showEmoji}
+            aria-label="Formatting"
+            aria-pressed={showFormatting}
           >
-            <Smile size={18} />
+            <Bold size={20} />
           </button>
 
-          {/* Emoji picker */}
-          {showEmoji && (
-            <>
-              <div className="fixed inset-0 z-30" onClick={() => setShowEmoji(false)} />
-              <div className="absolute bottom-12 right-0 z-40 w-[min(320px,calc(100vw-2rem))] bg-bg-secondary border border-border-secondary rounded-xl shadow-lg p-3 animate-scale-in max-h-[50vh] overflow-y-auto">
-                {EMOJI_SECTIONS.map((section) => (
-                  <div key={section.label} className="mb-2">
-                    <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">
-                      {section.label}
-                    </p>
-                    <div className="grid grid-cols-8 gap-0.5">
-                      {section.emojis.map((emoji) => (
-                        <button
-                          key={emoji}
-                          onClick={() => insertEmoji(emoji)}
-                          className="p-1 rounded hover:bg-bg-hover text-base transition-colors"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
+          {/* Emoji - inside box */}
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={() => setShowEmoji(!showEmoji)}
+              className={cn(
+                'p-2.5 transition-colors',
+                showEmoji
+                  ? 'text-accent-blue'
+                  : 'text-text-tertiary hover:text-text-secondary',
+              )}
+              aria-label="Emoji"
+              aria-pressed={showEmoji}
+            >
+              <Smile size={20} />
+            </button>
+
+            {/* Emoji picker */}
+            {showEmoji && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setShowEmoji(false)} />
+                <div className="absolute bottom-12 right-0 z-40 w-[min(320px,calc(100vw-2rem))] bg-bg-secondary border border-border-secondary rounded-xl shadow-lg p-3 animate-scale-in max-h-[50vh] overflow-y-auto">
+                  {EMOJI_SECTIONS.map((section) => (
+                    <div key={section.label} className="mb-2">
+                      <p className="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider mb-1">
+                        {section.label}
+                      </p>
+                      <div className="grid grid-cols-8 gap-0.5">
+                        {section.emojis.map((emoji) => (
+                          <button
+                            key={emoji}
+                            onClick={() => insertEmoji(emoji)}
+                            className="p-1 rounded hover:bg-bg-hover text-base transition-colors"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Send */}
+        {/* Send button - outside box, level with it */}
         <Button
           size="icon"
-          variant={text.trim() ? 'primary' : 'ghost'}
+          variant={(text.trim() || attachments.length > 0) ? 'primary' : 'ghost'}
           onClick={handleSend}
-          disabled={disabled || !text.trim()}
-          className="rounded-lg flex-shrink-0"
+          disabled={disabled || (!text.trim() && attachments.length === 0)}
+          className="rounded-xl h-[44px] w-[44px] flex-shrink-0"
           title="Send"
         >
-          <Send size={18} />
+          <Send size={20} />
         </Button>
       </div>
     </div>

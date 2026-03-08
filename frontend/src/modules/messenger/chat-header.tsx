@@ -27,6 +27,7 @@ interface ChatHeaderProps {
   onToggleMute: () => void;
   onVideoCall: () => void;
   onShowPinned: () => void;
+  onClickProfile?: () => void;
   onBack?: () => void;
 }
 
@@ -40,6 +41,7 @@ export function ChatHeader({
   onToggleMute,
   onVideoCall,
   onShowPinned,
+  onClickProfile,
   onBack,
 }: ChatHeaderProps) {
   const currentUser = useAuthStore((s) => s.user);
@@ -118,20 +120,22 @@ export function ChatHeader({
         </button>
       )}
 
-      {/* Avatar */}
-      <Avatar
-        src={chat.avatarUrl}
-        name={chat.name}
-        size="sm"
-        userId={chat.dmUserId ?? undefined}
-        showStatus={chat.type === 'DM'}
-      />
+      {/* Avatar — clickable to open profile */}
+      <button onClick={onClickProfile} className="flex-shrink-0 hover:opacity-80 transition-opacity">
+        <Avatar
+          src={chat.avatarUrl}
+          name={chat.name}
+          size="sm"
+          userId={chat.dmUserId ?? undefined}
+          showStatus={chat.type === 'DM'}
+        />
+      </button>
 
-      {/* Name + subtitle */}
-      <div className="flex-1 min-w-0">
+      {/* Name + subtitle — clickable to open profile */}
+      <button onClick={onClickProfile} className="flex-1 min-w-0 text-left hover:opacity-80 transition-opacity">
         <h2 className="text-sm font-semibold text-text-primary truncate">{chat.name}</h2>
         <p className="text-xs truncate">{renderSubtitle()}</p>
-      </div>
+      </button>
 
       {/* Action buttons */}
       <div className="flex items-center gap-0.5 flex-shrink-0">

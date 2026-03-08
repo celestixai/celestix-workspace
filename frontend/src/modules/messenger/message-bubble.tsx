@@ -49,6 +49,7 @@ interface MessageBubbleProps {
   onPin: (msgId: string) => void;
   onReact: (msgId: string, emoji: string) => void;
   onForward: (msg: MessageData) => void;
+  onClickSender?: (senderId: string, senderName: string, senderAvatar?: string | null) => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -103,6 +104,7 @@ export function MessageBubble({
   onPin,
   onReact,
   onForward,
+  onClickSender,
 }: MessageBubbleProps) {
   const currentUser = useAuthStore((s) => s.user);
   const isOwn = message.senderId === currentUser?.id;
@@ -176,15 +178,20 @@ export function MessageBubble({
         )}
         ref={bubbleRef}
       >
-        {/* Avatar */}
+        {/* Avatar — clickable to open profile */}
         <div className="w-9 flex-shrink-0">
           {!isGrouped && !isOwn && (
-            <Avatar
-              src={message.senderAvatar}
-              name={message.senderName}
-              size="sm"
-              userId={message.senderId}
-            />
+            <button
+              onClick={() => onClickSender?.(message.senderId, message.senderName, message.senderAvatar)}
+              className="hover:opacity-80 transition-opacity"
+            >
+              <Avatar
+                src={message.senderAvatar}
+                name={message.senderName}
+                size="sm"
+                userId={message.senderId}
+              />
+            </button>
           )}
         </div>
 
@@ -199,11 +206,14 @@ export function MessageBubble({
           )}
           onContextMenu={handleContextMenu}
         >
-          {/* Sender name (groups, not own, not grouped) */}
+          {/* Sender name (groups, not own, not grouped) — clickable */}
           {!isOwn && !isGrouped && chatType !== 'DM' && (
-            <p className="text-xs font-semibold text-accent-blue mb-0.5">
+            <button
+              onClick={() => onClickSender?.(message.senderId, message.senderName, message.senderAvatar)}
+              className="text-xs font-semibold text-accent-blue mb-0.5 hover:underline text-left"
+            >
               {message.senderName}
-            </p>
+            </button>
           )}
 
           {/* Reply preview */}
