@@ -236,7 +236,7 @@ export function ChatView({ chatId }: ChatViewProps) {
   /* ---- Mark latest message as read when opening a chat ---- */
   useEffect(() => {
     if (!chatId || msgsLoading || messages.length === 0) return;
-    const lastMsg = messages[messages.length - 1];
+    const lastMsg = messages[0]; // newest-first order, so index 0 is the latest
     if (!lastMsg) return;
     // Socket-based read receipt
     const socket = getSocket();
