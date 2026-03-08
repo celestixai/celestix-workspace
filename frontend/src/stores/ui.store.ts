@@ -4,17 +4,27 @@ import { persist } from 'zustand/middleware';
 type Theme = 'dark' | 'light' | 'system';
 type ActiveModule = 'dashboard' | 'messenger' | 'workspace' | 'email' | 'calendar' | 'tasks' | 'files' | 'notes' | 'contacts' | 'meetings' | 'settings' | 'forms' | 'lists' | 'bookings' | 'loop' | 'whiteboard' | 'stream' | 'workflows' | 'documents' | 'spreadsheets' | 'presentations' | 'pdf' | 'diagrams' | 'analytics' | 'todo' | 'video-editor' | 'designer' | 'sites' | 'social';
 
+export interface FileToOpen {
+  fileId: string;
+  fileName: string;
+  mimeType: string;
+  downloadUrl?: string;
+}
+
 interface UIState {
   theme: Theme;
   sidebarCollapsed: boolean;
   searchOpen: boolean;
   notificationPanelOpen: boolean;
   activeModule: ActiveModule;
+  fileToOpen: FileToOpen | null;
   setTheme: (theme: Theme) => void;
   toggleSidebar: () => void;
   setSearchOpen: (open: boolean) => void;
   setNotificationPanelOpen: (open: boolean) => void;
   setActiveModule: (module: ActiveModule) => void;
+  openFileInModule: (file: FileToOpen, module: ActiveModule) => void;
+  clearFileToOpen: () => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -25,6 +35,7 @@ export const useUIStore = create<UIState>()(
       searchOpen: false,
       notificationPanelOpen: false,
       activeModule: 'messenger',
+      fileToOpen: null,
       setTheme: (theme) => {
         set({ theme });
         applyTheme(theme);
@@ -33,6 +44,8 @@ export const useUIStore = create<UIState>()(
       setSearchOpen: (searchOpen) => set({ searchOpen }),
       setNotificationPanelOpen: (notificationPanelOpen) => set({ notificationPanelOpen }),
       setActiveModule: (activeModule) => set({ activeModule }),
+      openFileInModule: (file, module) => set({ fileToOpen: file, activeModule: module }),
+      clearFileToOpen: () => set({ fileToOpen: null }),
     }),
     {
       name: 'celestix-ui',

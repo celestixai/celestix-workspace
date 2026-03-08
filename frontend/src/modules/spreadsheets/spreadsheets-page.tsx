@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useUIStore } from '@/stores/ui.store';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
@@ -342,12 +343,35 @@ export function SpreadsheetsPage() {
   const gridRef = useRef<HTMLDivElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
+  const fileToOpen = useUIStore((s) => s.fileToOpen);
+  const clearFileToOpen = useUIStore((s) => s.clearFileToOpen);
+
   // Load from API
   useEffect(() => {
     api.get('/spreadsheets').then((data: Spreadsheet[]) => {
       if (Array.isArray(data)) setSpreadsheets(data);
     }).catch(() => {});
   }, []);
+
+  // Handle file opened from Files module
+  useEffect(() => {
+    if (!fileToOpen) return;
+    const sheet: Sheet = { id: generateId(), name: 'Sheet1', cells: {}, colWidths: {} };
+    const ss: Spreadsheet = {
+      id: fileToOpen.fileId,
+      title: fileToOpen.fileName.replace(/\.\w+$/, ''),
+      sheets: [sheet],
+      activeSheetId: sheet.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setSpreadsheets((prev) => {
+      const exists = prev.find((s) => s.id === fileToOpen.fileId);
+      return exists ? prev : [ss, ...prev];
+    });
+    setActiveSpreadsheetId(fileToOpen.fileId);
+    clearFileToOpen();
+  }, [fileToOpen, clearFileToOpen]);
 
   const activeSpreadsheet = spreadsheets.find((s) => s.id === activeSpreadsheetId) ?? null;
   const activeSheet = activeSpreadsheet?.sheets.find(

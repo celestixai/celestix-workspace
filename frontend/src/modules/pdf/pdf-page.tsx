@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useUIStore } from '@/stores/ui.store';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
@@ -137,6 +138,29 @@ export function PdfPage() {
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles]);
+
+  /* -- Handle file opened from Files module -- */
+  const fileToOpen = useUIStore((s) => s.fileToOpen);
+  const clearFileToOpen = useUIStore((s) => s.clearFileToOpen);
+
+  useEffect(() => {
+    if (!fileToOpen) return;
+    const pdf: PdfFile = {
+      id: fileToOpen.fileId,
+      name: fileToOpen.fileName,
+      pageCount: 1,
+      size: 0,
+      uploadedAt: new Date().toISOString(),
+    };
+    setFiles((prev) => {
+      const exists = prev.find((f) => f.id === fileToOpen.fileId);
+      return exists ? prev : [pdf, ...prev];
+    });
+    setActiveFile(pdf);
+    setMode('viewer');
+    setCurrentPage(1);
+    clearFileToOpen();
+  }, [fileToOpen, clearFileToOpen]);
 
   /* -- Keyboard shortcuts -- */
 

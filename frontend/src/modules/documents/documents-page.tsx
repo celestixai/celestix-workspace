@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useUIStore } from '@/stores/ui.store';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
@@ -563,12 +564,37 @@ export function DocumentsPage() {
   const editorRef = useRef<HTMLDivElement>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const fileToOpen = useUIStore((s) => s.fileToOpen);
+  const clearFileToOpen = useUIStore((s) => s.clearFileToOpen);
+
   // Load documents from API
   useEffect(() => {
     api.get('/documents').then((data: Document[]) => {
       if (Array.isArray(data)) setDocuments(data);
     }).catch(() => {});
   }, []);
+
+  // Handle file opened from Files module
+  useEffect(() => {
+    if (!fileToOpen) return;
+    const doc: Document = {
+      id: fileToOpen.fileId,
+      title: fileToOpen.fileName.replace(/\.\w+$/, ''),
+      content: '<p>Loading document content...</p>',
+      wordCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      versions: [],
+      collaborators: [],
+      comments: [],
+    };
+    setDocuments((prev) => {
+      const exists = prev.find((d) => d.id === fileToOpen.fileId);
+      return exists ? prev : [doc, ...prev];
+    });
+    setActiveDocId(fileToOpen.fileId);
+    clearFileToOpen();
+  }, [fileToOpen, clearFileToOpen]);
 
   const activeDoc = documents.find((d) => d.id === activeDocId) ?? null;
 

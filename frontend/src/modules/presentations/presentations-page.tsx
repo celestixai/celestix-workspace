@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useUIStore } from '@/stores/ui.store';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
@@ -138,6 +139,32 @@ export function PresentationsPage() {
   useEffect(() => {
     fetchPresentations();
   }, [fetchPresentations]);
+
+  /* -- Handle file opened from Files module -- */
+  const fileToOpen = useUIStore((s) => s.fileToOpen);
+  const clearFileToOpen = useUIStore((s) => s.clearFileToOpen);
+
+  useEffect(() => {
+    if (!fileToOpen) return;
+    const initialSlide = makeSlide();
+    const p: PresentationData = {
+      id: fileToOpen.fileId,
+      title: fileToOpen.fileName.replace(/\.\w+$/, ''),
+      theme: 'dark',
+      slides: [initialSlide],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setPresentations((prev) => {
+      const exists = prev.find((x) => x.id === fileToOpen.fileId);
+      return exists ? prev : [p, ...prev];
+    });
+    setActive(p);
+    setSlides([initialSlide]);
+    setCurrentSlideIdx(0);
+    setMode('editor');
+    clearFileToOpen();
+  }, [fileToOpen, clearFileToOpen]);
 
   /* -- Debounced save -- */
 

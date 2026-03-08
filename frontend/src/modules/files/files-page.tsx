@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
+import { useUIStore } from '@/stores/ui.store';
 import { cn, formatFileSize, formatRelativeTime } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,7 @@ import {
   Home,
   CloudUpload,
   HardDrive,
+  ExternalLink,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -105,6 +107,7 @@ function getFileIconLarge(mimeType?: string, isFolder?: boolean) {
 export function FilesPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
+  const openFileInModule = useUIStore((s) => s.openFileInModule);
 
   const [activeSection, setActiveSection] = useState<SidebarSection>('my-files');
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
@@ -226,6 +229,50 @@ export function FilesPage() {
     setCurrentFolderId(file.id);
     setBreadcrumbs((prev) => [...prev, { id: file.id, name: file.name }]);
   }, []);
+
+  /* -- File-type module routing -- */
+
+  const getTargetModule = useCallback((file: FileItem): 'documents' | 'spreadsheets' | 'presentations' | 'pdf' | null => {
+    const name = file.name.toLowerCase();
+    const mime = file.mimeType?.toLowerCase() || '';
+
+    // Documents
+    if (name.endsWith('.docx') || name.endsWith('.doc') || name.endsWith('.odt') || name.endsWith('.rtf') ||
+        mime.includes('wordprocessingml') || mime.includes('msword') || mime.includes('opendocument.text') ||
+        (mime === 'text/plain' && !name.endsWith('.csv'))) {
+      return 'documents';
+    }
+    // Spreadsheets
+    if (name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv') || name.endsWith('.ods') ||
+        mime.includes('spreadsheetml') || mime.includes('ms-excel') || mime === 'text/csv') {
+      return 'spreadsheets';
+    }
+    // Presentations
+    if (name.endsWith('.pptx') || name.endsWith('.ppt') || name.endsWith('.odp') ||
+        mime.includes('presentationml') || mime.includes('ms-powerpoint')) {
+      return 'presentations';
+    }
+    // PDF
+    if (name.endsWith('.pdf') || mime === 'application/pdf') {
+      return 'pdf';
+    }
+
+    return null;
+  }, []);
+
+  const openFile = useCallback((file: FileItem) => {
+    if (file.type === 'FOLDER') {
+      navigateToFolder(file);
+      return;
+    }
+    const targetModule = getTargetModule(file);
+    if (targetModule) {
+      openFileInModule(
+        { fileId: file.id, fileName: file.name, mimeType: file.mimeType || '', downloadUrl: `/api/v1/files/${file.id}/download` },
+        targetModule,
+      );
+    }
+  }, [getTargetModule, navigateToFolder, openFileInModule]);
 
   const navigateToBreadcrumb = (index: number) => {
     const crumb = breadcrumbs[index];
@@ -474,7 +521,7 @@ export function FilesPage() {
                 <FileGridCard
                   key={file.id}
                   file={file}
-                  onOpen={() => file.type === 'FOLDER' && navigateToFolder(file)}
+                  onOpen={() => openFile(file)}
                   onContextMenu={(e) => handleContextMenu(e, file)}
                   onToggleStar={() =>
                     toggleStar.mutate({ id: file.id, starred: !file.isStarred })
@@ -485,7 +532,7 @@ export function FilesPage() {
           ) : (
             <FileListView
               files={sortedFiles}
-              onOpen={(file) => file.type === 'FOLDER' && navigateToFolder(file)}
+              onOpen={(file) => openFile(file)}
               onContextMenu={handleContextMenu}
               onToggleStar={(file) =>
                 toggleStar.mutate({ id: file.id, starred: !file.isStarred })
@@ -501,7 +548,12 @@ export function FilesPage() {
           x={contextMenu.x}
           y={contextMenu.y}
           file={contextMenu.file}
+          targetModule={getTargetModule(contextMenu.file)}
           onClose={() => setContextMenu(null)}
+          onOpenWith={() => {
+            openFile(contextMenu.file);
+            setContextMenu(null);
+          }}
           onRename={() => {
             setShowRename(contextMenu.file);
             setContextMenu(null);
@@ -674,11 +726,20 @@ function FileListView({
 /*  Context Menu                                                       */
 /* ------------------------------------------------------------------ */
 
+const MODULE_LABELS: Record<string, string> = {
+  documents: 'Documents',
+  spreadsheets: 'Spreadsheets',
+  presentations: 'Presentations',
+  pdf: 'PDF Viewer',
+};
+
 function ContextMenuPopup({
   x,
   y,
   file,
+  targetModule,
   onClose,
+  onOpenWith,
   onRename,
   onDelete,
   onToggleStar,
@@ -686,7 +747,9 @@ function ContextMenuPopup({
   x: number;
   y: number;
   file: FileItem;
+  targetModule: string | null;
   onClose: () => void;
+  onOpenWith: () => void;
   onRename: () => void;
   onDelete: () => void;
   onToggleStar: () => void;
@@ -702,6 +765,9 @@ function ContextMenuPopup({
   }
 
   const items: (MenuItem | Divider)[] = [
+    ...(targetModule
+      ? [{ icon: <ExternalLink size={14} />, label: `Open in ${MODULE_LABELS[targetModule] || targetModule}`, onClick: onOpenWith }]
+      : []),
     { icon: <Download size={14} />, label: 'Download', onClick: onClose },
     { icon: <Pencil size={14} />, label: 'Rename', onClick: onRename },
     {
