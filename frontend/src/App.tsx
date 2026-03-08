@@ -53,10 +53,13 @@ const SocialPage = lazy(() => import('@/modules/social/social-page').then((m) =>
 function LoadingFallback() {
   return (
     <div className="flex-1 flex items-center justify-center bg-bg-primary">
-      <div className="space-y-4 w-64">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-8 h-8 border-2 border-accent-blue/30 border-t-accent-blue rounded-full animate-spin" />
+        <div className="space-y-3 w-64">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
       </div>
     </div>
   );

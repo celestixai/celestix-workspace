@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../../config/database';
 import { authenticate } from '../../middleware/auth';
+import { cacheResponse } from '../../middleware/cache';
 
 const router = Router();
 
 // GET /api/v1/search?q=...&category=...
-router.get('/', authenticate, async (req: Request, res: Response) => {
+router.get('/', authenticate, cacheResponse(15, 'search'), async (req: Request, res: Response) => {
   const query = (req.query.q as string || '').trim();
   const category = req.query.category as string;
   const limit = parseInt(req.query.limit as string) || 10;

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { socialService } from './social.service';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
+import { cacheResponse } from '../../middleware/cache';
 import {
   createCommunitySchema,
   updateCommunitySchema,
@@ -26,7 +27,7 @@ router.get('/feed', authenticate, validate(feedQuerySchema, 'query'), async (req
 });
 
 // GET /api/v1/social/trending
-router.get('/trending', authenticate, async (_req: Request, res: Response) => {
+router.get('/trending', authenticate, cacheResponse(120, 'social-trending'), async (_req: Request, res: Response) => {
   const posts = await socialService.getTrending();
   res.json({ success: true, data: posts });
 });
