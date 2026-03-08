@@ -56,6 +56,7 @@ const storagePath = path.resolve(config.storage.path);
 fs.mkdirSync(path.join(storagePath, 'avatars'), { recursive: true });
 fs.mkdirSync(path.join(storagePath, 'users'), { recursive: true });
 fs.mkdirSync(path.join(storagePath, 'attachments'), { recursive: true });
+fs.mkdirSync(path.join(storagePath, 'videos'), { recursive: true });
 
 // Middleware
 app.use(helmet({
