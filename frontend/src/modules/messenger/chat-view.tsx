@@ -118,9 +118,9 @@ export function ChatView({ chatId }: ChatViewProps) {
     enabled: !!chatId,
   });
 
-  /* Flatten pages into a single ordered list (oldest first) */
+  /* Flatten pages — keep newest-first order for flex-col-reverse rendering */
   const messages: MessageData[] = messagesData
-    ? messagesData.pages.flatMap((p) => p.messages).reverse()
+    ? messagesData.pages.flatMap((p) => p.messages)
     : [];
 
   /* ---- Socket: join room, listen for new messages ---- */
@@ -143,9 +143,11 @@ export function ChatView({ chatId }: ChatViewProps) {
           return { ...old, pages };
         },
       );
-      // Auto-scroll if near bottom
-      if (isNearBottomRef.current) {
-        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+      // Auto-scroll if near bottom (flex-col-reverse: scrollTop 0 = bottom)
+      if (isNearBottomRef.current && scrollContainerRef.current) {
+        setTimeout(() => {
+          if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+        }, 50);
       }
       // Mark as read
       socket.emit('messenger:read', { chatId, messageId: msg.id });
@@ -224,10 +226,10 @@ export function ChatView({ chatId }: ChatViewProps) {
     };
   }, [chatId, queryClient, setTyping]);
 
-  /* ---- Scroll to bottom on initial load ---- */
+  /* ---- Scroll to bottom on initial load (flex-col-reverse starts at bottom automatically) ---- */
   useEffect(() => {
-    if (!msgsLoading && messages.length > 0) {
-      setTimeout(() => bottomRef.current?.scrollIntoView(), 50);
+    if (!msgsLoading && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0; // In flex-col-reverse, 0 = bottom
     }
   }, [msgsLoading, chatId]);
 
@@ -245,22 +247,17 @@ export function ChatView({ chatId }: ChatViewProps) {
     queryClient.invalidateQueries({ queryKey: ['messenger', 'chats'] });
   }, [chatId, msgsLoading, messages.length]);
 
-  /* ---- Track if user is near bottom ---- */
+  /* ---- Track if user is near bottom (flex-col-reverse: scrollTop 0 = bottom) ---- */
   const handleScroll = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    isNearBottomRef.current = distanceFromBottom < 100;
+    // In flex-col-reverse, scrollTop=0 is the bottom. Scrolling up makes scrollTop negative (or larger depending on browser).
+    isNearBottomRef.current = Math.abs(el.scrollTop) < 100;
 
-    // Load older messages when scrolled to top
-    if (el.scrollTop < 80 && hasNextPage && !isFetchingNextPage) {
-      const prevHeight = el.scrollHeight;
-      fetchNextPage().then(() => {
-        // Maintain scroll position after prepending older messages
-        requestAnimationFrame(() => {
-          el.scrollTop = el.scrollHeight - prevHeight;
-        });
-      });
+    // Load older messages when scrolled to top (far from bottom in flex-col-reverse)
+    const distanceFromTop = el.scrollHeight - el.clientHeight - Math.abs(el.scrollTop);
+    if (distanceFromTop < 80 && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
@@ -390,11 +387,11 @@ export function ChatView({ chatId }: ChatViewProps) {
     [editMutation],
   );
 
-  /* Helper: is same sender & within 2 min */
+  /* Helper: is same sender & within 2 min (prev = the message visually above) */
   const isGrouped = (msg: MessageData, prev: MessageData | undefined) => {
     if (!prev) return false;
     if (prev.senderId !== msg.senderId) return false;
-    const diff = new Date(msg.createdAt).getTime() - new Date(prev.createdAt).getTime();
+    const diff = Math.abs(new Date(msg.createdAt).getTime() - new Date(prev.createdAt).getTime());
     return diff < 120_000;
   };
 
@@ -437,46 +434,43 @@ export function ChatView({ chatId }: ChatViewProps) {
         />
       ) : null}
 
-      {/* Messages area */}
+      {/* Messages area — flex-col-reverse anchors scroll to bottom (Telegram-style) */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto flex flex-col-reverse"
       >
-        <div className="flex flex-col justify-end min-h-full py-2">
-          {/* Loading older messages indicator */}
-          {isFetchingNextPage && (
-            <div className="py-2">
-              <MessageSkeleton />
-              <MessageSkeleton />
-            </div>
-          )}
+        {/* bottomRef at the top of reversed layout = visual bottom */}
+        <div ref={bottomRef} />
 
-          {/* Loading initial */}
-          {msgsLoading && (
-            <div className="space-y-1">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <MessageSkeleton key={i} />
-              ))}
-            </div>
-          )}
+        {/* Loading initial */}
+        {msgsLoading && (
+          <div className="space-y-1 py-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <MessageSkeleton key={i} />
+            ))}
+          </div>
+        )}
 
-          {/* Empty chat */}
-          {!msgsLoading && messages.length === 0 && (
+        {/* Empty chat */}
+        {!msgsLoading && messages.length === 0 && (
+          <div className="flex-1 flex items-center justify-center py-12">
             <EmptyState
               icon={<MessageCircle size={40} />}
               title="No messages yet"
               description="Send the first message to start the conversation"
-              className="h-full"
             />
-          )}
+          </div>
+        )}
 
-          {/* Messages */}
-          {messages.map((msg, i) => (
+        {/* Messages — newest first in array, flex-col-reverse flips visually so newest is at bottom */}
+        {messages.map((msg, i) => {
+          const prevMsg = messages[i + 1]; // In reversed order, "previous" visually is next in array
+          return (
             <MessageBubble
               key={msg.id}
               message={msg}
-              isGrouped={isGrouped(msg, messages[i - 1])}
+              isGrouped={isGrouped(msg, prevMsg)}
               chatType={chat?.type ?? 'DM'}
               totalMembers={chat?.memberCount ?? 2}
               onReply={setReplyTo}
@@ -489,10 +483,16 @@ export function ChatView({ chatId }: ChatViewProps) {
                 setProfilePanel({ userId: senderId, name: senderName, avatar: senderAvatar })
               }
             />
-          ))}
+          );
+        })}
 
-          <div ref={bottomRef} />
-        </div>
+        {/* Loading older messages indicator — at top (visual) = bottom of reversed layout */}
+        {isFetchingNextPage && (
+          <div className="py-2">
+            <MessageSkeleton />
+            <MessageSkeleton />
+          </div>
+        )}
       </div>
 
       {/* Input */}
