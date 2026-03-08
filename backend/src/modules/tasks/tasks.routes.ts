@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { tasksService } from './tasks.service';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
+import { prisma } from '../../config/database';
 import {
   createProjectSchema,
   updateProjectSchema,
@@ -160,6 +161,69 @@ router.delete('/time-entries/:entryId', authenticate, async (req: Request, res: 
 });
 
 // ==========================================
+// MY TASKS (cross-project)
+// ==========================================
+
+router.get('/my-tasks', authenticate, async (req, res, next) => {
+  try {
+    const assignments = await prisma.taskAssignee.findMany({
+      where: { userId: req.user!.id },
+      include: {
+        task: {
+          include: {
+            project: { select: { id: true, name: true, color: true } },
+            assignees: { include: { user: { select: { id: true, displayName: true, avatarUrl: true } } } },
+            labels: { include: { label: true } },
+          },
+        },
+      },
+    });
+    const tasks = assignments
+      .map(a => a.task)
+      .filter(t => t.status !== 'DONE' && !t.deletedAt)
+      .sort((a, b) => {
+        if (a.dueDate && b.dueDate) return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        if (a.dueDate) return -1;
+        if (b.dueDate) return 1;
+        return 0;
+      });
+    res.json({ success: true, data: tasks });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// SPRINTS (standalone patch/delete must precede /:taskId)
+// ==========================================
+
+router.patch('/sprints/:id', authenticate, async (req, res, next) => {
+  try {
+    const data: any = { ...req.body };
+    if (data.startDate) data.startDate = new Date(data.startDate);
+    if (data.endDate) data.endDate = new Date(data.endDate);
+    const sprint = await prisma.sprint.update({ where: { id: req.params.id }, data });
+    res.json({ success: true, data: sprint });
+  } catch (err) { next(err); }
+});
+
+router.delete('/sprints/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.sprint.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// CUSTOM FIELDS (standalone delete must precede /:taskId)
+// ==========================================
+
+router.delete('/custom-fields/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.taskCustomField.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
 // TASK DETAIL ROUTES (/:taskId parameterized)
 // ==========================================
 
@@ -287,6 +351,89 @@ router.post('/:taskId/dependencies', authenticate, validate(addDependencySchema)
 router.delete('/:taskId/dependencies/:dependsOnId', authenticate, async (req: Request, res: Response) => {
   await tasksService.removeDependency(req.user!.id, req.params.taskId, req.params.dependsOnId);
   res.json({ success: true, data: { message: 'Dependency removed' } });
+});
+
+// ==========================================
+// SPRINTS (project-scoped)
+// ==========================================
+
+router.get('/projects/:projectId/sprints', authenticate, async (req, res, next) => {
+  try {
+    const sprints = await prisma.sprint.findMany({
+      where: { projectId: req.params.projectId },
+      orderBy: { startDate: 'desc' },
+    });
+    res.json({ success: true, data: sprints });
+  } catch (err) { next(err); }
+});
+
+router.post('/projects/:projectId/sprints', authenticate, async (req, res, next) => {
+  try {
+    const { name, startDate, endDate, goal } = req.body;
+    const sprint = await prisma.sprint.create({
+      data: {
+        projectId: req.params.projectId,
+        name, goal,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+      },
+    });
+    res.json({ success: true, data: sprint });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// CUSTOM FIELDS (project-scoped)
+// ==========================================
+
+router.get('/projects/:projectId/custom-fields', authenticate, async (req, res, next) => {
+  try {
+    const fields = await prisma.taskCustomField.findMany({
+      where: { projectId: req.params.projectId },
+      orderBy: { position: 'asc' },
+    });
+    res.json({ success: true, data: fields });
+  } catch (err) { next(err); }
+});
+
+router.post('/projects/:projectId/custom-fields', authenticate, async (req, res, next) => {
+  try {
+    const { name, type, options } = req.body;
+    const field = await prisma.taskCustomField.create({
+      data: { projectId: req.params.projectId, name, type, options },
+    });
+    res.json({ success: true, data: field });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// TASK ANALYTICS (project-scoped)
+// ==========================================
+
+router.get('/projects/:projectId/analytics', authenticate, async (req, res, next) => {
+  try {
+    const projectId = req.params.projectId;
+    const tasks = await prisma.task.findMany({
+      where: { projectId, deletedAt: null },
+      include: { assignees: true },
+    });
+
+    const byStatus: Record<string, number> = {};
+    const byPriority: Record<string, number> = {};
+    const byAssignee: Record<string, number> = {};
+    let overdue = 0;
+
+    tasks.forEach(t => {
+      byStatus[t.status] = (byStatus[t.status] || 0) + 1;
+      byPriority[t.priority] = (byPriority[t.priority] || 0) + 1;
+      if (t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'DONE') overdue++;
+      t.assignees.forEach(a => {
+        byAssignee[a.userId] = (byAssignee[a.userId] || 0) + 1;
+      });
+    });
+
+    res.json({ success: true, data: { total: tasks.length, byStatus, byPriority, byAssignee, overdue } });
+  } catch (err) { next(err); }
 });
 
 export default router;

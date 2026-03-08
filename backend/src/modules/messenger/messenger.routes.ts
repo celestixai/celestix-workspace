@@ -3,6 +3,7 @@ import { messengerService } from './messenger.service';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
 import { messageLimiter } from '../../middleware/rate-limit';
+import { prisma } from '../../config/database';
 import {
   createChatSchema,
   sendMessageSchema,
@@ -118,6 +119,171 @@ router.post('/chats/:chatId/invite-link', authenticate, async (req: Request, res
 router.post('/join/:inviteLink', authenticate, async (req: Request, res: Response) => {
   const result = await messengerService.joinViaInvite(req.user!.id, req.params.inviteLink);
   res.json({ success: true, data: result });
+});
+
+// ─── Polls ──────────────────────────────────────────────────────────────────
+
+router.post('/polls', authenticate, async (req, res, next) => {
+  try {
+    const { chatId, question, options, isMultiVote, isAnonymous, isQuiz, correctOption, closesAt } = req.body;
+    const poll = await prisma.poll.create({
+      data: {
+        chatId, question, options, isMultiVote, isAnonymous, isQuiz, correctOption,
+        closesAt: closesAt ? new Date(closesAt) : null,
+        creatorId: req.user!.id,
+      },
+    });
+    // Create a message referencing the poll
+    const message = await prisma.message.create({
+      data: {
+        chatId, senderId: req.user!.id,
+        content: `📊 Poll: ${question}`,
+        metadata: { type: 'poll', pollId: poll.id },
+      },
+      include: { sender: { select: { id: true, displayName: true, avatarUrl: true } } },
+    });
+    await prisma.poll.update({ where: { id: poll.id }, data: { messageId: message.id } });
+    res.json({ success: true, data: { poll, message } });
+  } catch (err) { next(err); }
+});
+
+router.post('/polls/:pollId/vote', authenticate, async (req, res, next) => {
+  try {
+    const { pollId } = req.params;
+    const { optionIndex } = req.body;
+    const poll = await prisma.poll.findUnique({ where: { id: pollId } });
+    if (!poll) return res.status(404).json({ success: false, error: 'Poll not found' });
+    if (poll.isClosed) return res.status(400).json({ success: false, error: 'Poll is closed' });
+    if (!poll.isMultiVote) {
+      await prisma.pollVote.deleteMany({ where: { pollId, userId: req.user!.id } });
+    }
+    const vote = await prisma.pollVote.upsert({
+      where: { pollId_userId_optionIndex: { pollId, userId: req.user!.id, optionIndex } },
+      create: { pollId, userId: req.user!.id, optionIndex },
+      update: {},
+    });
+    const votes = await prisma.pollVote.findMany({ where: { pollId } });
+    res.json({ success: true, data: { vote, totalVotes: votes } });
+  } catch (err) { next(err); }
+});
+
+router.get('/polls/:pollId', authenticate, async (req, res, next) => {
+  try {
+    const poll = await prisma.poll.findUnique({
+      where: { id: req.params.pollId },
+      include: { votes: true },
+    });
+    res.json({ success: true, data: poll });
+  } catch (err) { next(err); }
+});
+
+router.post('/polls/:pollId/close', authenticate, async (req, res, next) => {
+  try {
+    const poll = await prisma.poll.update({
+      where: { id: req.params.pollId, creatorId: req.user!.id },
+      data: { isClosed: true },
+    });
+    res.json({ success: true, data: poll });
+  } catch (err) { next(err); }
+});
+
+// ─── Saved Messages ─────────────────────────────────────────────────────────
+
+router.get('/saved', authenticate, async (req, res, next) => {
+  try {
+    const saved = await prisma.savedMessage.findMany({
+      where: { userId: req.user!.id },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json({ success: true, data: saved });
+  } catch (err) { next(err); }
+});
+
+router.post('/saved', authenticate, async (req, res, next) => {
+  try {
+    const { messageId, contextType, note } = req.body;
+    const saved = await prisma.savedMessage.upsert({
+      where: { userId_messageId_contextType: { userId: req.user!.id, messageId, contextType } },
+      create: { userId: req.user!.id, messageId, contextType, note },
+      update: { note },
+    });
+    res.json({ success: true, data: saved });
+  } catch (err) { next(err); }
+});
+
+router.delete('/saved/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.savedMessage.delete({ where: { id: req.params.id, userId: req.user!.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ─── Scheduled Messages ─────────────────────────────────────────────────────
+
+router.get('/scheduled', authenticate, async (req, res, next) => {
+  try {
+    const messages = await prisma.scheduledMessage.findMany({
+      where: { userId: req.user!.id, sent: false },
+      orderBy: { scheduledAt: 'asc' },
+    });
+    res.json({ success: true, data: messages });
+  } catch (err) { next(err); }
+});
+
+router.post('/scheduled', authenticate, async (req, res, next) => {
+  try {
+    const { chatId, channelId, content, contentHtml, scheduledAt } = req.body;
+    const msg = await prisma.scheduledMessage.create({
+      data: { userId: req.user!.id, chatId, channelId, content, contentHtml, scheduledAt: new Date(scheduledAt) },
+    });
+    res.json({ success: true, data: msg });
+  } catch (err) { next(err); }
+});
+
+router.delete('/scheduled/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.scheduledMessage.delete({ where: { id: req.params.id, userId: req.user!.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ─── Chat Folders ────────────────────────────────────────────────────────────
+
+router.get('/folders', authenticate, async (req, res, next) => {
+  try {
+    const folders = await prisma.chatFolder.findMany({
+      where: { userId: req.user!.id },
+      orderBy: { position: 'asc' },
+    });
+    res.json({ success: true, data: folders });
+  } catch (err) { next(err); }
+});
+
+router.post('/folders', authenticate, async (req, res, next) => {
+  try {
+    const { name, chatIds } = req.body;
+    const folder = await prisma.chatFolder.create({
+      data: { userId: req.user!.id, name, chatIds: chatIds || [] },
+    });
+    res.json({ success: true, data: folder });
+  } catch (err) { next(err); }
+});
+
+router.patch('/folders/:id', authenticate, async (req, res, next) => {
+  try {
+    const folder = await prisma.chatFolder.update({
+      where: { id: req.params.id, userId: req.user!.id },
+      data: req.body,
+    });
+    res.json({ success: true, data: folder });
+  } catch (err) { next(err); }
+});
+
+router.delete('/folders/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.chatFolder.delete({ where: { id: req.params.id, userId: req.user!.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
 });
 
 export default router;

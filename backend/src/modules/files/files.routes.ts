@@ -16,6 +16,7 @@ import {
   bulkOperationSchema,
 } from './files.schema';
 import { config } from '../../config';
+import { prisma } from '../../config/database';
 
 const router = Router();
 
@@ -174,6 +175,113 @@ router.post('/bulk', authenticate, validate(bulkOperationSchema), async (req: Re
 router.get('/storage/usage', authenticate, async (req: Request, res: Response) => {
   const usage = await filesService.getStorageUsage(req.user!.id);
   res.json({ success: true, data: usage });
+});
+
+// File comments
+router.get('/:fileId/comments', authenticate, async (req, res, next) => {
+  try {
+    // Using a generic approach since we don't have a dedicated FileComment model
+    // Store comments as notifications with type and metadata
+    const comments = await prisma.notification.findMany({
+      where: {
+        type: 'FILE_SHARED',
+        metadata: { path: ['fileId'], equals: req.params.fileId },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { sender: { select: { id: true, displayName: true, avatarUrl: true } } },
+    });
+    res.json({ success: true, data: comments });
+  } catch (err) { next(err); }
+});
+
+// File activity/history
+router.get('/:fileId/activity', authenticate, async (req, res, next) => {
+  try {
+    const versions = await prisma.fileVersion.findMany({
+      where: { fileId: req.params.fileId },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    const shares = await prisma.fileShare.findMany({
+      where: { fileId: req.params.fileId },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json({ success: true, data: { versions, shares } });
+  } catch (err) { next(err); }
+});
+
+// Recycle bin (trashed files)
+router.get('/trash/list', authenticate, async (req, res, next) => {
+  try {
+    const trashedFiles = await prisma.file.findMany({
+      where: { userId: req.user!.id, isTrashed: true },
+      orderBy: { trashedAt: 'desc' },
+    });
+    res.json({ success: true, data: trashedFiles });
+  } catch (err) { next(err); }
+});
+
+router.post('/:fileId/restore', authenticate, async (req, res, next) => {
+  try {
+    const file = await prisma.file.update({
+      where: { id: req.params.fileId, userId: req.user!.id },
+      data: { isTrashed: false, trashedAt: null },
+    });
+    res.json({ success: true, data: file });
+  } catch (err) { next(err); }
+});
+
+router.delete('/:fileId/permanent', authenticate, async (req, res, next) => {
+  try {
+    await prisma.file.delete({
+      where: { id: req.params.fileId, userId: req.user!.id, isTrashed: true },
+    });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// Empty trash
+router.delete('/trash/empty', authenticate, async (req, res, next) => {
+  try {
+    await prisma.file.deleteMany({
+      where: { userId: req.user!.id, isTrashed: true },
+    });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// Request file upload link (for external users)
+router.post('/request-upload', authenticate, async (req, res, next) => {
+  try {
+    const { folderId, description } = req.body;
+    const token = require('crypto').randomUUID();
+    const share = await prisma.fileShare.create({
+      data: {
+        fileId: folderId || req.user!.id, // use folderId or user's root
+        permission: 'EDIT',
+        shareLinkToken: `upload-${token}`,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      },
+    });
+    res.json({ success: true, data: { uploadToken: share.shareLinkToken, expiresAt: share.expiresAt } });
+  } catch (err) { next(err); }
+});
+
+// Share link with expiry
+router.post('/:fileId/share-link', authenticate, async (req, res, next) => {
+  try {
+    const { permission, expiryDays } = req.body;
+    const token = require('crypto').randomUUID();
+    const share = await prisma.fileShare.create({
+      data: {
+        fileId: req.params.fileId,
+        permission: permission || 'VIEW',
+        shareLinkToken: token,
+        expiresAt: expiryDays ? new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000) : null,
+      },
+    });
+    res.json({ success: true, data: share });
+  } catch (err) { next(err); }
 });
 
 export default router;

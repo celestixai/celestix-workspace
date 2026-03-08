@@ -8,6 +8,7 @@ import {
   createGroupSchema,
   contactsQuerySchema,
 } from './contacts.schema';
+import { prisma } from '../../config/database';
 
 const router = Router();
 
@@ -102,6 +103,125 @@ router.get('/:contactId/vcard', authenticate, async (req: Request, res: Response
   res.setHeader('Content-Type', 'text/vcard');
   res.setHeader('Content-Disposition', `attachment; filename="contact.vcf"`);
   res.send(vcard);
+});
+
+// Skills directory (using user profile fields)
+router.get('/skills', authenticate, async (req, res, next) => {
+  try {
+    const { skill } = req.query;
+    // Search users by bio containing the skill keyword
+    const users = await prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        ...(skill ? { bio: { contains: skill as string, mode: 'insensitive' } } : {}),
+      },
+      select: { id: true, displayName: true, avatarUrl: true, bio: true, email: true },
+      take: 50,
+    });
+    res.json({ success: true, data: users });
+  } catch (err) { next(err); }
+});
+
+// Distribution lists (using contact groups as distribution lists)
+router.get('/distribution-lists', authenticate, async (req, res, next) => {
+  try {
+    const groups = await prisma.contactGroup.findMany({
+      where: { userId: req.user!.id },
+      include: {
+        members: {
+          include: {
+            contact: {
+              include: { emails: true },
+            },
+          },
+        },
+      },
+    });
+    res.json({ success: true, data: groups });
+  } catch (err) { next(err); }
+});
+
+// Contact suggestions (people you interact with but haven't added)
+router.get('/suggestions', authenticate, async (req, res, next) => {
+  try {
+    // Find users you've exchanged emails with but aren't in contacts
+    const existingContactUserIds = await prisma.contact.findMany({
+      where: { userId: req.user!.id, internalUserId: { not: null } },
+      select: { internalUserId: true },
+    });
+    const excludeIds = new Set([req.user!.id, ...existingContactUserIds.map(c => c.internalUserId!).filter(Boolean)]);
+
+    // Get workspace members as suggestions
+    const workspaceMembers = await prisma.workspaceMember.findMany({
+      where: { userId: { notIn: Array.from(excludeIds) } },
+      include: { user: { select: { id: true, displayName: true, avatarUrl: true, email: true, bio: true } } },
+      take: 20,
+    });
+
+    const suggestions = workspaceMembers.map(m => m.user);
+    const uniqueSuggestions = Array.from(new Map(suggestions.map(s => [s.id, s])).values());
+
+    res.json({ success: true, data: uniqueSuggestions });
+  } catch (err) { next(err); }
+});
+
+// Relationship insights
+router.get('/:contactId/insights', authenticate, async (req, res, next) => {
+  try {
+    const contact = await prisma.contact.findUnique({
+      where: { id: req.params.contactId },
+      include: { emails: true },
+    });
+    if (!contact) return res.status(404).json({ success: false, error: 'Contact not found' });
+
+    const contactEmailAddrs = contact.emails.map(e => e.email.toLowerCase());
+
+    // Last email exchange
+    const lastEmail = await prisma.email.findFirst({
+      where: {
+        userId: req.user!.id,
+        OR: [
+          { fromAddress: { in: contactEmailAddrs } },
+          { toAddresses: { array_contains: contactEmailAddrs } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { subject: true, createdAt: true },
+    });
+
+    // Upcoming meetings together
+    const upcomingMeetings = contact.internalUserId ? await prisma.calendarEvent.findMany({
+      where: {
+        startAt: { gte: new Date() },
+        attendees: { some: { userId: contact.internalUserId } },
+        calendar: { userId: req.user!.id },
+      },
+      take: 5,
+      orderBy: { startAt: 'asc' },
+      select: { title: true, startAt: true },
+    }) : [];
+
+    res.json({ success: true, data: { lastEmail, upcomingMeetings } });
+  } catch (err) { next(err); }
+});
+
+// Organization chart
+router.get('/org-chart', authenticate, async (req, res, next) => {
+  try {
+    // Return all users with their relationships
+    const users = await prisma.user.findMany({
+      where: { deletedAt: null },
+      select: {
+        id: true,
+        displayName: true,
+        avatarUrl: true,
+        email: true,
+        bio: true, // Could contain "Reports to: ..." or title
+      },
+      orderBy: { displayName: 'asc' },
+    });
+    res.json({ success: true, data: users });
+  } catch (err) { next(err); }
 });
 
 export default router;

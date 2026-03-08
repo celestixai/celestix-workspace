@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { emailService } from './email.service';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
+import { prisma } from '../../config/database';
 import {
   composeEmailSchema,
   replyEmailSchema,
@@ -378,6 +379,162 @@ router.delete('/folders/trash', authenticate, async (req: Request, res: Response
 router.delete('/folders/spam', authenticate, async (req: Request, res: Response) => {
   const result = await emailService.emptySpam(req.user!.id);
   res.json({ success: true, data: result });
+});
+
+// ==========================================
+// EMAIL TEMPLATES
+// ==========================================
+
+router.get('/templates', authenticate, async (req, res, next) => {
+  try {
+    const templates = await prisma.emailTemplate.findMany({ where: { userId: req.user!.id } });
+    res.json({ success: true, data: templates });
+  } catch (err) { next(err); }
+});
+
+router.post('/templates', authenticate, async (req, res, next) => {
+  try {
+    const { name, subject, bodyHtml } = req.body;
+    const template = await prisma.emailTemplate.create({
+      data: { userId: req.user!.id, name, subject, bodyHtml },
+    });
+    res.json({ success: true, data: template });
+  } catch (err) { next(err); }
+});
+
+router.patch('/templates/:id', authenticate, async (req, res, next) => {
+  try {
+    const template = await prisma.emailTemplate.update({
+      where: { id: req.params.id, userId: req.user!.id },
+      data: req.body,
+    });
+    res.json({ success: true, data: template });
+  } catch (err) { next(err); }
+});
+
+router.delete('/templates/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.emailTemplate.delete({ where: { id: req.params.id, userId: req.user!.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// EMAIL QUICK STEPS
+// ==========================================
+
+router.get('/quick-steps', authenticate, async (req, res, next) => {
+  try {
+    const steps = await prisma.emailQuickStep.findMany({ where: { userId: req.user!.id } });
+    res.json({ success: true, data: steps });
+  } catch (err) { next(err); }
+});
+
+router.post('/quick-steps', authenticate, async (req, res, next) => {
+  try {
+    const { name, icon, actions } = req.body;
+    const step = await prisma.emailQuickStep.create({
+      data: { userId: req.user!.id, name, icon: icon || 'zap', actions },
+    });
+    res.json({ success: true, data: step });
+  } catch (err) { next(err); }
+});
+
+router.patch('/quick-steps/:id', authenticate, async (req, res, next) => {
+  try {
+    const step = await prisma.emailQuickStep.update({
+      where: { id: req.params.id, userId: req.user!.id },
+      data: req.body,
+    });
+    res.json({ success: true, data: step });
+  } catch (err) { next(err); }
+});
+
+router.delete('/quick-steps/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.emailQuickStep.delete({ where: { id: req.params.id, userId: req.user!.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// EMAIL RULES
+// ==========================================
+
+router.get('/rules', authenticate, async (req, res, next) => {
+  try {
+    const rules = await prisma.emailRule.findMany({
+      where: { userId: req.user!.id },
+      orderBy: { position: 'asc' },
+    });
+    res.json({ success: true, data: rules });
+  } catch (err) { next(err); }
+});
+
+router.post('/rules', authenticate, async (req, res, next) => {
+  try {
+    const { name, conditions, actions } = req.body;
+    const rule = await prisma.emailRule.create({
+      data: { userId: req.user!.id, name, conditions, actions },
+    });
+    res.json({ success: true, data: rule });
+  } catch (err) { next(err); }
+});
+
+router.patch('/rules/:id', authenticate, async (req, res, next) => {
+  try {
+    const rule = await prisma.emailRule.update({
+      where: { id: req.params.id, userId: req.user!.id },
+      data: req.body,
+    });
+    res.json({ success: true, data: rule });
+  } catch (err) { next(err); }
+});
+
+router.delete('/rules/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.emailRule.delete({ where: { id: req.params.id, userId: req.user!.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// FOCUSED INBOX
+// ==========================================
+
+// Focused Inbox - simple classifier based on sender history
+router.get('/focused', authenticate, async (req, res, next) => {
+  try {
+    // "Focused" = emails from contacts or people you've replied to
+    const contacts = await prisma.contact.findMany({
+      where: { userId: req.user!.id },
+      include: { emails: true },
+    });
+    const contactEmails = new Set(contacts.flatMap(c => c.emails.map(e => e.email.toLowerCase())));
+
+    // Get sent email addresses (people user has replied to)
+    const sentEmails = await prisma.email.findMany({
+      where: { userId: req.user!.id, folder: 'SENT' },
+      select: { toAddresses: true },
+      take: 200,
+    });
+    const repliedTo = new Set<string>();
+    sentEmails.forEach(e => {
+      const addrs = e.toAddresses as any[];
+      if (Array.isArray(addrs)) addrs.forEach(a => repliedTo.add((typeof a === 'string' ? a : a.email || '').toLowerCase()));
+    });
+
+    const inboxEmails = await prisma.email.findMany({
+      where: { userId: req.user!.id, folder: 'INBOX', deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+
+    const focused = inboxEmails.filter(e => contactEmails.has(e.fromAddress.toLowerCase()) || repliedTo.has(e.fromAddress.toLowerCase()));
+    const other = inboxEmails.filter(e => !contactEmails.has(e.fromAddress.toLowerCase()) && !repliedTo.has(e.fromAddress.toLowerCase()));
+
+    res.json({ success: true, data: { focused, other } });
+  } catch (err) { next(err); }
 });
 
 export default router;

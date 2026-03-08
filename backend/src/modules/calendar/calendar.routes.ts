@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { calendarService } from './calendar.service';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
+import { prisma } from '../../config/database';
 import {
   createCalendarSchema,
   updateCalendarSchema,
@@ -239,6 +240,130 @@ router.get('/busy/:userId', authenticate, async (req: Request, res: Response) =>
   }
   const slots = await calendarService.getBusyFreeStatus(req.user!.id, req.params.userId, start, end);
   res.json({ success: true, data: slots });
+});
+
+// ==========================================
+// RESOURCES (Room/Equipment Booking)
+// ==========================================
+
+router.get('/resources', authenticate, async (req, res, next) => {
+  try {
+    const resources = await prisma.resource.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+    });
+    res.json({ success: true, data: resources });
+  } catch (err) { next(err); }
+});
+
+router.post('/resources', authenticate, async (req, res, next) => {
+  try {
+    const { name, type, description, capacity, location } = req.body;
+    const resource = await prisma.resource.create({
+      data: { name, type: type || 'room', description, capacity, location },
+    });
+    res.json({ success: true, data: resource });
+  } catch (err) { next(err); }
+});
+
+router.patch('/resources/:id', authenticate, async (req, res, next) => {
+  try {
+    const resource = await prisma.resource.update({
+      where: { id: req.params.id },
+      data: req.body,
+    });
+    res.json({ success: true, data: resource });
+  } catch (err) { next(err); }
+});
+
+router.delete('/resources/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.resource.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// RESOURCE BOOKINGS
+// ==========================================
+
+router.get('/resources/:id/bookings', authenticate, async (req, res, next) => {
+  try {
+    const { start, end } = req.query;
+    const bookings = await prisma.resourceBooking.findMany({
+      where: {
+        resourceId: req.params.id,
+        ...(start && end ? { startAt: { gte: new Date(start as string) }, endAt: { lte: new Date(end as string) } } : {}),
+      },
+      orderBy: { startAt: 'asc' },
+    });
+    res.json({ success: true, data: bookings });
+  } catch (err) { next(err); }
+});
+
+router.post('/resources/:id/bookings', authenticate, async (req, res, next) => {
+  try {
+    const { eventId, startAt, endAt } = req.body;
+    // Check for conflicts
+    const conflict = await prisma.resourceBooking.findFirst({
+      where: {
+        resourceId: req.params.id,
+        OR: [
+          { startAt: { lt: new Date(endAt) }, endAt: { gt: new Date(startAt) } },
+        ],
+      },
+    });
+    if (conflict) return res.status(409).json({ success: false, error: 'Resource is already booked for this time' });
+    const booking = await prisma.resourceBooking.create({
+      data: {
+        resourceId: req.params.id,
+        eventId,
+        bookedBy: req.user!.id,
+        startAt: new Date(startAt),
+        endAt: new Date(endAt),
+      },
+    });
+    res.json({ success: true, data: booking });
+  } catch (err) { next(err); }
+});
+
+router.delete('/resource-bookings/:id', authenticate, async (req, res, next) => {
+  try {
+    await prisma.resourceBooking.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
+// ==========================================
+// SCHEDULING ASSISTANT
+// ==========================================
+
+// Get combined availability for multiple users on a given date
+router.post('/availability', authenticate, async (req, res, next) => {
+  try {
+    const { userIds, date } = req.body;
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(date);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const availability: Record<string, any[]> = {};
+    for (const uid of userIds) {
+      const calendars = await prisma.calendar.findMany({ where: { userId: uid } });
+      const events = await prisma.calendarEvent.findMany({
+        where: {
+          calendarId: { in: calendars.map(c => c.id) },
+          startAt: { lte: dayEnd },
+          endAt: { gte: dayStart },
+        },
+        select: { startAt: true, endAt: true, busyStatus: true, title: true },
+      });
+      availability[uid] = events.map(e => ({
+        start: e.startAt, end: e.endAt, status: e.busyStatus,
+      }));
+    }
+    res.json({ success: true, data: availability });
+  } catch (err) { next(err); }
 });
 
 export default router;
