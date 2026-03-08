@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, MessageCircle, Mail, FileText, Users, CheckSquare, CalendarDays, Hash, X } from 'lucide-react';
+import { Search, MessageCircle, Mail, FileText, Users, CheckSquare, CalendarDays, Hash, X, ClipboardList, Table2, CalendarClock, PenTool, PlayCircle, Workflow } from 'lucide-react';
 import { useUIStore } from '@/stores/ui.store';
 import { api } from '@/lib/api';
 import { cn, formatRelativeTime } from '@/lib/utils';
@@ -14,6 +14,12 @@ const categoryIcons: Record<string, React.ReactNode> = {
   task: <CheckSquare size={14} />,
   note: <FileText size={14} />,
   event: <CalendarDays size={14} />,
+  form: <ClipboardList size={14} />,
+  list: <Table2 size={14} />,
+  booking: <CalendarClock size={14} />,
+  video: <PlayCircle size={14} />,
+  whiteboard: <PenTool size={14} />,
+  workflow: <Workflow size={14} />,
 };
 
 interface SearchResult {

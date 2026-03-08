@@ -168,6 +168,75 @@ export const createDmSchema = z.object({
 });
 
 // ==========================================
+// Huddles
+// ==========================================
+
+export const startHuddleSchema = z.object({
+  topic: z.string().max(200).optional(),
+  audioOnly: z.boolean().default(true),
+});
+
+// ==========================================
+// Canvas
+// ==========================================
+
+export const createCanvasSchema = z.object({
+  title: z.string().min(1).max(200),
+  contentJson: z.record(z.unknown()).optional(),
+  contentText: z.string().max(500000).optional(),
+});
+
+export const updateCanvasSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  contentJson: z.record(z.unknown()).optional(),
+  contentText: z.string().max(500000).optional(),
+});
+
+// ==========================================
+// Channel Analytics
+// ==========================================
+
+export const channelAnalyticsQuerySchema = z.object({
+  days: z.coerce.number().min(1).max(365).default(30),
+});
+
+// ==========================================
+// Workflow Automations
+// ==========================================
+
+export const createAutomationSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
+  trigger: z.object({
+    type: z.enum(['message_posted', 'member_joined', 'reaction_added', 'keyword', 'scheduled']),
+    channelId: z.string().uuid().optional(),
+    keyword: z.string().max(100).optional(),
+    schedule: z.string().max(100).optional(),
+  }),
+  actions: z.array(z.object({
+    type: z.enum(['send_message', 'add_reaction', 'create_channel', 'invite_to_channel', 'webhook']),
+    config: z.record(z.unknown()),
+  })).min(1).max(10),
+  enabled: z.boolean().default(true),
+});
+
+export const updateAutomationSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  description: z.string().max(500).optional(),
+  trigger: z.object({
+    type: z.enum(['message_posted', 'member_joined', 'reaction_added', 'keyword', 'scheduled']),
+    channelId: z.string().uuid().optional(),
+    keyword: z.string().max(100).optional(),
+    schedule: z.string().max(100).optional(),
+  }).optional(),
+  actions: z.array(z.object({
+    type: z.enum(['send_message', 'add_reaction', 'create_channel', 'invite_to_channel', 'webhook']),
+    config: z.record(z.unknown()),
+  })).min(1).max(10).optional(),
+  enabled: z.boolean().optional(),
+});
+
+// ==========================================
 // Inferred Types
 // ==========================================
 
@@ -179,3 +248,8 @@ export type SendMessageInput = z.infer<typeof sendMessageSchema>;
 export type EditMessageInput = z.infer<typeof editMessageSchema>;
 export type SearchMessagesInput = z.infer<typeof searchMessagesSchema>;
 export type SlashCommandInput = z.infer<typeof slashCommandSchema>;
+export type StartHuddleInput = z.infer<typeof startHuddleSchema>;
+export type CreateCanvasInput = z.infer<typeof createCanvasSchema>;
+export type UpdateCanvasInput = z.infer<typeof updateCanvasSchema>;
+export type CreateAutomationInput = z.infer<typeof createAutomationSchema>;
+export type UpdateAutomationInput = z.infer<typeof updateAutomationSchema>;

@@ -255,6 +255,164 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     );
   }
 
+  // Forms
+  if (!category || category === 'forms') {
+    searches.push(
+      prisma.form.findMany({
+        where: {
+          userId,
+          title: { contains: query, mode: 'insensitive' },
+        },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((forms) =>
+        forms.forEach((f) =>
+          results.push({
+            type: 'form',
+            id: f.id,
+            title: f.title,
+            preview: f.description || undefined,
+            module: 'forms',
+            timestamp: f.updatedAt,
+            link: `/forms/${f.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Lists
+  if (!category || category === 'lists') {
+    searches.push(
+      prisma.cxList.findMany({
+        where: {
+          userId,
+          name: { contains: query, mode: 'insensitive' },
+        },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((lists) =>
+        lists.forEach((l) =>
+          results.push({
+            type: 'list',
+            id: l.id,
+            title: l.name,
+            preview: l.description || undefined,
+            module: 'lists',
+            timestamp: l.updatedAt,
+            link: `/lists/${l.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Bookings
+  if (!category || category === 'bookings') {
+    searches.push(
+      prisma.bookingPage.findMany({
+        where: {
+          userId,
+          title: { contains: query, mode: 'insensitive' },
+        },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((pages) =>
+        pages.forEach((p) =>
+          results.push({
+            type: 'booking',
+            id: p.id,
+            title: p.title,
+            preview: p.description || undefined,
+            module: 'bookings',
+            timestamp: p.updatedAt,
+            link: `/bookings/${p.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Videos (Stream)
+  if (!category || category === 'videos') {
+    searches.push(
+      prisma.video.findMany({
+        where: {
+          userId,
+          title: { contains: query, mode: 'insensitive' },
+        },
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }).then((videos) =>
+        videos.forEach((v) =>
+          results.push({
+            type: 'video',
+            id: v.id,
+            title: v.title,
+            preview: v.description || undefined,
+            module: 'stream',
+            timestamp: v.createdAt,
+            link: `/stream/${v.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Whiteboards
+  if (!category || category === 'whiteboards') {
+    searches.push(
+      prisma.whiteboard.findMany({
+        where: {
+          OR: [
+            { userId },
+            { collaborators: { some: { userId } } },
+          ],
+          name: { contains: query, mode: 'insensitive' },
+        },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((boards) =>
+        boards.forEach((b) =>
+          results.push({
+            type: 'whiteboard',
+            id: b.id,
+            title: b.name,
+            module: 'whiteboard',
+            timestamp: b.updatedAt,
+            link: `/whiteboard/${b.id}`,
+          })
+        )
+      )
+    );
+  }
+
+  // Workflows
+  if (!category || category === 'workflows') {
+    searches.push(
+      prisma.workflow.findMany({
+        where: {
+          userId,
+          name: { contains: query, mode: 'insensitive' },
+        },
+        take: limit,
+        orderBy: { updatedAt: 'desc' },
+      }).then((flows) =>
+        flows.forEach((w) =>
+          results.push({
+            type: 'workflow',
+            id: w.id,
+            title: w.name,
+            preview: w.description || undefined,
+            module: 'workflows',
+            timestamp: w.updatedAt,
+            link: `/workflows/${w.id}`,
+          })
+        )
+      )
+    );
+  }
+
   await Promise.all(searches);
 
   // Sort by timestamp (most recent first)

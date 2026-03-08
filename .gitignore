@@ -9,4 +9,5 @@ design-screenshots/
 *.png
 !frontend/src/assets/*.png
 !frontend/build/*.png
+!frontend/public/icons/*.png
 *.mjs

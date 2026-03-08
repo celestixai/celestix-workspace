@@ -2,11 +2,13 @@ import { Search, Bell, Sun, Moon, Wifi, WifiOff } from 'lucide-react';
 import { useUIStore } from '@/stores/ui.store';
 import { useNotificationStore } from '@/stores/notification.store';
 import { Badge } from '@/components/shared/badge';
+import { AppLauncher } from '@/components/layout/app-launcher';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { getSocket } from '@/lib/socket';
 
 const moduleNames: Record<string, string> = {
+  dashboard: 'Home',
   messenger: 'Messenger',
   workspace: 'Workspace',
   email: 'Email',
@@ -17,6 +19,13 @@ const moduleNames: Record<string, string> = {
   contacts: 'Contacts',
   meetings: 'Meetings',
   settings: 'Settings',
+  forms: 'Forms',
+  lists: 'Lists',
+  bookings: 'Bookings',
+  loop: 'Loop',
+  whiteboard: 'Whiteboard',
+  stream: 'Stream',
+  workflows: 'Workflows',
 };
 
 export function TopBar() {
@@ -63,6 +72,9 @@ export function TopBar() {
 
       {/* Right — Actions */}
       <div className="flex items-center gap-1 min-w-0 sm:min-w-[140px] justify-end">
+        {/* App launcher */}
+        <AppLauncher />
+
         {/* Connection status */}
         <div
           className={cn('p-2 flex-shrink-0', connected ? 'text-accent-emerald' : 'text-accent-red')}

@@ -10,6 +10,11 @@ import type {
   EditMessageInput,
   SearchMessagesInput,
   SlashCommandInput,
+  StartHuddleInput,
+  CreateCanvasInput,
+  UpdateCanvasInput,
+  CreateAutomationInput,
+  UpdateAutomationInput,
 } from './workspace.schema';
 
 // ==========================================
@@ -71,6 +76,65 @@ interface SlashCommandResult {
   handled: boolean;
   response: string;
   sideEffect?: Record<string, unknown>;
+}
+
+// ==========================================
+// Huddle Types & In-Memory Store
+// ==========================================
+
+interface HuddleParticipant {
+  userId: string;
+  joinedAt: Date;
+  isMuted: boolean;
+}
+
+interface Huddle {
+  id: string;
+  channelId: string;
+  topic: string | null;
+  audioOnly: boolean;
+  startedBy: string;
+  startedAt: Date;
+  participants: Map<string, HuddleParticipant>;
+}
+
+// channelId -> Huddle
+const activeHuddles = new Map<string, Huddle>();
+
+// ==========================================
+// Automation Types & In-Memory Store
+// ==========================================
+
+interface AutomationTrigger {
+  type: 'message_posted' | 'member_joined' | 'reaction_added' | 'keyword' | 'scheduled';
+  channelId?: string;
+  keyword?: string;
+  schedule?: string;
+}
+
+interface AutomationAction {
+  type: 'send_message' | 'add_reaction' | 'create_channel' | 'invite_to_channel' | 'webhook';
+  config: Record<string, unknown>;
+}
+
+interface Automation {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description: string | null;
+  trigger: AutomationTrigger;
+  actions: AutomationAction[];
+  enabled: boolean;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// workspaceId -> Automation[]
+const automationStore = new Map<string, Automation[]>();
+
+function generateId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 12)}`;
 }
 
 function parseSlashCommand(rawCommand: string): { name: string; args: string } {
@@ -1589,6 +1653,677 @@ export class WorkspaceService {
       orderBy: { message: { createdAt: 'desc' } },
       take: 50,
     });
+  }
+
+  // ------------------------------------------
+  // Huddles (audio/video in channels)
+  // ------------------------------------------
+
+  async startHuddle(userId: string, channelId: string, input: StartHuddleInput) {
+    // Verify channel exists and user is a member
+    const channel = await prisma.wsChannel.findUnique({ where: { id: channelId } });
+    if (!channel) {
+      throw new AppError(404, 'Channel not found', 'NOT_FOUND');
+    }
+
+    const membership = await prisma.wsChannelMember.findUnique({
+      where: { channelId_userId: { channelId, userId } },
+    });
+    if (!membership) {
+      throw new AppError(403, 'Not a member of this channel', 'FORBIDDEN');
+    }
+
+    // Check if a huddle is already active in this channel
+    if (activeHuddles.has(channelId)) {
+      throw new AppError(409, 'A huddle is already active in this channel', 'HUDDLE_ACTIVE');
+    }
+
+    const huddle: Huddle = {
+      id: generateId(),
+      channelId,
+      topic: input.topic ?? null,
+      audioOnly: input.audioOnly ?? true,
+      startedBy: userId,
+      startedAt: new Date(),
+      participants: new Map([[userId, { userId, joinedAt: new Date(), isMuted: false }]]),
+    };
+
+    activeHuddles.set(channelId, huddle);
+
+    return {
+      id: huddle.id,
+      channelId: huddle.channelId,
+      topic: huddle.topic,
+      audioOnly: huddle.audioOnly,
+      startedBy: huddle.startedBy,
+      startedAt: huddle.startedAt,
+      participants: Array.from(huddle.participants.values()),
+    };
+  }
+
+  async joinHuddle(userId: string, channelId: string) {
+    const channel = await prisma.wsChannel.findUnique({ where: { id: channelId } });
+    if (!channel) {
+      throw new AppError(404, 'Channel not found', 'NOT_FOUND');
+    }
+
+    const membership = await prisma.wsChannelMember.findUnique({
+      where: { channelId_userId: { channelId, userId } },
+    });
+    if (!membership) {
+      throw new AppError(403, 'Not a member of this channel', 'FORBIDDEN');
+    }
+
+    const huddle = activeHuddles.get(channelId);
+    if (!huddle) {
+      throw new AppError(404, 'No active huddle in this channel', 'NO_HUDDLE');
+    }
+
+    if (huddle.participants.has(userId)) {
+      throw new AppError(409, 'Already in the huddle', 'ALREADY_JOINED');
+    }
+
+    huddle.participants.set(userId, { userId, joinedAt: new Date(), isMuted: false });
+
+    return {
+      id: huddle.id,
+      channelId: huddle.channelId,
+      topic: huddle.topic,
+      audioOnly: huddle.audioOnly,
+      startedBy: huddle.startedBy,
+      startedAt: huddle.startedAt,
+      participants: Array.from(huddle.participants.values()),
+    };
+  }
+
+  async leaveHuddle(userId: string, channelId: string) {
+    const huddle = activeHuddles.get(channelId);
+    if (!huddle) {
+      throw new AppError(404, 'No active huddle in this channel', 'NO_HUDDLE');
+    }
+
+    if (!huddle.participants.has(userId)) {
+      throw new AppError(404, 'Not in this huddle', 'NOT_IN_HUDDLE');
+    }
+
+    huddle.participants.delete(userId);
+
+    // If no participants left, end the huddle
+    if (huddle.participants.size === 0) {
+      activeHuddles.delete(channelId);
+      return { ended: true, huddle: null };
+    }
+
+    return {
+      ended: false,
+      huddle: {
+        id: huddle.id,
+        channelId: huddle.channelId,
+        topic: huddle.topic,
+        audioOnly: huddle.audioOnly,
+        startedBy: huddle.startedBy,
+        startedAt: huddle.startedAt,
+        participants: Array.from(huddle.participants.values()),
+      },
+    };
+  }
+
+  async getHuddle(userId: string, channelId: string) {
+    const channel = await prisma.wsChannel.findUnique({ where: { id: channelId } });
+    if (!channel) {
+      throw new AppError(404, 'Channel not found', 'NOT_FOUND');
+    }
+
+    if (channel.type !== 'PUBLIC') {
+      const membership = await prisma.wsChannelMember.findUnique({
+        where: { channelId_userId: { channelId, userId } },
+      });
+      if (!membership) {
+        throw new AppError(403, 'Not a member of this channel', 'FORBIDDEN');
+      }
+    }
+
+    const huddle = activeHuddles.get(channelId);
+    if (!huddle) {
+      return null;
+    }
+
+    return {
+      id: huddle.id,
+      channelId: huddle.channelId,
+      topic: huddle.topic,
+      audioOnly: huddle.audioOnly,
+      startedBy: huddle.startedBy,
+      startedAt: huddle.startedAt,
+      participants: Array.from(huddle.participants.values()),
+    };
+  }
+
+  // ------------------------------------------
+  // Canvas (collaborative docs in channels)
+  // ------------------------------------------
+
+  async createCanvas(userId: string, channelId: string, input: CreateCanvasInput) {
+    const channel = await prisma.wsChannel.findUnique({ where: { id: channelId } });
+    if (!channel) {
+      throw new AppError(404, 'Channel not found', 'NOT_FOUND');
+    }
+
+    const membership = await prisma.wsChannelMember.findUnique({
+      where: { channelId_userId: { channelId, userId } },
+    });
+    if (!membership) {
+      throw new AppError(403, 'Not a member of this channel', 'FORBIDDEN');
+    }
+
+    // Use the Note model to store canvas documents, linking via metadata
+    const canvas = await prisma.note.create({
+      data: {
+        userId,
+        title: input.title,
+        contentJson: (input.contentJson ?? {}) as Prisma.InputJsonValue,
+        contentText: input.contentText ?? '',
+        // Store channel association in a way we can query — use a tag-like approach
+        // We use a convention: notes with metadata stored in contentJson.channelId
+        // Since Note doesn't have a channelId field, we embed it in contentJson
+      },
+    });
+
+    // Update contentJson to include the channel reference
+    const updatedCanvas = await prisma.note.update({
+      where: { id: canvas.id },
+      data: {
+        contentJson: {
+          ...(typeof input.contentJson === 'object' && input.contentJson !== null ? input.contentJson : {}),
+          _channelId: channelId,
+          _workspaceId: channel.workspaceId,
+        },
+      },
+    });
+
+    return updatedCanvas;
+  }
+
+  async listCanvases(userId: string, channelId: string) {
+    const channel = await prisma.wsChannel.findUnique({ where: { id: channelId } });
+    if (!channel) {
+      throw new AppError(404, 'Channel not found', 'NOT_FOUND');
+    }
+
+    if (channel.type !== 'PUBLIC') {
+      const membership = await prisma.wsChannelMember.findUnique({
+        where: { channelId_userId: { channelId, userId } },
+      });
+      if (!membership) {
+        throw new AppError(403, 'Not a member of this channel', 'FORBIDDEN');
+      }
+    }
+
+    // Query notes that have _channelId matching in their contentJson
+    // Prisma supports JSON path filtering on PostgreSQL
+    const canvases = await prisma.note.findMany({
+      where: {
+        deletedAt: null,
+        contentJson: {
+          path: ['_channelId'],
+          equals: channelId,
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+        user: { select: userSelect },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    return canvases;
+  }
+
+  async getCanvas(userId: string, canvasId: string) {
+    const canvas = await prisma.note.findUnique({
+      where: { id: canvasId },
+      include: {
+        user: { select: userSelect },
+        versions: {
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        },
+        shares: true,
+      },
+    });
+
+    if (!canvas || canvas.deletedAt) {
+      throw new AppError(404, 'Canvas not found', 'NOT_FOUND');
+    }
+
+    // Verify access: either the owner, or a member of the linked channel
+    const contentJson = canvas.contentJson as Record<string, unknown> | null;
+    const linkedChannelId = contentJson?._channelId as string | undefined;
+
+    if (canvas.userId !== userId && linkedChannelId) {
+      const channel = await prisma.wsChannel.findUnique({ where: { id: linkedChannelId } });
+      if (channel && channel.type !== 'PUBLIC') {
+        const membership = await prisma.wsChannelMember.findUnique({
+          where: { channelId_userId: { channelId: linkedChannelId, userId } },
+        });
+        if (!membership) {
+          throw new AppError(403, 'Not authorized to view this canvas', 'FORBIDDEN');
+        }
+      }
+    }
+
+    return canvas;
+  }
+
+  async updateCanvas(userId: string, canvasId: string, input: UpdateCanvasInput) {
+    const canvas = await prisma.note.findUnique({ where: { id: canvasId } });
+
+    if (!canvas || canvas.deletedAt) {
+      throw new AppError(404, 'Canvas not found', 'NOT_FOUND');
+    }
+
+    // Verify access: owner or channel member
+    const contentJson = canvas.contentJson as Record<string, unknown> | null;
+    const linkedChannelId = contentJson?._channelId as string | undefined;
+
+    if (canvas.userId !== userId && linkedChannelId) {
+      const membership = await prisma.wsChannelMember.findUnique({
+        where: { channelId_userId: { channelId: linkedChannelId, userId } },
+      });
+      if (!membership) {
+        throw new AppError(403, 'Not authorized to edit this canvas', 'FORBIDDEN');
+      }
+    }
+
+    // Save current version before updating
+    if (canvas.contentJson) {
+      await prisma.noteVersion.create({
+        data: {
+          noteId: canvasId,
+          contentJson: canvas.contentJson,
+        },
+      });
+    }
+
+    const updateData: Record<string, unknown> = {};
+    if (input.title !== undefined) updateData.title = input.title;
+    if (input.contentText !== undefined) updateData.contentText = input.contentText;
+    if (input.contentJson !== undefined) {
+      // Preserve the channel link metadata
+      updateData.contentJson = {
+        ...input.contentJson,
+        _channelId: contentJson?._channelId,
+        _workspaceId: contentJson?._workspaceId,
+      };
+    }
+
+    return prisma.note.update({
+      where: { id: canvasId },
+      data: updateData,
+      include: {
+        user: { select: userSelect },
+      },
+    });
+  }
+
+  async deleteCanvas(userId: string, canvasId: string) {
+    const canvas = await prisma.note.findUnique({ where: { id: canvasId } });
+
+    if (!canvas || canvas.deletedAt) {
+      throw new AppError(404, 'Canvas not found', 'NOT_FOUND');
+    }
+
+    // Only the creator or a channel admin can delete
+    const contentJson = canvas.contentJson as Record<string, unknown> | null;
+    const linkedChannelId = contentJson?._channelId as string | undefined;
+
+    if (canvas.userId !== userId) {
+      if (!linkedChannelId) {
+        throw new AppError(403, 'Only the canvas creator can delete it', 'FORBIDDEN');
+      }
+      const channelMembership = await prisma.wsChannelMember.findFirst({
+        where: { channelId: linkedChannelId, userId, role: { in: ['OWNER', 'ADMIN'] } },
+      });
+      if (!channelMembership) {
+        throw new AppError(403, 'Only the creator or channel admins can delete a canvas', 'FORBIDDEN');
+      }
+    }
+
+    // Soft-delete
+    await prisma.note.update({
+      where: { id: canvasId },
+      data: { deletedAt: new Date() },
+    });
+  }
+
+  // ------------------------------------------
+  // Channel Analytics
+  // ------------------------------------------
+
+  async getChannelAnalytics(userId: string, channelId: string, days: number = 30) {
+    const channel = await prisma.wsChannel.findUnique({ where: { id: channelId } });
+    if (!channel) {
+      throw new AppError(404, 'Channel not found', 'NOT_FOUND');
+    }
+
+    // Verify membership or public channel
+    if (channel.type !== 'PUBLIC') {
+      const membership = await prisma.wsChannelMember.findUnique({
+        where: { channelId_userId: { channelId, userId } },
+      });
+      if (!membership) {
+        throw new AppError(403, 'Not a member of this channel', 'FORBIDDEN');
+      }
+    }
+
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+
+    // Total message count in the period
+    const totalMessages = await prisma.wsMessage.count({
+      where: { channelId, isDeleted: false, createdAt: { gte: since } },
+    });
+
+    // Total thread replies
+    const threadReplies = await prisma.wsMessage.count({
+      where: { channelId, isDeleted: false, createdAt: { gte: since }, parentMessageId: { not: null } },
+    });
+
+    // Active users (distinct senders)
+    const activeUsersResult = await prisma.wsMessage.groupBy({
+      by: ['senderId'],
+      where: { channelId, isDeleted: false, createdAt: { gte: since } },
+    });
+    const activeUserCount = activeUsersResult.length;
+
+    // Top contributors (top 10 by message count)
+    const topContributors = await prisma.wsMessage.groupBy({
+      by: ['senderId'],
+      where: { channelId, isDeleted: false, createdAt: { gte: since } },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 10,
+    });
+
+    // Fetch user details for top contributors
+    const topContributorIds = topContributors.map((c) => c.senderId);
+    const users = await prisma.user.findMany({
+      where: { id: { in: topContributorIds } },
+      select: userSelect,
+    });
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    const topContributorsWithUsers = topContributors.map((c) => ({
+      user: userMap.get(c.senderId) ?? { id: c.senderId },
+      messageCount: c._count.id,
+    }));
+
+    // Messages with reactions
+    const messagesWithReactions = await prisma.wsMessageReaction.groupBy({
+      by: ['messageId'],
+      where: {
+        message: { channelId, isDeleted: false, createdAt: { gte: since } },
+      },
+    });
+
+    // Total reactions
+    const totalReactions = await prisma.wsMessageReaction.count({
+      where: {
+        message: { channelId, isDeleted: false, createdAt: { gte: since } },
+      },
+    });
+
+    // Member count
+    const memberCount = await prisma.wsChannelMember.count({ where: { channelId } });
+
+    // Daily message counts for the period (using raw SQL for date grouping)
+    const dailyMessages = await prisma.$queryRaw<Array<{ day: string; count: bigint }>>`
+      SELECT DATE(created_at) as day, COUNT(*)::bigint as count
+      FROM ws_messages
+      WHERE channel_id = ${channelId}::uuid
+        AND is_deleted = false
+        AND created_at >= ${since}
+      GROUP BY DATE(created_at)
+      ORDER BY day ASC
+    `;
+
+    // Peak hours (0-23)
+    const hourlyMessages = await prisma.$queryRaw<Array<{ hour: number; count: bigint }>>`
+      SELECT EXTRACT(HOUR FROM created_at)::int as hour, COUNT(*)::bigint as count
+      FROM ws_messages
+      WHERE channel_id = ${channelId}::uuid
+        AND is_deleted = false
+        AND created_at >= ${since}
+      GROUP BY EXTRACT(HOUR FROM created_at)
+      ORDER BY count DESC
+    `;
+
+    return {
+      channelId,
+      period: { days, since: since.toISOString() },
+      totalMessages,
+      threadReplies,
+      activeUserCount,
+      memberCount,
+      totalReactions,
+      messagesWithReactionsCount: messagesWithReactions.length,
+      topContributors: topContributorsWithUsers,
+      dailyMessages: dailyMessages.map((d) => ({
+        day: d.day,
+        count: Number(d.count),
+      })),
+      peakHours: hourlyMessages.map((h) => ({
+        hour: h.hour,
+        count: Number(h.count),
+      })),
+    };
+  }
+
+  // ------------------------------------------
+  // Workflow Automations
+  // ------------------------------------------
+
+  async createAutomation(userId: string, workspaceId: string, input: CreateAutomationInput) {
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId, userId } },
+    });
+    if (!membership || (membership.role !== 'OWNER' && membership.role !== 'ADMIN')) {
+      throw new AppError(403, 'Only workspace owners or admins can create automations', 'FORBIDDEN');
+    }
+
+    // If a channel is referenced in the trigger, verify it exists in this workspace
+    if (input.trigger.channelId) {
+      const channel = await prisma.wsChannel.findFirst({
+        where: { id: input.trigger.channelId, workspaceId },
+      });
+      if (!channel) {
+        throw new AppError(404, 'Referenced channel not found in this workspace', 'NOT_FOUND');
+      }
+    }
+
+    const automation: Automation = {
+      id: generateId(),
+      workspaceId,
+      name: input.name,
+      description: input.description ?? null,
+      trigger: input.trigger as AutomationTrigger,
+      actions: input.actions as AutomationAction[],
+      enabled: input.enabled ?? true,
+      createdBy: userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const existing = automationStore.get(workspaceId) ?? [];
+    existing.push(automation);
+    automationStore.set(workspaceId, existing);
+
+    return automation;
+  }
+
+  async listAutomations(userId: string, workspaceId: string) {
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId, userId } },
+    });
+    if (!membership) {
+      throw new AppError(403, 'Not a member of this workspace', 'FORBIDDEN');
+    }
+
+    return automationStore.get(workspaceId) ?? [];
+  }
+
+  async updateAutomation(userId: string, automationId: string, input: UpdateAutomationInput) {
+    // Find the automation across all workspaces
+    let foundAutomation: Automation | null = null;
+    let foundWorkspaceId: string | null = null;
+
+    for (const [wsId, automations] of automationStore) {
+      const automation = automations.find((a) => a.id === automationId);
+      if (automation) {
+        foundAutomation = automation;
+        foundWorkspaceId = wsId;
+        break;
+      }
+    }
+
+    if (!foundAutomation || !foundWorkspaceId) {
+      throw new AppError(404, 'Automation not found', 'NOT_FOUND');
+    }
+
+    // Verify workspace admin/owner
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId: foundWorkspaceId, userId } },
+    });
+    if (!membership || (membership.role !== 'OWNER' && membership.role !== 'ADMIN')) {
+      throw new AppError(403, 'Only workspace owners or admins can update automations', 'FORBIDDEN');
+    }
+
+    // Apply updates
+    if (input.name !== undefined) foundAutomation.name = input.name;
+    if (input.description !== undefined) foundAutomation.description = input.description ?? null;
+    if (input.trigger !== undefined) foundAutomation.trigger = input.trigger as AutomationTrigger;
+    if (input.actions !== undefined) foundAutomation.actions = input.actions as AutomationAction[];
+    if (input.enabled !== undefined) foundAutomation.enabled = input.enabled;
+    foundAutomation.updatedAt = new Date();
+
+    return foundAutomation;
+  }
+
+  async deleteAutomation(userId: string, automationId: string) {
+    let foundWorkspaceId: string | null = null;
+    let foundIndex = -1;
+
+    for (const [wsId, automations] of automationStore) {
+      const idx = automations.findIndex((a) => a.id === automationId);
+      if (idx !== -1) {
+        foundWorkspaceId = wsId;
+        foundIndex = idx;
+        break;
+      }
+    }
+
+    if (!foundWorkspaceId || foundIndex === -1) {
+      throw new AppError(404, 'Automation not found', 'NOT_FOUND');
+    }
+
+    const membership = await prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId: foundWorkspaceId, userId } },
+    });
+    if (!membership || (membership.role !== 'OWNER' && membership.role !== 'ADMIN')) {
+      throw new AppError(403, 'Only workspace owners or admins can delete automations', 'FORBIDDEN');
+    }
+
+    const automations = automationStore.get(foundWorkspaceId)!;
+    automations.splice(foundIndex, 1);
+  }
+
+  // ------------------------------------------
+  // Pinned Messages
+  // ------------------------------------------
+
+  async togglePinMessage(userId: string, messageId: string) {
+    const message = await prisma.wsMessage.findUnique({
+      where: { id: messageId },
+      include: { channel: { select: { id: true, type: true } } },
+    });
+
+    if (!message || message.isDeleted) {
+      throw new AppError(404, 'Message not found', 'NOT_FOUND');
+    }
+
+    // Verify user is a channel member
+    const membership = await prisma.wsChannelMember.findUnique({
+      where: { channelId_userId: { channelId: message.channelId, userId } },
+    });
+    if (!membership) {
+      throw new AppError(403, 'Not a member of this channel', 'FORBIDDEN');
+    }
+
+    // Toggle pin status via the metadata JSON field
+    const currentMetadata = (message.metadata as Record<string, unknown>) ?? {};
+    const isPinned = currentMetadata._pinned === true;
+
+    const updatedMetadata = {
+      ...currentMetadata,
+      _pinned: !isPinned,
+      _pinnedBy: !isPinned ? userId : null,
+      _pinnedAt: !isPinned ? new Date().toISOString() : null,
+    };
+
+    const updatedMessage = await prisma.wsMessage.update({
+      where: { id: messageId },
+      data: { metadata: updatedMetadata },
+      include: {
+        sender: { select: userSelect },
+      },
+    });
+
+    return {
+      pinned: !isPinned,
+      message: updatedMessage,
+    };
+  }
+
+  async getPinnedMessages(userId: string, channelId: string) {
+    const channel = await prisma.wsChannel.findUnique({ where: { id: channelId } });
+    if (!channel) {
+      throw new AppError(404, 'Channel not found', 'NOT_FOUND');
+    }
+
+    if (channel.type !== 'PUBLIC') {
+      const membership = await prisma.wsChannelMember.findUnique({
+        where: { channelId_userId: { channelId, userId } },
+      });
+      if (!membership) {
+        throw new AppError(403, 'Not a member of this channel', 'FORBIDDEN');
+      }
+    }
+
+    // Query messages where metadata contains _pinned: true
+    const pinnedMessages = await prisma.wsMessage.findMany({
+      where: {
+        channelId,
+        isDeleted: false,
+        metadata: {
+          path: ['_pinned'],
+          equals: true,
+        },
+      },
+      include: {
+        sender: { select: userSelect },
+        reactions: {
+          include: { user: { select: { id: true, displayName: true } } },
+        },
+        _count: { select: { threadReplies: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return pinnedMessages;
   }
 }
 

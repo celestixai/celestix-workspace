@@ -8,6 +8,7 @@ import { Titlebar } from '@/components/layout/titlebar';
 import { SearchPalette } from '@/components/layout/search-palette';
 import { NotificationPanel } from '@/components/layout/notification-panel';
 import { UpdateBanner } from '@/components/shared/update-banner';
+import { MobileNav } from '@/components/layout/mobile-nav';
 import { LoginPage } from '@/modules/auth/login-page';
 import { RegisterPage } from '@/modules/auth/register-page';
 import { WelcomePage } from '@/modules/auth/welcome-page';
@@ -132,16 +133,21 @@ function AuthenticatedLayout() {
       <Titlebar />
       <UpdateBanner />
       <div className="flex flex-1 min-h-0">
-        <NavRail />
+        {/* NavRail: hidden on mobile, shown on md+ */}
+        <div className="hidden md:block">
+          <NavRail />
+        </div>
         <div className="flex-1 flex flex-col min-w-0">
           <TopBar />
-          <main className="flex-1 overflow-hidden">
+          <main className="flex-1 overflow-hidden pb-14 md:pb-0">
             <Suspense fallback={<LoadingFallback />}>
               {moduleMap[activeModule] || <MessengerPage />}
             </Suspense>
           </main>
         </div>
       </div>
+      {/* Mobile bottom nav: shown on mobile only */}
+      <MobileNav />
       <SearchPalette />
       <NotificationPanel />
     </div>

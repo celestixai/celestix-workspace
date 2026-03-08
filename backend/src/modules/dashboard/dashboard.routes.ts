@@ -31,4 +31,29 @@ router.put('/layout', authenticate, validate(updateLayoutSchema), async (req, re
   } catch (err) { next(err); }
 });
 
+// GET /api/v1/dashboard/activity — cross-module activity feed
+router.get('/activity', authenticate, async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+    const data = await service.getActivityFeed(req.user!.id, limit);
+    res.json({ success: true, data });
+  } catch (err) { next(err); }
+});
+
+// GET /api/v1/dashboard/quick-actions — available quick actions across modules
+router.get('/quick-actions', authenticate, async (req, res, next) => {
+  try {
+    const data = await service.getQuickActions(req.user!.id);
+    res.json({ success: true, data });
+  } catch (err) { next(err); }
+});
+
+// GET /api/v1/dashboard/stats — cross-module stats
+router.get('/stats', authenticate, async (req, res, next) => {
+  try {
+    const data = await service.getStats(req.user!.id);
+    res.json({ success: true, data });
+  } catch (err) { next(err); }
+});
+
 export default router;

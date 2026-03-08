@@ -23,6 +23,12 @@ import {
   messagesQuerySchema,
   threadQuerySchema,
   createDmSchema,
+  startHuddleSchema,
+  createCanvasSchema,
+  updateCanvasSchema,
+  channelAnalyticsQuerySchema,
+  createAutomationSchema,
+  updateAutomationSchema,
 } from './workspace.schema';
 
 const router = Router();
@@ -401,6 +407,123 @@ router.delete('/emoji/:emojiId', authenticate, async (req: Request, res: Respons
 router.post('/:workspaceId/command', authenticate, validate(slashCommandSchema), async (req: Request, res: Response) => {
   const result = await workspaceService.handleSlashCommand(req.user!.id, req.params.workspaceId, req.body);
   res.json({ success: true, data: result });
+});
+
+// ==========================================
+// Huddles (audio/video in channels)
+// ==========================================
+
+// POST /api/v1/workspace/channels/:channelId/huddle/start
+router.post('/channels/:channelId/huddle/start', authenticate, validate(startHuddleSchema), async (req: Request, res: Response) => {
+  const huddle = await workspaceService.startHuddle(req.user!.id, req.params.channelId, req.body);
+  res.status(201).json({ success: true, data: huddle });
+});
+
+// POST /api/v1/workspace/channels/:channelId/huddle/join
+router.post('/channels/:channelId/huddle/join', authenticate, async (req: Request, res: Response) => {
+  const huddle = await workspaceService.joinHuddle(req.user!.id, req.params.channelId);
+  res.json({ success: true, data: huddle });
+});
+
+// POST /api/v1/workspace/channels/:channelId/huddle/leave
+router.post('/channels/:channelId/huddle/leave', authenticate, async (req: Request, res: Response) => {
+  const result = await workspaceService.leaveHuddle(req.user!.id, req.params.channelId);
+  res.json({ success: true, data: result });
+});
+
+// GET /api/v1/workspace/channels/:channelId/huddle
+router.get('/channels/:channelId/huddle', authenticate, async (req: Request, res: Response) => {
+  const huddle = await workspaceService.getHuddle(req.user!.id, req.params.channelId);
+  res.json({ success: true, data: huddle });
+});
+
+// ==========================================
+// Canvas (collaborative docs in channels)
+// ==========================================
+
+// POST /api/v1/workspace/channels/:channelId/canvas
+router.post('/channels/:channelId/canvas', authenticate, validate(createCanvasSchema), async (req: Request, res: Response) => {
+  const canvas = await workspaceService.createCanvas(req.user!.id, req.params.channelId, req.body);
+  res.status(201).json({ success: true, data: canvas });
+});
+
+// GET /api/v1/workspace/channels/:channelId/canvas
+router.get('/channels/:channelId/canvas', authenticate, async (req: Request, res: Response) => {
+  const canvases = await workspaceService.listCanvases(req.user!.id, req.params.channelId);
+  res.json({ success: true, data: canvases });
+});
+
+// GET /api/v1/workspace/canvas/:canvasId
+router.get('/canvas/:canvasId', authenticate, async (req: Request, res: Response) => {
+  const canvas = await workspaceService.getCanvas(req.user!.id, req.params.canvasId);
+  res.json({ success: true, data: canvas });
+});
+
+// PATCH /api/v1/workspace/canvas/:canvasId
+router.patch('/canvas/:canvasId', authenticate, validate(updateCanvasSchema), async (req: Request, res: Response) => {
+  const canvas = await workspaceService.updateCanvas(req.user!.id, req.params.canvasId, req.body);
+  res.json({ success: true, data: canvas });
+});
+
+// DELETE /api/v1/workspace/canvas/:canvasId
+router.delete('/canvas/:canvasId', authenticate, async (req: Request, res: Response) => {
+  await workspaceService.deleteCanvas(req.user!.id, req.params.canvasId);
+  res.json({ success: true, data: { message: 'Canvas deleted' } });
+});
+
+// ==========================================
+// Channel Analytics
+// ==========================================
+
+// GET /api/v1/workspace/channels/:channelId/analytics
+router.get('/channels/:channelId/analytics', authenticate, validate(channelAnalyticsQuerySchema, 'query'), async (req: Request, res: Response) => {
+  const { days } = req.query as { days?: string };
+  const analytics = await workspaceService.getChannelAnalytics(req.user!.id, req.params.channelId, Number(days) || 30);
+  res.json({ success: true, data: analytics });
+});
+
+// ==========================================
+// Workflow Automations
+// ==========================================
+
+// POST /api/v1/workspace/:workspaceId/automations
+router.post('/:workspaceId/automations', authenticate, validate(createAutomationSchema), async (req: Request, res: Response) => {
+  const automation = await workspaceService.createAutomation(req.user!.id, req.params.workspaceId, req.body);
+  res.status(201).json({ success: true, data: automation });
+});
+
+// GET /api/v1/workspace/:workspaceId/automations
+router.get('/:workspaceId/automations', authenticate, async (req: Request, res: Response) => {
+  const automations = await workspaceService.listAutomations(req.user!.id, req.params.workspaceId);
+  res.json({ success: true, data: automations });
+});
+
+// PATCH /api/v1/workspace/automations/:automationId
+router.patch('/automations/:automationId', authenticate, validate(updateAutomationSchema), async (req: Request, res: Response) => {
+  const automation = await workspaceService.updateAutomation(req.user!.id, req.params.automationId, req.body);
+  res.json({ success: true, data: automation });
+});
+
+// DELETE /api/v1/workspace/automations/:automationId
+router.delete('/automations/:automationId', authenticate, async (req: Request, res: Response) => {
+  await workspaceService.deleteAutomation(req.user!.id, req.params.automationId);
+  res.json({ success: true, data: { message: 'Automation deleted' } });
+});
+
+// ==========================================
+// Pinned Messages
+// ==========================================
+
+// POST /api/v1/workspace/messages/:messageId/pin
+router.post('/messages/:messageId/pin', authenticate, async (req: Request, res: Response) => {
+  const result = await workspaceService.togglePinMessage(req.user!.id, req.params.messageId);
+  res.json({ success: true, data: result });
+});
+
+// GET /api/v1/workspace/channels/:channelId/pins
+router.get('/channels/:channelId/pins', authenticate, async (req: Request, res: Response) => {
+  const pins = await workspaceService.getPinnedMessages(req.user!.id, req.params.channelId);
+  res.json({ success: true, data: pins });
 });
 
 export default router;
