@@ -1,13 +1,14 @@
 FROM node:20-alpine AS builder
 
 RUN apk add --no-cache openssl
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
 RUN npx prisma generate
-RUN npm run build
+RUN pnpm run build
 
 FROM node:20-alpine
 
