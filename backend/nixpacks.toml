@@ -1,12 +1,11 @@
 [phases.setup]
 nixPkgs = ["nodejs_20", "openssl"]
-cmds = ["corepack enable && corepack prepare pnpm@latest --activate"]
 
 [phases.install]
-cmds = ["pnpm install --frozen-lockfile"]
+cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npx prisma generate", "pnpm run build"]
+cmds = ["npx prisma generate", "npm run build"]
 
 [start]
 cmd = "node dist/index.js"
