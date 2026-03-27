@@ -200,13 +200,19 @@ app.use(errorHandler);
 // Start server
 async function start() {
   try {
-    // Test database connection
-    await prisma.$connect();
-    logger.info('Database connected');
+    // Test database connection (with timeout)
+    await Promise.race([
+      prisma.$connect(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('DB connect timeout')), 15000))
+    ]).then(() => logger.info('Database connected'))
+      .catch((err) => logger.warn(`Database connection issue: ${err.message} — will retry on first query`));
 
-    // Test redis connection
+    // Test redis connection (with timeout)
     try {
-      await redis.ping();
+      await Promise.race([
+        redis.ping(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 5000))
+      ]);
       logger.info('Redis connected');
     } catch {
       logger.warn('Redis not available — running without Redis');
