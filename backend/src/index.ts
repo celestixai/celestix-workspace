@@ -200,14 +200,20 @@ app.use(errorHandler);
 // Start server
 async function start() {
   try {
-    // Test database connection (with timeout)
+    // 1. Start listening FIRST so Railway health checks pass immediately
+    server.listen(config.port, () => {
+      logger.info(`Celestix Workspace backend running on port ${config.port}`);
+      logger.info(`Environment: ${config.env}`);
+    });
+
+    // 2. Test database connection (with timeout) — non-blocking
     await Promise.race([
       prisma.$connect(),
       new Promise((_, reject) => setTimeout(() => reject(new Error('DB connect timeout')), 15000))
     ]).then(() => logger.info('Database connected'))
       .catch((err) => logger.warn(`Database connection issue: ${err.message} — will retry on first query`));
 
-    // Connect redis (with timeout — lazyConnect mode)
+    // 3. Connect redis (with timeout — lazyConnect mode) — non-blocking
     try {
       await Promise.race([
         redis.connect(),
@@ -218,36 +224,31 @@ async function start() {
       logger.warn('Redis not available — running without Redis');
     }
 
-    server.listen(config.port, () => {
-      logger.info(`Celestix Workspace backend running on port ${config.port}`);
-      logger.info(`Environment: ${config.env}`);
+    // 4. Start schedulers (skip in test)
+    if (config.env !== 'test') {
+      startRecurringScheduler(60);
 
-      // Start recurring task scheduler (skip in test)
-      if (config.env !== 'test') {
-        startRecurringScheduler(60);
-
-        // Start reminders scheduler — check every 60 seconds
+      // Start reminders scheduler — check every 60 seconds
+      remindersService.checkDueReminders().catch((err) =>
+        logger.error({ err }, 'Reminders check error on startup'),
+      );
+      setInterval(() => {
         remindersService.checkDueReminders().catch((err) =>
-          logger.error({ err }, 'Reminders check error on startup'),
+          logger.error({ err }, 'Reminders check error'),
         );
-        setInterval(() => {
-          remindersService.checkDueReminders().catch((err) =>
-            logger.error({ err }, 'Reminders check error'),
-          );
-        }, 60 * 1000);
+      }, 60 * 1000);
 
-        // Sprint daily snapshot — run at midnight, check every 15 minutes
-        const runSprintSnapshots = () => {
-          const now = new Date();
-          if (now.getHours() === 0 && now.getMinutes() < 15) {
-            sprintsEnhancedService.recordAllActiveSnapshots().catch((err) =>
-              logger.error({ err }, 'Sprint snapshot error'),
-            );
-          }
-        };
-        setInterval(runSprintSnapshots, 15 * 60 * 1000);
-      }
-    });
+      // Sprint daily snapshot — run at midnight, check every 15 minutes
+      const runSprintSnapshots = () => {
+        const now = new Date();
+        if (now.getHours() === 0 && now.getMinutes() < 15) {
+          sprintsEnhancedService.recordAllActiveSnapshots().catch((err) =>
+            logger.error({ err }, 'Sprint snapshot error'),
+          );
+        }
+      };
+      setInterval(runSprintSnapshots, 15 * 60 * 1000);
+    }
   } catch (error) {
     logger.error({ error }, 'Failed to start server');
     process.exit(1);
