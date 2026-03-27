@@ -7,9 +7,11 @@ let redis: Redis;
 if (config.redis.url && config.redis.url !== 'none') {
   redis = new Redis(config.redis.url, {
     maxRetriesPerRequest: 3,
+    lazyConnect: true,
+    connectTimeout: 5000,
     retryStrategy(times) {
-      const delay = Math.min(times * 50, 2000);
-      return delay;
+      if (times > 5) return null; // stop retrying after 5 attempts
+      return Math.min(times * 200, 2000);
     },
   });
 

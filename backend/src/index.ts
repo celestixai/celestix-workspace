@@ -207,10 +207,10 @@ async function start() {
     ]).then(() => logger.info('Database connected'))
       .catch((err) => logger.warn(`Database connection issue: ${err.message} — will retry on first query`));
 
-    // Test redis connection (with timeout)
+    // Connect redis (with timeout — lazyConnect mode)
     try {
       await Promise.race([
-        redis.ping(),
+        redis.connect(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 5000))
       ]);
       logger.info('Redis connected');
