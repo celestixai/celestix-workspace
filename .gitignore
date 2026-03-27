@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+*.log
+storage/
+frontend/release/
+screenshots/
+design-screenshots/
+*.png
+!frontend/src/assets/*.png
+!frontend/build/*.png
+!frontend/public/icons/*.png
+*.mjs
+tmp/
+ci-artifacts/

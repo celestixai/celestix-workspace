@@ -1,0 +1,221 @@
+{
+  "results": [
+    {
+      "test": "LOGIN",
+      "status": "PASS",
+      "detail": "Redirected to http://localhost:5173/"
+    },
+    {
+      "test": "B1.0 Engineering space found",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "B1.0a Backend folder found",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "B1.0b API Development list found",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "B1.1 Task list renders with tasks",
+      "status": "WARN",
+      "detail": "Could not identify task rows"
+    },
+    {
+      "test": "B1.2 Quick add task input exists",
+      "status": "WARN",
+      "detail": "Not found on page"
+    },
+    {
+      "test": "B1.3 Custom task IDs (ENG-xxx) visible",
+      "status": "PASS",
+      "detail": "Found 3 IDs: ENG-003, ENG-001, ENG-002"
+    },
+    {
+      "test": "B1.4 Checkboxes exist for selection",
+      "status": "PASS",
+      "detail": "Found 4 checkboxes"
+    },
+    {
+      "test": "B1.5 Views bar visible",
+      "status": "PASS",
+      "detail": "List tab: true, Board tab: true"
+    },
+    {
+      "test": "B2.1 Board view (kanban)",
+      "status": "PASS",
+      "detail": "Found 1 column-like elements"
+    },
+    {
+      "test": "B2.2 View control buttons",
+      "status": "WARN",
+      "detail": "No Filter/Sort/Group buttons found"
+    },
+    {
+      "test": "B3 goals page",
+      "status": "PASS",
+      "detail": "Body length: 354, console errors: 0"
+    },
+    {
+      "test": "B3 automations page",
+      "status": "PASS",
+      "detail": "Body length: 417, console errors: 2"
+    },
+    {
+      "test": "B3 automations console errors",
+      "status": "WARN",
+      "detail": "Failed to load resource: the server responded with a status of 500 (Internal Ser | Failed to load resource: the server responded with a status of 500 (Internal Ser"
+    },
+    {
+      "test": "B3 inbox page",
+      "status": "PASS",
+      "detail": "Body length: 325, console errors: 0"
+    },
+    {
+      "test": "B3 planner page",
+      "status": "PASS",
+      "detail": "Body length: 510, console errors: 0"
+    },
+    {
+      "test": "B3 dashboards page",
+      "status": "PASS",
+      "detail": "Body length: 374, console errors: 0"
+    },
+    {
+      "test": "B3 clips page",
+      "status": "PASS",
+      "detail": "Body length: 383, console errors: 0"
+    },
+    {
+      "test": "B3 sprints page",
+      "status": "PASS",
+      "detail": "Body length: 391, console errors: 0"
+    },
+    {
+      "test": "B3 people page",
+      "status": "PASS",
+      "detail": "Body length: 317, console errors: 0"
+    },
+    {
+      "test": "B3 integrations page",
+      "status": "PASS",
+      "detail": "Body length: 850, console errors: 0"
+    },
+    {
+      "test": "B3 messenger page",
+      "status": "PASS",
+      "detail": "Body length: 629, console errors: 0"
+    },
+    {
+      "test": "B3 workspace page",
+      "status": "PASS",
+      "detail": "Body length: 470, console errors: 0"
+    },
+    {
+      "test": "B3 email page",
+      "status": "PASS",
+      "detail": "Body length: 567, console errors: 0"
+    },
+    {
+      "test": "B3 calendar page",
+      "status": "PASS",
+      "detail": "Body length: 675, console errors: 0"
+    },
+    {
+      "test": "B3 files page",
+      "status": "PASS",
+      "detail": "Body length: 402, console errors: 0"
+    },
+    {
+      "test": "B3 notes page",
+      "status": "PASS",
+      "detail": "Body length: 577, console errors: 0"
+    },
+    {
+      "test": "B3 contacts page",
+      "status": "PASS",
+      "detail": "Body length: 722, console errors: 0"
+    },
+    {
+      "test": "B3 settings page",
+      "status": "PASS",
+      "detail": "Body length: 486, console errors: 0"
+    },
+    {
+      "test": "B3 documents page",
+      "status": "PASS",
+      "detail": "Body length: 326, console errors: 0"
+    },
+    {
+      "test": "B4.1 AI command bar opens (Ctrl+J)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "B4.2 Offline message (Ollama not running)",
+      "status": "WARN",
+      "detail": "No explicit offline message"
+    },
+    {
+      "test": "B5.1 Search palette (Ctrl+K)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "B5.2 Keyboard shortcuts modal (?)",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "consoleErrors": {
+    "http://localhost:5173/": [
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ]
+  },
+  "allConsoleErrors": [
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    }
+  ],
+  "screenshots": [
+    "b1-01-spaces.png",
+    "b1-02-engineering.png",
+    "b1-03-api-development.png",
+    "b1-04-task-list.png",
+    "b1-05-quick-add.png",
+    "b1-06-views-bar.png",
+    "b2-01-board-view.png",
+    "b2-02-view-controls.png",
+    "b3-automations.png",
+    "b3-calendar.png",
+    "b3-clips.png",
+    "b3-contacts.png",
+    "b3-dashboards.png",
+    "b3-documents.png",
+    "b3-email.png",
+    "b3-files.png",
+    "b3-goals.png",
+    "b3-inbox.png",
+    "b3-integrations.png",
+    "b3-messenger.png",
+    "b3-notes.png",
+    "b3-people.png",
+    "b3-planner.png",
+    "b3-settings.png",
+    "b3-sprints.png",
+    "b3-workspace.png",
+    "b4-01-ai-command-bar.png",
+    "b5-01-search-palette.png",
+    "b5-02-keyboard-shortcuts.png"
+  ]
+}

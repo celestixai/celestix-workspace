@@ -1,0 +1,71 @@
+{
+  "bugs": [
+    {
+      "module": "messenger",
+      "severity": "HIGH",
+      "description": "Test crashed",
+      "details": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"All\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"px-3 py-1 rounded-full text-xs font-m"
+    },
+    {
+      "module": "workspace",
+      "severity": "HIGH",
+      "description": "Test crashed",
+      "details": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Create\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"inline-flex items-center "
+    },
+    {
+      "module": "calendar",
+      "severity": "MEDIUM",
+      "description": "\"No calendars\" shown — calendar list may not be loading",
+      "details": ""
+    },
+    {
+      "module": "calendar",
+      "severity": "HIGH",
+      "description": "Test crashed",
+      "details": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has(svg.lucide-chevron-right)').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"p-1 rounded hover:bg-bg"
+    },
+    {
+      "module": "tasks",
+      "severity": "HIGH",
+      "description": "Test crashed",
+      "details": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Board\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"flex items-center gap-1.5 px-2.5 py"
+    },
+    {
+      "module": "files",
+      "severity": "HIGH",
+      "description": "Test crashed",
+      "details": "locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input').first()\u001b[22m\n\u001b[2m    - locator resolved to <input multiple type=\"file\" class=\"hidden\"/>\u001b[22m\n\u001b[2m    - fill(\"Test"
+    },
+    {
+      "module": "notes",
+      "severity": "HIGH",
+      "description": "New note created but editor not visible",
+      "details": ""
+    },
+    {
+      "module": "contacts",
+      "severity": "HIGH",
+      "description": "Test crashed",
+      "details": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Save\"), button:has-text(\"Create\"), button:has-text(\"Add\")').last()\u001b[22m\n\u001b[2m    - locator resolved to <"
+    },
+    {
+      "module": "meetings",
+      "severity": "HIGH",
+      "description": "Test crashed",
+      "details": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"Schedule\")').first()\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"inline-flex items-center justify"
+    }
+  ],
+  "consoleErrors": [
+    "[messenger] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[workspace] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[email] Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "[email] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[calendar] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[tasks] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[files] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[notes] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[contacts] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[meetings] Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+    "[settings] Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+  ]
+}

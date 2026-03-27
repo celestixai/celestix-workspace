@@ -1,0 +1,47 @@
+appId: com.celestix.workspace
+productName: Celestix Workspace
+directories:
+  buildResources: build
+  output: release
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+extraMetadata:
+  main: electron/main.cjs
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  artifactName: "${productName}-Setup-${version}.${ext}"
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  icon: build/icon.png
+  category: public.app-category.productivity
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+  icon: build/icon.png
+  category: Office
+# Auto-updates: configure one of these providers:
+# Option 1 - GitHub Releases:
+# publish:
+#   provider: github
+#   owner: YOUR_GITHUB_USERNAME
+#   repo: celestix-workspace
+#   releaseType: release
+# Option 2 - Generic server (S3, your own CDN, etc):
+# publish:
+#   provider: generic
+#   url: https://your-update-server.com/releases/

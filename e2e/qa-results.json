@@ -1,0 +1,379 @@
+{
+  "timestamp": "2026-03-27T06:10:11.166Z",
+  "summary": {
+    "total": 59,
+    "pass": 56,
+    "fail": 0,
+    "warn": 3
+  },
+  "results": [
+    {
+      "test": "A1.1 Login page renders",
+      "status": "PASS",
+      "detail": "Heading: \"Welcome back\""
+    },
+    {
+      "test": "A1.2 Login form elements present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A1.3 Invalid login shows error",
+      "status": "WARN",
+      "detail": "No visible error message detected"
+    },
+    {
+      "test": "A1.4 Valid login redirects to app",
+      "status": "PASS",
+      "detail": "URL: http://localhost:5173/"
+    },
+    {
+      "test": "A1.5 Nav rail visible after login",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A2 Module: dashboard",
+      "status": "PASS",
+      "detail": "Content length: 448"
+    },
+    {
+      "test": "A2 Module: inbox",
+      "status": "PASS",
+      "detail": "Content length: 68"
+    },
+    {
+      "test": "A2 Module: messenger",
+      "status": "PASS",
+      "detail": "Content length: 369"
+    },
+    {
+      "test": "A2 Module: workspace",
+      "status": "PASS",
+      "detail": "Content length: 209"
+    },
+    {
+      "test": "A2 Module: spaces",
+      "status": "PASS",
+      "detail": "Content length: 87"
+    },
+    {
+      "test": "A2 Module: tasks",
+      "status": "PASS",
+      "detail": "Content length: 768"
+    },
+    {
+      "test": "A2 Module: calendar",
+      "status": "PASS",
+      "detail": "Content length: 415"
+    },
+    {
+      "test": "A2 Module: goals",
+      "status": "PASS",
+      "detail": "Content length: 97"
+    },
+    {
+      "test": "A2 Module: sprints",
+      "status": "PASS",
+      "detail": "Content length: 132"
+    },
+    {
+      "test": "A2 Module: documents",
+      "status": "PASS",
+      "detail": "Content length: 65"
+    },
+    {
+      "test": "A2 Module: notes",
+      "status": "PASS",
+      "detail": "Content length: 314"
+    },
+    {
+      "test": "A2 Module: files",
+      "status": "PASS",
+      "detail": "Content length: 139"
+    },
+    {
+      "test": "A2 Module: clips",
+      "status": "PASS",
+      "detail": "Content length: 126"
+    },
+    {
+      "test": "A2 Module: people",
+      "status": "PASS",
+      "detail": "Content length: 59"
+    },
+    {
+      "test": "A2 Module: meetings",
+      "status": "PASS",
+      "detail": "Content length: 139"
+    },
+    {
+      "test": "A2 Module: planner",
+      "status": "PASS",
+      "detail": "Content length: 251"
+    },
+    {
+      "test": "A2 Module: time-reports",
+      "status": "PASS",
+      "detail": "Content length: 194"
+    },
+    {
+      "test": "A2 Module: automations",
+      "status": "PASS",
+      "detail": "Content length: 154"
+    },
+    {
+      "test": "A2 Module: dashboards",
+      "status": "PASS",
+      "detail": "Content length: 112"
+    },
+    {
+      "test": "A2 Module: integrations",
+      "status": "PASS",
+      "detail": "Content length: 586"
+    },
+    {
+      "test": "A2 Module: settings",
+      "status": "PASS",
+      "detail": "Content length: 226"
+    },
+    {
+      "test": "A2 Module: email",
+      "status": "PASS",
+      "detail": "Content length: 310"
+    },
+    {
+      "test": "A2 Module: contacts",
+      "status": "PASS",
+      "detail": "Content length: 462"
+    },
+    {
+      "test": "A2 Module: forms",
+      "status": "PASS",
+      "detail": "Content length: 91"
+    },
+    {
+      "test": "A2 Module: lists",
+      "status": "PASS",
+      "detail": "Content length: 102"
+    },
+    {
+      "test": "A2 Module: bookings",
+      "status": "PASS",
+      "detail": "Content length: 116"
+    },
+    {
+      "test": "A2 Module: loop",
+      "status": "PASS",
+      "detail": "Content length: 126"
+    },
+    {
+      "test": "A2 Module: whiteboard",
+      "status": "PASS",
+      "detail": "Content length: 101"
+    },
+    {
+      "test": "A2 Module: stream",
+      "status": "PASS",
+      "detail": "Content length: 39"
+    },
+    {
+      "test": "A2 Module: workflows",
+      "status": "PASS",
+      "detail": "Content length: 107"
+    },
+    {
+      "test": "A2 Module: spreadsheets",
+      "status": "PASS",
+      "detail": "Content length: 74"
+    },
+    {
+      "test": "A2 Module: presentations",
+      "status": "PASS",
+      "detail": "Content length: 94"
+    },
+    {
+      "test": "A2 Module: pdf",
+      "status": "PASS",
+      "detail": "Content length: 77"
+    },
+    {
+      "test": "A2 Module: diagrams",
+      "status": "PASS",
+      "detail": "Content length: 69"
+    },
+    {
+      "test": "A2 Module: analytics",
+      "status": "PASS",
+      "detail": "Content length: 59"
+    },
+    {
+      "test": "A2 Module: todo",
+      "status": "PASS",
+      "detail": "Content length: 120"
+    },
+    {
+      "test": "A2 Module: video-editor",
+      "status": "PASS",
+      "detail": "Content length: 53"
+    },
+    {
+      "test": "A2 Module: designer",
+      "status": "PASS",
+      "detail": "Content length: 88"
+    },
+    {
+      "test": "A2 Module: sites",
+      "status": "PASS",
+      "detail": "Content length: 50"
+    },
+    {
+      "test": "A2 Module: social",
+      "status": "PASS",
+      "detail": "Content length: 134"
+    },
+    {
+      "test": "A3.1 Spaces sidebar visible",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A3.2 Engineering space expandable",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A3.3 Backend folder clickable",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A3.4 API Development list clickable",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A3.5 Tasks visible in main area",
+      "status": "PASS",
+      "detail": "Content length: 380"
+    },
+    {
+      "test": "A4.1 Console errors",
+      "status": "WARN",
+      "detail": "13 console errors detected"
+    },
+    {
+      "test": "A4.2 Horizontal overflow check",
+      "status": "PASS",
+      "detail": "No overflow on key pages"
+    },
+    {
+      "test": "A4.3 Broken images",
+      "status": "PASS",
+      "detail": "No broken images detected"
+    },
+    {
+      "test": "A4.4 Ctrl+K search palette",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A4.5 Ctrl+J AI command bar",
+      "status": "WARN",
+      "detail": "AI command bar not detected"
+    },
+    {
+      "test": "A4.6 Mobile viewport no overflow",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A4.7 Mobile nav visible",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A4.8 Welcome page renders",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "A4.9 Register page renders",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "consoleErrors": {
+    "http://localhost:5173/login": [
+      "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    ],
+    "http://localhost:5173/": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    ]
+  },
+  "allConsoleErrors": [
+    {
+      "url": "http://localhost:5173/login",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "url": "http://localhost:5173/",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    }
+  ]
+}

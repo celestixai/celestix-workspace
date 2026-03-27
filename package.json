@@ -1,0 +1,19 @@
+{
+  "name": "celestix-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"cd backend && pnpm dev\" \"cd frontend && pnpm dev\"",
+    "build": "cd backend && pnpm build && cd ../frontend && pnpm build",
+    "test": "cd backend && pnpm test && cd ../frontend && pnpm test",
+    "test:e2e": "npx playwright test",
+    "audit:api": "node scripts/api-audit.mjs",
+    "audit:frontend": "node scripts/frontend-audit.mjs",
+    "lint": "cd backend && pnpm lint && cd ../frontend && pnpm lint"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "concurrently": "^8.2.0",
+    "socket.io-client": "^4.8.3"
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "browserResults": [
+    {
+      "test": "LOGIN",
+      "status": "PASS",
+      "detail": "Redirected to http://localhost:5173/"
+    },
+    {
+      "test": "C1 Quick Task Modal opens on Ctrl+N",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "C2 Goals → Create button found & clicked",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "C3 Automations → Create button found & clicked",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "C4 Dashboards → Create button found & clicked",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "C5 Search palette opens on Ctrl+K",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "C5 Typed \"API\" in search",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "C6 Found \"general\" channel",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "test": "C6 Message input exists in workspace channel",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "apiResults": [
+    {
+      "endpoint": "/auth/login",
+      "status": "PASS",
+      "code": 200,
+      "detail": "userId=f8848a7b-231c-4c94-bd1e-99db6d375b5d"
+    },
+    {
+      "endpoint": "/workspace",
+      "status": "PASS",
+      "code": 200,
+      "detail": "wsId=a01e6f46-d93b-47f7-bf4f-549c81b6e2f5"
+    },
+    {
+      "endpoint": "/spaces/workspace/{wsId}/spaces",
+      "status": "PASS",
+      "code": 200,
+      "detail": "spaceId=5b5f76e8-5c62-4649-a54b-c9e474dc6777"
+    },
+    {
+      "endpoint": "/task-lists/space/{spaceId}/lists",
+      "status": "PASS",
+      "code": 200,
+      "detail": "listId=34d566f9-b81b-4bff-9de4-bce2a5d69694"
+    },
+    {
+      "endpoint": "/auth/me",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/spaces/{spaceId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/spaces/{spaceId}/members",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/spaces/{spaceId}/statuses",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/folders/space/{spaceId}/folders",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/task-lists/{listId}/statuses",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/task-types/space/{spaceId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/custom-fields/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/tags/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/templates/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/automations/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/automations/templates",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/goals/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/goals/workspace/{wsId}/folders",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/dashboards-custom/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/inbox",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/inbox/counts",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/reminders",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/docs/hub?workspaceId={wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/clips/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/sprints/space/{spaceId}/folders",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/time-tracking/report",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/schedules/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/ai/status",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/search/advanced?q=test",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/integrations/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/teams/workspace/{wsId}",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/notifications",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    },
+    {
+      "endpoint": "/notifications/unread-count",
+      "status": "PASS",
+      "code": 200,
+      "detail": ""
+    }
+  ],
+  "elapsed": "36.7"
+}

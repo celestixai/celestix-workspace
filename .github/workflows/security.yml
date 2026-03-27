@@ -1,0 +1,53 @@
+###############################################################################
+# Celestix Security Scan
+# 
+# Runs npm audit on both backend and frontend
+# Triggers: weekly schedule + PRs to main
+###############################################################################
+
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9 AM UTC
+  pull_request:
+    branches: [main]
+
+jobs:
+  audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '9'
+
+      - name: Backend audit
+        working-directory: ./backend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm audit --audit-level=critical || echo "::warning::Backend has critical vulnerabilities"
+        continue-on-error: true
+
+      - name: Frontend audit
+        working-directory: ./frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm audit --audit-level=critical || echo "::warning::Frontend has critical vulnerabilities"
+        continue-on-error: true
+
+      - name: Prisma vulnerability check
+        working-directory: ./backend
+        run: |
+          npx prisma validate || echo "::warning::Prisma schema validation issues found"
