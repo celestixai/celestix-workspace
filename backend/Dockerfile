@@ -22,7 +22,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY start.sh ./start.sh
 RUN sed -i 's/\r$//' start.sh && chmod +x start.sh
 
-RUN mkdir -p storage/avatars storage/users storage/attachments
+RUN mkdir -p storage/avatars storage/users storage/attachments storage/clips storage/covers
 
 EXPOSE 3001
 CMD ["./start.sh"]
