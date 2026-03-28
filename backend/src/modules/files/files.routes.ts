@@ -17,24 +17,36 @@ import {
 } from './files.schema';
 import { config } from '../../config';
 import { prisma } from '../../config/database';
+import {
+  isSupabaseConfigured,
+  uploadFile as supabaseUpload,
+  getSignedUrl,
+} from '../../config/supabase-storage';
 
 const router = Router();
 
-// File upload config
-const fileUpload = multer({
-  storage: multer.diskStorage({
-    destination: (req, _file, cb) => {
-      const dir = path.resolve(config.storage.path, 'users', req.user!.id);
-      fs.mkdirSync(dir, { recursive: true });
-      cb(null, dir);
-    },
-    filename: (_req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, `${uuidv4()}${ext}`);
-    },
-  }),
-  limits: { fileSize: config.storage.maxFileSize },
-});
+// File upload config — use memoryStorage for Supabase, fall back to disk for local dev
+const fileUpload = multer(
+  isSupabaseConfigured()
+    ? {
+        storage: multer.memoryStorage(),
+        limits: { fileSize: config.storage.maxFileSize },
+      }
+    : {
+        storage: multer.diskStorage({
+          destination: (req, _file, cb) => {
+            const dir = path.resolve(config.storage.path, 'users', req.user!.id);
+            fs.mkdirSync(dir, { recursive: true });
+            cb(null, dir);
+          },
+          filename: (_req, file, cb) => {
+            const ext = path.extname(file.originalname);
+            cb(null, `${uuidv4()}${ext}`);
+          },
+        }),
+        limits: { fileSize: config.storage.maxFileSize },
+      },
+);
 
 // GET /api/v1/files
 router.get('/', authenticate, validate(filesQuerySchema, 'query'), async (req: Request, res: Response) => {
@@ -54,8 +66,21 @@ router.post('/upload', authenticate, uploadLimiter, fileUpload.single('file'), a
     res.status(400).json({ success: false, error: 'No file uploaded' });
     return;
   }
+
   const parentFolderId = req.body.parentFolderId || null;
-  const file = await filesService.uploadFile(req.user!.id, req.file, parentFolderId);
+
+  // When Supabase is configured, upload buffer there and synthesize the multer fields the service expects
+  if (isSupabaseConfigured() && req.file.buffer) {
+    const ext = path.extname(req.file.originalname);
+    const filename = `${uuidv4()}${ext}`;
+    const storagePath = `users/${req.user!.id}/${filename}`;
+    await supabaseUpload(storagePath, req.file.buffer, req.file.mimetype);
+    // Provide the fields filesService.uploadFile expects
+    (req.file as any).filename = filename;
+    (req.file as any).path = storagePath; // not used but keeps compat
+  }
+
+  const file = await filesService.uploadFile(req.user!.id, req.file as any, parentFolderId);
   res.status(201).json({ success: true, data: file });
 });
 
@@ -67,8 +92,23 @@ router.post('/upload-multiple', authenticate, uploadLimiter, fileUpload.array('f
     return;
   }
   const parentFolderId = req.body.parentFolderId || null;
+
+  // Upload each file to Supabase if configured
+  if (isSupabaseConfigured()) {
+    for (const f of files) {
+      if (f.buffer) {
+        const ext = path.extname(f.originalname);
+        const filename = `${uuidv4()}${ext}`;
+        const storagePath = `users/${req.user!.id}/${filename}`;
+        await supabaseUpload(storagePath, f.buffer, f.mimetype);
+        (f as any).filename = filename;
+        (f as any).path = storagePath;
+      }
+    }
+  }
+
   const results = await Promise.all(
-    files.map((f) => filesService.uploadFile(req.user!.id, f, parentFolderId))
+    files.map((f) => filesService.uploadFile(req.user!.id, f as any, parentFolderId))
   );
   res.status(201).json({ success: true, data: results });
 });
@@ -80,6 +120,16 @@ router.get('/:fileId/download', authenticate, async (req: Request, res: Response
     res.status(400).json({ success: false, error: 'Cannot download a folder' });
     return;
   }
+
+  // Use signed URL redirect when Supabase is configured
+  if (isSupabaseConfigured()) {
+    const supaPath = file.storagePath.replace(/^\//, '');
+    const signedUrl = await getSignedUrl(supaPath, 3600);
+    res.redirect(signedUrl);
+    return;
+  }
+
+  // Fallback: serve from local disk
   const filePath = path.resolve(config.storage.path, file.storagePath.replace(/^\//, ''));
   res.download(filePath, file.name);
 });
@@ -144,6 +194,15 @@ router.post('/:fileId/versions', authenticate, uploadLimiter, fileUpload.single(
     res.status(400).json({ success: false, error: 'No file uploaded' });
     return;
   }
+
+  if (isSupabaseConfigured() && req.file.buffer) {
+    const ext = path.extname(req.file.originalname);
+    const filename = `${uuidv4()}${ext}`;
+    const storagePath = `users/${req.user!.id}/${filename}`;
+    await supabaseUpload(storagePath, req.file.buffer, req.file.mimetype);
+    (req.file as any).filename = filename;
+  }
+
   const result = await filesService.uploadNewVersion(req.user!.id, req.params.fileId, req.file);
   res.json({ success: true, data: result });
 });

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { meetingsService } from './meetings.service';
 import { authenticate } from '../../middleware/auth';
+import { config } from '../../config';
 import { validate } from '../../middleware/validate';
 import {
   createMeetingSchema,
@@ -17,6 +18,21 @@ import {
 } from './meetings.schema';
 
 const router = Router();
+
+// GET /api/v1/meetings/ice-servers — WebRTC ICE server configuration
+router.get('/ice-servers', authenticate, (_req: Request, res: Response) => {
+  const iceServers: Array<{ urls: string; username?: string; credential?: string }> = [
+    { urls: config.webrtc.stunUrl || 'stun:stun.l.google.com:19302' },
+  ];
+  if (config.webrtc.turnUrl) {
+    iceServers.push({
+      urls: config.webrtc.turnUrl,
+      username: config.webrtc.turnUsername || '',
+      credential: config.webrtc.turnPassword || '',
+    });
+  }
+  res.json({ success: true, data: iceServers });
+});
 
 // GET /api/v1/meetings
 router.get('/', authenticate, async (req: Request, res: Response) => {

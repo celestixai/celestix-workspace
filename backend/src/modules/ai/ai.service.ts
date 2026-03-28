@@ -503,16 +503,23 @@ async function getStatus(): Promise<{
   enabled: boolean;
   model: string;
   provider: string;
+  baseUrl: string;
   isAvailable: boolean;
+  note: string;
 }> {
   const base = {
     enabled: AI_ENABLED,
     model: AI_MODEL,
     provider: 'ollama',
+    baseUrl: AI_BASE_URL,
     isAvailable: false,
+    note: '',
   };
 
-  if (!AI_ENABLED) return base;
+  if (!AI_ENABLED) {
+    base.note = 'AI is disabled. Set AI_ENABLED=true and ensure an AI provider is reachable at AI_BASE_URL.';
+    return base;
+  }
 
   try {
     // Try to reach the Ollama API
@@ -521,8 +528,12 @@ async function getStatus(): Promise<{
       signal: AbortSignal.timeout(3000),
     });
     base.isAvailable = response.ok;
+    if (!response.ok) {
+      base.note = `AI provider responded with status ${response.status}. Verify AI_BASE_URL (${AI_BASE_URL}) is correct.`;
+    }
   } catch {
     base.isAvailable = false;
+    base.note = `Cannot reach AI provider at ${AI_BASE_URL}. Ensure the service is running or update AI_BASE_URL.`;
   }
 
   return base;

@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/database';
 import { AppError } from '../../middleware/error-handler';
 import { config } from '../../config';
+import { sendEmail as sendViaResend, isEmailConfigured as isResendConfigured } from '../../config/email-provider';
 import type {
   ComposeEmailInput,
   ReplyEmailInput,
@@ -178,35 +179,58 @@ export class EmailService {
       return this.deliverInternally(userId, sender, input, bodyHtml, messageId, threadId, internalMap);
     }
 
-    // External delivery via SMTP
+    // External delivery — try Resend first, then fall back to SMTP
     const { transport, account } = await getSmtpTransport(userId, input.accountId);
     const fromAddress = account?.email || sender.email;
     const fromName = account?.displayName || sender.displayName;
 
-    const mailOptions: nodemailer.SendMailOptions = {
-      from: `"${fromName}" <${fromAddress}>`,
-      to: formatAddresses(input.to),
-      cc: input.cc ? formatAddresses(input.cc) : undefined,
-      bcc: input.bcc ? formatAddresses(input.bcc) : undefined,
-      subject: input.subject,
-      html: bodyHtml,
-      text: input.bodyText,
-      messageId,
-      attachments: input.attachments?.map((att) => ({
-        filename: att.name,
-        path: att.url,
-        contentType: att.mimeType,
-        cid: att.cid,
-      })),
-    };
+    let sent = false;
 
-    try {
-      await transport.sendMail(mailOptions);
-    } catch (smtpError: any) {
-      // Log but don't fail — still save the email in SENT folder (graceful degradation for dev/no-SMTP)
-      console.warn(`SMTP send failed (saving to SENT anyway): ${smtpError.message}`);
-    } finally {
-      transport.close();
+    // Try Resend provider first if configured
+    if (isResendConfigured()) {
+      const resendResult = await sendViaResend({
+        to: input.to.map((a) => a.address),
+        subject: input.subject,
+        html: bodyHtml,
+        text: input.bodyText,
+        cc: input.cc?.map((a) => a.address),
+        bcc: input.bcc?.map((a) => a.address),
+        replyTo: fromAddress,
+      });
+      if (resendResult) {
+        sent = true;
+      } else {
+        console.warn('Resend delivery failed, falling back to SMTP');
+      }
+    }
+
+    // Fall back to SMTP if Resend was not configured or failed
+    if (!sent) {
+      const mailOptions: nodemailer.SendMailOptions = {
+        from: `"${fromName}" <${fromAddress}>`,
+        to: formatAddresses(input.to),
+        cc: input.cc ? formatAddresses(input.cc) : undefined,
+        bcc: input.bcc ? formatAddresses(input.bcc) : undefined,
+        subject: input.subject,
+        html: bodyHtml,
+        text: input.bodyText,
+        messageId,
+        attachments: input.attachments?.map((att) => ({
+          filename: att.name,
+          path: att.url,
+          contentType: att.mimeType,
+          cid: att.cid,
+        })),
+      };
+
+      try {
+        await transport.sendMail(mailOptions);
+      } catch (smtpError: any) {
+        // Log but don't fail — still save the email in SENT folder (graceful degradation for dev/no-SMTP)
+        console.warn(`SMTP send failed (saving to SENT anyway): ${smtpError.message}`);
+      } finally {
+        transport.close();
+      }
     }
 
     // Store in SENT folder for the sender

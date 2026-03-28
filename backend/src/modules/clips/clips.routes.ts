@@ -9,24 +9,36 @@ import { validate } from '../../middleware/validate';
 import { updateClipSchema } from './clips.validation';
 import { config } from '../../config';
 import type { ClipType } from '@prisma/client';
+import {
+  isSupabaseConfigured,
+  uploadFile as supabaseUpload,
+  getSignedUrl,
+} from '../../config/supabase-storage';
 
 const router = Router();
 
-// Multer config — disk storage to storage/clips/
-const clipUpload = multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      const dir = path.resolve(config.storage.path, 'clips');
-      fs.mkdirSync(dir, { recursive: true });
-      cb(null, dir);
-    },
-    filename: (_req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, `${uuidv4()}${ext}`);
-    },
-  }),
-  limits: { fileSize: config.storage.maxFileSize },
-});
+// Multer config — memoryStorage for Supabase, diskStorage for local dev
+const clipUpload = multer(
+  isSupabaseConfigured()
+    ? {
+        storage: multer.memoryStorage(),
+        limits: { fileSize: config.storage.maxFileSize },
+      }
+    : {
+        storage: multer.diskStorage({
+          destination: (_req, _file, cb) => {
+            const dir = path.resolve(config.storage.path, 'clips');
+            fs.mkdirSync(dir, { recursive: true });
+            cb(null, dir);
+          },
+          filename: (_req, file, cb) => {
+            const ext = path.extname(file.originalname);
+            cb(null, `${uuidv4()}${ext}`);
+          },
+        }),
+        limits: { fileSize: config.storage.maxFileSize },
+      },
+);
 
 // GET /api/v1/clips/workspace/:workspaceId — list clips
 router.get('/workspace/:workspaceId', authenticate, async (req: Request, res: Response) => {
@@ -65,7 +77,17 @@ router.post('/upload', authenticate, clipUpload.single('file'), async (req: Requ
     return;
   }
 
-  const storagePath = `clips/${req.file.filename}`;
+  let storagePath: string;
+
+  if (isSupabaseConfigured() && req.file.buffer) {
+    const ext = path.extname(req.file.originalname);
+    const filename = `${uuidv4()}${ext}`;
+    storagePath = `clips/${req.user!.id}/${filename}`;
+    await supabaseUpload(storagePath, req.file.buffer, req.file.mimetype);
+  } else {
+    storagePath = `clips/${req.file.filename}`;
+  }
+
   const clip = await clipsService.uploadClip(workspaceId, req.user!.id, storagePath, {
     title,
     type,
@@ -103,6 +125,14 @@ router.delete('/:clipId', authenticate, async (req: Request, res: Response) => {
 
 // GET /api/v1/clips/:clipId/stream — stream for playback
 router.get('/:clipId/stream', async (req: Request, res: Response) => {
+  // When Supabase is configured, redirect to a signed URL instead of streaming from disk
+  if (isSupabaseConfigured()) {
+    const clip = await clipsService.getClipRaw(req.params.clipId);
+    const signedUrl = await getSignedUrl(clip.fileUrl.replace(/^\//, ''), 3600);
+    res.redirect(signedUrl);
+    return;
+  }
+
   const { filePath, mimeType, fileSize } = await clipsService.streamClip(req.params.clipId);
   const stat = fs.statSync(filePath);
   const size = fileSize ? Number(fileSize) : stat.size;

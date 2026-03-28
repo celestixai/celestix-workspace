@@ -65,6 +65,13 @@ export class ClipsService {
     });
   }
 
+  // Get clip record without side effects (for streaming redirect)
+  async getClipRaw(clipId: string) {
+    const clip = await prisma.clip.findUnique({ where: { id: clipId } });
+    if (!clip) throw new AppError(404, 'Clip not found');
+    return clip;
+  }
+
   // Get clip details + increment view count
   async getClip(clipId: string) {
     const clip = await prisma.clip.findUnique({

@@ -83,6 +83,7 @@ import profilesRoutes from './modules/profiles/profiles.routes';
 import { startRecurringScheduler, stopRecurringScheduler } from './modules/recurring/recurring.scheduler';
 import { remindersService } from './modules/reminders/reminders.service';
 import { sprintsEnhancedService } from './modules/sprints-enhanced/sprints.service';
+import { initStorage, isSupabaseConfigured, getSignedUrl } from './config/supabase-storage';
 
 const app = express();
 const server = createServer(app);
@@ -120,7 +121,23 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(globalLimiter);
 
-// Static file serving for uploads
+// Static file serving for uploads — redirect to Supabase signed URLs in production
+if (isSupabaseConfigured()) {
+  app.use('/storage', async (req, res, next) => {
+    try {
+      // Strip leading slash to get the Supabase path
+      const storagePath = req.path.replace(/^\//, '');
+      if (!storagePath) return next();
+      const signedUrl = await getSignedUrl(storagePath, 3600);
+      res.redirect(signedUrl);
+    } catch {
+      // Fall through to static serving if Supabase fails
+      next();
+    }
+  });
+}
+
+// Static file serving for uploads (local fallback)
 app.use('/storage', express.static(storagePath));
 
 // Request logging
@@ -206,14 +223,19 @@ async function start() {
       logger.info(`Environment: ${config.env}`);
     });
 
-    // 2. Test database connection (with timeout) — non-blocking
+    // 2. Initialize Supabase Storage bucket (non-blocking)
+    initStorage().catch((err) =>
+      logger.warn(`Supabase storage init issue: ${err.message} — falling back to local disk`),
+    );
+
+    // 3. Test database connection (with timeout) — non-blocking
     await Promise.race([
       prisma.$connect(),
       new Promise((_, reject) => setTimeout(() => reject(new Error('DB connect timeout')), 15000))
     ]).then(() => logger.info('Database connected'))
       .catch((err) => logger.warn(`Database connection issue: ${err.message} — will retry on first query`));
 
-    // 3. Connect redis (with timeout — lazyConnect mode) — non-blocking
+    // 4. Connect redis (with timeout — lazyConnect mode) — non-blocking
     try {
       await Promise.race([
         redis.connect(),
@@ -224,7 +246,7 @@ async function start() {
       logger.warn('Redis not available — running without Redis');
     }
 
-    // 4. Start schedulers (skip in test)
+    // 5. Start schedulers (skip in test)
     if (config.env !== 'test') {
       startRecurringScheduler(60);
 

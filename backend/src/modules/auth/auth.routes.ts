@@ -17,21 +17,29 @@ import {
 } from './auth.schema';
 import { config } from '../../config';
 import fs from 'fs';
+import {
+  isSupabaseConfigured,
+  uploadFile as supabaseUpload,
+} from '../../config/supabase-storage';
 
 const router = Router();
 
-// Avatar upload config
+// Avatar upload config — memoryStorage for Supabase, diskStorage for local dev
 const avatarDir = path.resolve(config.storage.path, 'avatars');
-fs.mkdirSync(avatarDir, { recursive: true });
+if (!isSupabaseConfigured()) {
+  fs.mkdirSync(avatarDir, { recursive: true });
+}
 
 const avatarUpload = multer({
-  storage: multer.diskStorage({
-    destination: avatarDir,
-    filename: (_req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, `${uuidv4()}${ext}`);
-    },
-  }),
+  storage: isSupabaseConfigured()
+    ? multer.memoryStorage()
+    : multer.diskStorage({
+        destination: avatarDir,
+        filename: (_req, file, cb) => {
+          const ext = path.extname(file.originalname);
+          cb(null, `${uuidv4()}${ext}`);
+        },
+      }),
   limits: { fileSize: config.storage.maxAvatarSize },
   fileFilter: (_req, file, cb) => {
     const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -99,7 +107,19 @@ router.post('/avatar', authenticate, avatarUpload.single('avatar'), async (req: 
     res.status(400).json({ success: false, error: 'No file uploaded' });
     return;
   }
-  const avatarUrl = `/storage/avatars/${req.file.filename}`;
+
+  let avatarUrl: string;
+
+  if (isSupabaseConfigured() && req.file.buffer) {
+    const ext = path.extname(req.file.originalname);
+    const filename = `${uuidv4()}${ext}`;
+    const storagePath = `avatars/${req.user!.id}/${filename}`;
+    const { url } = await supabaseUpload(storagePath, req.file.buffer, req.file.mimetype);
+    avatarUrl = url;
+  } else {
+    avatarUrl = `/storage/avatars/${req.file.filename}`;
+  }
+
   const user = await authService.updateAvatar(req.user!.id, avatarUrl);
   res.json({ success: true, data: user });
 });
