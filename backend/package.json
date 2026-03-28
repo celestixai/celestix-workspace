@@ -20,7 +20,7 @@
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed",
-    "postinstall": "prisma generate"
+    "postinstall": "test -f prisma/schema.prisma && prisma generate || true"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
