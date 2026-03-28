@@ -1,7 +1,7 @@
 import { prisma } from '../../config/database';
 import { AppError } from '../../middleware/error-handler';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true, bio: true };
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true, bio: true };
 
 class ProfilesService {
   async getProfile(userId: string, _viewerId: string) {
@@ -9,7 +9,7 @@ class ProfilesService {
       where: { id: userId },
       select: {
         id: true,
-        email: true,
+        username: true,
         displayName: true,
         firstName: true,
         lastName: true,

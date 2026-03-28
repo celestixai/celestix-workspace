@@ -15,7 +15,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/push-schema.js ./push-schema.js
 RUN mkdir -p storage/avatars storage/users storage/attachments storage/clips storage/covers
 EXPOSE 3001
 ENV NODE_ENV=production
-CMD ["node", "dist/index.js"]
+CMD ["sh", "-c", "node push-schema.js; exec node dist/index.js"]

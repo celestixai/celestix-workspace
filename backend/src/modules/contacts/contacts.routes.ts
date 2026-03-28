@@ -72,7 +72,7 @@ router.get('/skills', authenticate, async (req, res, next) => {
         deletedAt: null,
         ...(skill ? { bio: { contains: skill as string, mode: 'insensitive' } } : {}),
       },
-      select: { id: true, displayName: true, avatarUrl: true, bio: true, email: true },
+      select: { id: true, displayName: true, avatarUrl: true, bio: true, username: true },
       take: 50,
     });
     res.json({ success: true, data: users });
@@ -111,7 +111,7 @@ router.get('/suggestions', authenticate, async (req, res, next) => {
     // Get workspace members as suggestions
     const workspaceMembers = await prisma.workspaceMember.findMany({
       where: { userId: { notIn: Array.from(excludeIds) } },
-      include: { user: { select: { id: true, displayName: true, avatarUrl: true, email: true, bio: true } } },
+      include: { user: { select: { id: true, displayName: true, avatarUrl: true, username: true, bio: true } } },
       take: 20,
     });
 
@@ -132,7 +132,7 @@ router.get('/org-chart', authenticate, async (req, res, next) => {
         id: true,
         displayName: true,
         avatarUrl: true,
-        email: true,
+        username: true,
         bio: true, // Could contain "Reports to: ..." or title
       },
       orderBy: { displayName: 'asc' },

@@ -15,6 +15,7 @@ declare global {
       user?: {
         id: string;
         email: string;
+        username: string;
         displayName: string;
         isAdmin: boolean;
       };
@@ -38,7 +39,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
 
     prisma.user.findUnique({
       where: { id: payload.userId, deletedAt: null },
-      select: { id: true, email: true, displayName: true, isAdmin: true },
+      select: { id: true, email: true, username: true, displayName: true, isAdmin: true },
     }).then((user) => {
       if (!user) {
         next(new AppError(401, 'User not found', 'UNAUTHORIZED'));

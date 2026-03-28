@@ -16,6 +16,7 @@ import {
   setup2FASchema,
 } from './auth.schema';
 import { config } from '../../config';
+import { prisma } from '../../config/database';
 import fs from 'fs';
 import {
   isSupabaseConfigured,
@@ -170,6 +171,12 @@ router.get('/sessions', authenticate, async (req: Request, res: Response) => {
 router.delete('/sessions/:sessionId', authenticate, async (req: Request, res: Response) => {
   await authService.revokeSession(req.user!.id, req.params.sessionId);
   res.json({ success: true, data: { message: 'Session revoked' } });
+});
+
+// GET /api/v1/auth/check-username/:username — check username availability
+router.get('/check-username/:username', async (req: Request, res: Response) => {
+  const user = await prisma.user.findUnique({ where: { username: req.params.username.toLowerCase() } });
+  res.json({ success: true, data: { available: !user } });
 });
 
 // GET /api/v1/auth/users — search users

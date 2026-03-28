@@ -9,7 +9,7 @@ import type {
   QueryDataInput,
 } from './analytics.schema';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 export class AnalyticsService {
   // ==================================

@@ -12,7 +12,7 @@ import type {
   ImportDocumentInput,
 } from './documents.schema';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 const documentInclude = {
   user: { select: userSelect },

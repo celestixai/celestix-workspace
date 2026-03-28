@@ -7,7 +7,7 @@ import type {
   DuplicateDesignInput,
 } from './designer.schema';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 // Static list of built-in template configurations
 const TEMPLATES = [

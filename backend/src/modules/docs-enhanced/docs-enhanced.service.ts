@@ -12,7 +12,7 @@ import type {
   SaveAsTemplateInput,
 } from './docs-enhanced.validation';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 function slugify(text: string): string {
   return text

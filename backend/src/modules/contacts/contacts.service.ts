@@ -191,7 +191,7 @@ export class ContactsService {
   async syncInternalUsers(userId: string) {
     const users = await prisma.user.findMany({
       where: { id: { not: userId }, deletedAt: null },
-      select: { id: true, displayName: true, firstName: true, lastName: true, email: true, avatarUrl: true },
+      select: { id: true, displayName: true, firstName: true, lastName: true, username: true, email: true, avatarUrl: true },
     });
 
     for (const user of users) {

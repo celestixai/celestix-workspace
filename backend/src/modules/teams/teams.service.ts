@@ -2,7 +2,7 @@ import { prisma } from '../../config/database';
 import { AppError } from '../../middleware/error-handler';
 import type { CreateTeamInput, UpdateTeamInput } from './teams.validation';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true };
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true };
 
 class TeamsService {
   async getTeams(workspaceId: string) {

@@ -10,7 +10,7 @@ import type {
 
 const itemInclude = {
   assignee: {
-    select: { id: true, displayName: true, avatarUrl: true, email: true },
+    select: { id: true, displayName: true, avatarUrl: true, username: true },
   },
 } as const;
 

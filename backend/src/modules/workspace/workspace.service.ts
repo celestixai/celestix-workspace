@@ -224,7 +224,7 @@ export class WorkspaceService {
     const workspace = await prisma.workspace.findFirst({
       where: { id: workspaceId, members: { some: { userId } } },
       include: {
-        members: { include: { user: { select: { ...userSelect, email: true, lastSeenAt: true } } } },
+        members: { include: { user: { select: { ...userSelect, username: true, lastSeenAt: true } } } },
         channels: {
           where: {
             OR: [

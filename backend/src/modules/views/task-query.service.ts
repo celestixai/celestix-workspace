@@ -4,7 +4,7 @@ import { AppError } from '../../middleware/error-handler';
 import type { TaskQueryInput } from './views.validation';
 
 // Shared user select
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 // Standard task include for query results
 const taskInclude = {

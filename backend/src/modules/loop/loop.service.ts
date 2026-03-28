@@ -30,7 +30,7 @@ export class LoopService {
     const component = await prisma.loopComponent.findUnique({
       where: { id: componentId },
       include: {
-        creator: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+        creator: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
       },
     });
 
@@ -58,7 +58,7 @@ export class LoopService {
       where: { id: componentId },
       data: { content: input.content },
       include: {
-        creator: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+        creator: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
       },
     });
   }
@@ -92,7 +92,7 @@ export class LoopService {
         createdBy: userId,
       },
       include: {
-        creator: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+        creator: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
       },
     });
 
@@ -103,7 +103,7 @@ export class LoopService {
     const page = await prisma.loopPage.findUnique({
       where: { id: pageId },
       include: {
-        creator: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+        creator: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
       },
     });
 
@@ -134,7 +134,7 @@ export class LoopService {
         componentIds: input.componentIds,
       },
       include: {
-        creator: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+        creator: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
       },
     });
   }
@@ -159,7 +159,7 @@ export class LoopService {
     return prisma.loopPage.findMany({
       where: { createdBy: userId },
       include: {
-        creator: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+        creator: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
       },
       orderBy: { updatedAt: 'desc' },
     });
@@ -197,7 +197,7 @@ export class LoopService {
       include: {
         component: {
           include: {
-            creator: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+            creator: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
           },
         },
       },

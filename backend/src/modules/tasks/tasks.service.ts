@@ -52,7 +52,7 @@ async function resolveWorkspaceContext(taskOrId: { listId?: string | null } | st
 }
 
 // Shared select for user display in responses
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 // Full task include used across many methods
 const taskInclude = {
@@ -1899,7 +1899,7 @@ export class TasksService {
       include: { user: { select: userSelect } },
       orderBy: { createdAt: 'asc' },
     });
-    return watchers.map((w) => ({ watcherId: w.id, userId: w.userId, createdAt: w.createdAt, displayName: w.user.displayName, avatarUrl: w.user.avatarUrl, email: w.user.email }));
+    return watchers.map((w) => ({ watcherId: w.id, userId: w.userId, createdAt: w.createdAt, displayName: w.user.displayName, avatarUrl: w.user.avatarUrl, username: w.user.username }));
   }
 
   async isWatching(taskId: string, userId: string): Promise<boolean> {

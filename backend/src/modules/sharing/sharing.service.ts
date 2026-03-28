@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { prisma } from '../../config/database';
 import { AppError } from '../../middleware/error-handler';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 // ==========================================
 // Shared Items

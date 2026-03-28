@@ -11,7 +11,7 @@ import type {
   PostsByTypeInput,
 } from './social.schema';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 const postInclude = {
   user: { select: userSelect },

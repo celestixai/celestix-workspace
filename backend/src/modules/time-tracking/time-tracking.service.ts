@@ -43,7 +43,7 @@ class TimeTrackingService {
         durationMinutes: { not: null },
       },
       include: {
-        user: { select: { id: true, displayName: true, email: true } },
+        user: { select: { id: true, displayName: true, username: true } },
         task: {
           select: {
             id: true,
@@ -65,7 +65,7 @@ class TimeTrackingService {
       switch (groupBy) {
         case 'user':
           key = entry.userId;
-          name = entry.user.displayName || entry.user.email;
+          name = entry.user.displayName || entry.user.username;
           break;
         case 'task':
           key = entry.taskId;
@@ -91,7 +91,7 @@ class TimeTrackingService {
           continue;
         default:
           key = entry.userId;
-          name = entry.user.displayName || entry.user.email;
+          name = entry.user.displayName || entry.user.username;
       }
 
       if (!groupMap.has(key)) {
@@ -118,7 +118,7 @@ class TimeTrackingService {
         durationMinutes: { not: null },
       },
       include: {
-        user: { select: { id: true, displayName: true, email: true } },
+        user: { select: { id: true, displayName: true, username: true } },
       },
     });
 
@@ -138,7 +138,7 @@ class TimeTrackingService {
 
       const uid = entry.userId;
       if (!byUserMap.has(uid)) {
-        byUserMap.set(uid, { name: entry.user.displayName || entry.user.email, minutes: 0 });
+        byUserMap.set(uid, { name: entry.user.displayName || entry.user.username, minutes: 0 });
       }
       byUserMap.get(uid)!.minutes += mins;
     }
@@ -159,7 +159,7 @@ class TimeTrackingService {
         durationMinutes: { not: null },
       },
       include: {
-        user: { select: { id: true, displayName: true, email: true } },
+        user: { select: { id: true, displayName: true, username: true } },
         task: { select: { id: true, title: true } },
       },
       orderBy: { startedAt: 'desc' },
@@ -170,7 +170,7 @@ class TimeTrackingService {
       taskId: e.taskId,
       taskTitle: e.task.title,
       userId: e.userId,
-      userName: e.user.displayName || e.user.email,
+      userName: e.user.displayName || e.user.username,
       startedAt: e.startedAt,
       endedAt: e.endedAt,
       durationMinutes: e.durationMinutes,
@@ -304,7 +304,7 @@ class TimeTrackingService {
         isBillable: true,
       },
       include: {
-        user: { select: { id: true, displayName: true, email: true } },
+        user: { select: { id: true, displayName: true, username: true } },
         task: { select: { id: true, title: true } },
       },
       orderBy: { startedAt: 'desc' },
@@ -328,7 +328,7 @@ class TimeTrackingService {
       const uid = entry.userId;
       if (!byUserMap.has(uid)) {
         byUserMap.set(uid, {
-          name: entry.user.displayName || entry.user.email,
+          name: entry.user.displayName || entry.user.username,
           hours: 0,
           rate,
           amount: 0,
@@ -346,7 +346,7 @@ class TimeTrackingService {
       entries: entries.map((e) => ({
         id: e.id,
         taskTitle: e.task.title,
-        userName: e.user.displayName || e.user.email,
+        userName: e.user.displayName || e.user.username,
         hours: (e.durationMinutes || 0) / 60,
         rate: e.billableRate || 0,
         amount: e.billableAmount || ((e.durationMinutes || 0) / 60) * (e.billableRate || 0),

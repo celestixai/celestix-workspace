@@ -197,8 +197,8 @@ router.get('/by-id/:customTaskId', authenticate, async (req: Request, res: Respo
       deletedAt: null,
     },
     include: {
-      createdBy: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
-      assignees: { include: { user: { select: { id: true, displayName: true, avatarUrl: true, email: true } } } },
+      createdBy: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
+      assignees: { include: { user: { select: { id: true, displayName: true, avatarUrl: true, username: true } } } },
       labels: { include: { label: true } },
       subtasks: {
         where: { deletedAt: null },

@@ -55,6 +55,7 @@ router.get('/users', authenticate, requireAdmin, async (req: Request, res: Respo
       select: {
         id: true,
         email: true,
+        username: true,
         displayName: true,
         avatarUrl: true,
         status: true,
@@ -104,7 +105,7 @@ router.patch('/users/:userId', authenticate, requireAdmin, async (req: Request, 
   const user = await prisma.user.update({
     where: { id: req.params.userId },
     data: data as never,
-    select: { id: true, email: true, displayName: true, isAdmin: true },
+    select: { id: true, email: true, username: true, displayName: true, isAdmin: true },
   });
 
   await prisma.auditLog.create({

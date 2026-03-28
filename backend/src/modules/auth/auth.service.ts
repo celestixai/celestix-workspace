@@ -18,11 +18,17 @@ export class AuthService {
       throw new AppError(409, 'Email already registered', 'EMAIL_EXISTS');
     }
 
+    const existingUsername = await prisma.user.findUnique({ where: { username: input.username } });
+    if (existingUsername) {
+      throw new AppError(409, 'Username already taken', 'USERNAME_EXISTS');
+    }
+
     const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
 
     const user = await prisma.user.create({
       data: {
         email: input.email,
+        username: input.username,
         passwordHash,
         displayName: input.displayName,
         firstName: input.firstName,
@@ -31,6 +37,7 @@ export class AuthService {
       select: {
         id: true,
         email: true,
+        username: true,
         displayName: true,
         firstName: true,
         lastName: true,
@@ -143,6 +150,7 @@ export class AuthService {
       select: {
         id: true,
         email: true,
+        username: true,
         displayName: true,
         firstName: true,
         lastName: true,
@@ -188,6 +196,7 @@ export class AuthService {
       select: {
         id: true,
         email: true,
+        username: true,
         displayName: true,
         firstName: true,
         lastName: true,
@@ -347,7 +356,7 @@ export class AuthService {
           deletedAt: null,
           OR: [
             { displayName: { contains: search, mode: 'insensitive' as const } },
-            { email: { contains: search, mode: 'insensitive' as const } },
+            { username: { contains: search, mode: 'insensitive' as const } },
           ],
         }
       : { deletedAt: null };
@@ -356,10 +365,10 @@ export class AuthService {
       where,
       select: {
         id: true,
+        username: true,
         displayName: true,
         firstName: true,
         lastName: true,
-        email: true,
         avatarUrl: true,
         status: true,
         customStatus: true,

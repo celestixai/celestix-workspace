@@ -63,7 +63,7 @@ export class DashboardService {
             attendees: {
               include: {
                 user: {
-                  select: { id: true, displayName: true, avatarUrl: true, email: true },
+                  select: { id: true, displayName: true, avatarUrl: true, username: true },
                 },
               },
             },
@@ -84,7 +84,7 @@ export class DashboardService {
             assignees: {
               include: {
                 user: {
-                  select: { id: true, displayName: true, avatarUrl: true, email: true },
+                  select: { id: true, displayName: true, avatarUrl: true, username: true },
                 },
               },
             },
@@ -133,7 +133,7 @@ export class DashboardService {
           take: 10,
           include: {
             sender: {
-              select: { id: true, displayName: true, avatarUrl: true, email: true },
+              select: { id: true, displayName: true, avatarUrl: true, username: true },
             },
           },
         }),

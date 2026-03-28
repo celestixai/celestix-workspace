@@ -122,7 +122,7 @@ export class MessengerService {
         members: {
           include: {
             user: {
-              select: { id: true, displayName: true, avatarUrl: true, status: true, lastSeenAt: true, email: true },
+              select: { id: true, displayName: true, avatarUrl: true, status: true, lastSeenAt: true, username: true },
             },
           },
         },

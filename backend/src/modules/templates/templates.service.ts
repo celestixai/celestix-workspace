@@ -76,7 +76,7 @@ async function getTemplates(
     where,
     include: {
       createdBy: {
-        select: { id: true, displayName: true, avatarUrl: true, email: true },
+        select: { id: true, displayName: true, avatarUrl: true, username: true },
       },
     },
     orderBy: [{ isPinned: 'desc' }, { usageCount: 'desc' }, { createdAt: 'desc' }],
@@ -106,7 +106,7 @@ async function createTemplate(workspaceId: string, userId: string, data: CreateT
     },
     include: {
       createdBy: {
-        select: { id: true, displayName: true, avatarUrl: true, email: true },
+        select: { id: true, displayName: true, avatarUrl: true, username: true },
       },
     },
   });
@@ -210,7 +210,7 @@ async function createFromTask(taskId: string, userId: string, name: string, desc
     },
     include: {
       createdBy: {
-        select: { id: true, displayName: true, avatarUrl: true, email: true },
+        select: { id: true, displayName: true, avatarUrl: true, username: true },
       },
     },
   });
@@ -306,7 +306,7 @@ async function createFromList(listId: string, userId: string, name: string, desc
     },
     include: {
       createdBy: {
-        select: { id: true, displayName: true, avatarUrl: true, email: true },
+        select: { id: true, displayName: true, avatarUrl: true, username: true },
       },
     },
   });
@@ -319,7 +319,7 @@ async function getTemplate(templateId: string) {
     where: { id: templateId },
     include: {
       createdBy: {
-        select: { id: true, displayName: true, avatarUrl: true, email: true },
+        select: { id: true, displayName: true, avatarUrl: true, username: true },
       },
     },
   });
@@ -353,7 +353,7 @@ async function updateTemplate(templateId: string, userId: string, data: UpdateTe
     },
     include: {
       createdBy: {
-        select: { id: true, displayName: true, avatarUrl: true, email: true },
+        select: { id: true, displayName: true, avatarUrl: true, username: true },
       },
     },
   });

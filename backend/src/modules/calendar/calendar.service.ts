@@ -417,7 +417,7 @@ export class CalendarService {
       include: {
         attendees: {
           include: {
-            user: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+            user: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
           },
         },
         reminders: true,
@@ -434,7 +434,7 @@ export class CalendarService {
       include: {
         attendees: {
           include: {
-            user: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+            user: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
           },
         },
         reminders: true,
@@ -491,7 +491,7 @@ export class CalendarService {
       include: {
         attendees: {
           include: {
-            user: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+            user: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
           },
         },
         reminders: true,
@@ -536,7 +536,7 @@ export class CalendarService {
         include: {
           attendees: {
             include: {
-              user: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+              user: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
             },
           },
           reminders: true,
@@ -587,7 +587,7 @@ export class CalendarService {
       },
       update: {},
       include: {
-        user: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+        user: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
       },
     });
   }
@@ -621,7 +621,7 @@ export class CalendarService {
       where: { id: attendee.id },
       data: { rsvpStatus: input.status },
       include: {
-        user: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+        user: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
       },
     });
   }
@@ -715,7 +715,7 @@ export class CalendarService {
       include: {
         attendees: {
           include: {
-            user: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+            user: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
           },
         },
         reminders: true,
@@ -735,7 +735,7 @@ export class CalendarService {
       include: {
         attendees: {
           include: {
-            user: { select: { id: true, displayName: true, avatarUrl: true, email: true } },
+            user: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
           },
         },
         reminders: true,

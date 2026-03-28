@@ -6,7 +6,7 @@ import type {
   AddCollaboratorInput,
 } from './whiteboard.schema';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 export class WhiteboardService {
   async create(userId: string, input: CreateWhiteboardInput) {

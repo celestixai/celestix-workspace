@@ -4,7 +4,7 @@ import { AppError } from '../../middleware/error-handler';
 import { logger } from '../../utils/logger';
 import type { CreateWorkflowInput, UpdateWorkflowInput } from './workflows.schema';
 
-const userSelect = { id: true, displayName: true, avatarUrl: true, email: true } as const;
+const userSelect = { id: true, displayName: true, avatarUrl: true, username: true } as const;
 
 export class WorkflowService {
   async create(userId: string, input: CreateWorkflowInput) {
