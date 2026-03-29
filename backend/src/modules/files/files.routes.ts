@@ -347,7 +347,7 @@ router.post('/:fileId/share-link', authenticate, async (req, res, next) => {
 router.get('/storage-usage', authenticate, async (req: Request, res: Response, next) => {
   try {
     const files = await prisma.file.findMany({
-      where: { userId: req.user!.id, isTrashed: false, type: 'FILE' },
+      where: { userId: req.user!.id, isTrashed: false },
       select: { sizeBytes: true },
     });
     const used = files.reduce((sum, f) => sum + Number(f.sizeBytes || 0), 0);
