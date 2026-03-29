@@ -346,19 +346,20 @@ router.post('/:fileId/share-link', authenticate, async (req, res, next) => {
 // GET /api/v1/files/storage-usage
 router.get('/storage-usage', authenticate, async (req: Request, res: Response, next) => {
   try {
-    const result = await prisma.file.aggregate({
-      where: { userId: req.user!.id, isTrashed: false },
-      _sum: { sizeBytes: true },
+    const files = await prisma.file.findMany({
+      where: { userId: req.user!.id, isTrashed: false, type: 'FILE' },
+      select: { sizeBytes: true },
     });
+    const used = files.reduce((sum, f) => sum + Number(f.sizeBytes || 0), 0);
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
-      select: { storageUsed: true, storageQuota: true },
+      select: { storageQuota: true },
     });
     res.json({
       success: true,
       data: {
-        used: Number(result._sum.sizeBytes || 0),
-        limit: Number(user?.storageQuota || 5368709120), // 5GB default
+        used,
+        limit: Number(user?.storageQuota || 5368709120),
       },
     });
   } catch (err) { next(err); }

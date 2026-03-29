@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import multer from 'multer';
 import { videoEditorService } from './video-editor.service';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
@@ -70,7 +71,6 @@ router.get('/projects/:projectId/exports/:jobId', authenticate, async (req: Requ
 // VIDEO TRIM (ffmpeg)
 // ==========================================
 
-import multer from 'multer';
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 500 * 1024 * 1024 } });
 
 // POST /api/v1/video-editor/trim

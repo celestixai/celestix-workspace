@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import multer from 'multer';
 import { documentService } from './documents.service';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
@@ -159,7 +160,6 @@ router.post('/:documentId/export', authenticate, validate(exportDocumentSchema),
 // DOCUMENT CONVERSION (LibreOffice)
 // ==========================================
 
-import multer from 'multer';
 const convUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
 
 // POST /api/v1/documents/convert — Convert file to another format
