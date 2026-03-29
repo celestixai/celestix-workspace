@@ -52,7 +52,7 @@ export function SyncUpBar({ channelId }: SyncUpBarProps) {
   if (!syncUp || !participant) return null;
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-zinc-900 border-t border-zinc-800">
+    <div className="flex items-center justify-between px-4 py-2 bg-cx-bg border-t border-[var(--cx-border-1)]">
       {/* Left: participant avatars (stacked) + duration */}
       <div className="flex items-center gap-3">
         <div className="flex -space-x-2">
@@ -62,19 +62,19 @@ export function SyncUpBar({ channelId }: SyncUpBarProps) {
               src={p.user.avatarUrl}
               name={p.user.displayName}
               size="sm"
-              className="ring-2 ring-zinc-900"
+              className="ring-2 ring-cx-bg"
             />
           ))}
           {syncUp.participants.length > 5 && (
-            <div className="flex items-center justify-center h-7 w-7 rounded-full bg-zinc-700 ring-2 ring-zinc-900 text-xs text-zinc-300">
+            <div className="flex items-center justify-center h-7 w-7 rounded-full bg-cx-raised ring-2 ring-cx-bg text-xs text-[var(--cx-text-1)]">
               +{syncUp.participants.length - 5}
             </div>
           )}
         </div>
 
-        <span className="text-sm font-mono text-zinc-400">{duration}</span>
+        <span className="text-sm font-mono text-[var(--cx-text-2)]">{duration}</span>
         {syncUp.title && (
-          <span className="text-sm text-zinc-500 truncate max-w-[200px]">{syncUp.title}</span>
+          <span className="text-sm text-[var(--cx-text-3)] truncate max-w-[200px]">{syncUp.title}</span>
         )}
       </div>
 
@@ -86,7 +86,7 @@ export function SyncUpBar({ channelId }: SyncUpBarProps) {
           variant="ghost"
           className={cn(
             'h-8 w-8 p-0',
-            !participant.isAudioEnabled && 'text-red-400 hover:text-red-300',
+            !participant.isAudioEnabled && 'text-cx-danger hover:text-cx-danger',
           )}
           onClick={() =>
             toggleAudio.mutate({
@@ -109,7 +109,7 @@ export function SyncUpBar({ channelId }: SyncUpBarProps) {
           variant="ghost"
           className={cn(
             'h-8 w-8 p-0',
-            !participant.isVideoEnabled && 'text-zinc-500',
+            !participant.isVideoEnabled && 'text-[var(--cx-text-3)]',
           )}
           onClick={() =>
             toggleVideo.mutate({
@@ -130,7 +130,7 @@ export function SyncUpBar({ channelId }: SyncUpBarProps) {
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0 text-red-500 hover:text-red-400 hover:bg-red-500/10"
+          className="h-8 w-8 p-0 text-cx-danger hover:text-cx-danger hover:bg-cx-danger/10"
           onClick={() => leaveMutation.mutate(syncUp.id)}
           disabled={leaveMutation.isPending}
           title="Leave SyncUp"
@@ -154,7 +154,7 @@ export function SyncUpBar({ channelId }: SyncUpBarProps) {
         <Button
           size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0 text-zinc-500"
+          className="h-8 w-8 p-0 text-[var(--cx-text-3)]"
           title="Expand (coming soon)"
           disabled
         >

@@ -12,8 +12,8 @@ interface CreateGoalModalProps {
 }
 
 const PRESET_COLORS = [
-  '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444',
-  '#f59e0b', '#10b981', '#06b6d4', '#6366f1',
+  '#3B82F6', '#8B5CF6', '#F97316', '#EF4444',
+  '#F59E0B', '#10B981', '#14B8A6', '#60A5FA',
 ];
 
 interface TargetDraft {

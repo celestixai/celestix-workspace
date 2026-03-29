@@ -93,7 +93,7 @@ function BarChartSVG({ data, labels, width, height }: { data: number[]; labels: 
         const y = chartH - barH + 10;
         return (
           <g key={i}>
-            <rect x={x} y={y} width={barWidth} height={barH} rx={2} className="fill-accent-blue opacity-80 hover:opacity-100 transition-opacity" />
+            <rect x={x} y={y} width={barWidth} height={barH} rx={2} className="fill-cx-brand opacity-80 hover:opacity-100 transition-opacity" />
             <text x={x + barWidth / 2} y={height - 4} textAnchor="middle" className="fill-text-secondary text-[9px]">
               {labels[i] || ''}
             </text>
@@ -122,13 +122,13 @@ function LineChartSVG({ data, labels, width, height }: { data: number[]; labels:
 
   return (
     <svg width={width} height={height} className="overflow-visible">
-      <polyline points={points} fill="none" className="stroke-accent-blue" strokeWidth={2} strokeLinejoin="round" />
+      <polyline points={points} fill="none" className="stroke-cx-brand" strokeWidth={2} strokeLinejoin="round" />
       {data.map((val, i) => {
         const x = 40 + i * stepX;
         const y = chartH - (val / maxVal) * chartH + 10;
         return (
           <g key={i}>
-            <circle cx={x} cy={y} r={3} className="fill-accent-blue" />
+            <circle cx={x} cy={y} r={3} className="fill-cx-brand" />
             <text x={x} y={height - 4} textAnchor="middle" className="fill-text-secondary text-[9px]">
               {labels[i] || ''}
             </text>
@@ -146,7 +146,7 @@ function PieChartSVG({ data, labels, width, height }: { data: number[]; labels: 
   const cx = width / 2;
   const cy = (height - 20) / 2;
   const r = Math.min(cx, cy) - 10;
-  const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+  const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316'];
 
   let cumAngle = -Math.PI / 2;
   const slices = data.map((val, i) => {
@@ -166,7 +166,7 @@ function PieChartSVG({ data, labels, width, height }: { data: number[]; labels: 
   return (
     <svg width={width} height={height}>
       {slices.map((s, i) => (
-        <path key={i} d={s.d} fill={s.color} className="opacity-80 hover:opacity-100 transition-opacity" stroke="#1a1a2e" strokeWidth={1} />
+        <path key={i} d={s.d} fill={s.color} className="opacity-80 hover:opacity-100 transition-opacity" stroke="#111113" strokeWidth={1} />
       ))}
       <g transform={`translate(${width - 80}, 10)`}>
         {slices.map((s, i) => (
@@ -188,9 +188,9 @@ function KPICard({ data, title }: { data: number[]; title: string }) {
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-1">
-      <span className="text-text-secondary text-xs uppercase tracking-wider">{title}</span>
-      <span className="text-4xl font-bold text-text-primary">{value.toLocaleString()}</span>
-      <span className={cn('text-sm font-medium', isPositive ? 'text-green-400' : 'text-red-400')}>
+      <span className="text-[var(--cx-text-2)] text-xs uppercase tracking-wider">{title}</span>
+      <span className="text-4xl font-bold text-[var(--cx-text-1)]">{value.toLocaleString()}</span>
+      <span className={cn('text-sm font-medium', isPositive ? 'text-cx-success' : 'text-cx-danger')}>
         {isPositive ? '+' : ''}{change}% vs prior
       </span>
     </div>
@@ -201,16 +201,16 @@ function TableChart({ data, labels }: { data: number[]; labels: string[] }) {
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b border-border-primary">
-          <th className="text-left py-1 px-2 text-text-secondary font-medium">Label</th>
-          <th className="text-right py-1 px-2 text-text-secondary font-medium">Value</th>
+        <tr className="border-b border-white/8">
+          <th className="text-left py-1 px-2 text-[var(--cx-text-2)] font-medium">Label</th>
+          <th className="text-right py-1 px-2 text-[var(--cx-text-2)] font-medium">Value</th>
         </tr>
       </thead>
       <tbody>
         {labels.map((label, i) => (
-          <tr key={i} className="border-b border-border-primary/50 hover:bg-bg-primary/50">
-            <td className="py-1 px-2 text-text-primary">{label}</td>
-            <td className="py-1 px-2 text-right text-text-primary">{data[i] ?? 0}</td>
+          <tr key={i} className="border-b border-white/8/50 hover:bg-cx-bg/50">
+            <td className="py-1 px-2 text-[var(--cx-text-1)]">{label}</td>
+            <td className="py-1 px-2 text-right text-[var(--cx-text-1)]">{data[i] ?? 0}</td>
           </tr>
         ))}
       </tbody>
@@ -230,7 +230,7 @@ function ScatterChartSVG({ data, width, height }: { data: number[]; width: numbe
       {data.map((val, i) => {
         const x = 40 + (i / Math.max(data.length - 1, 1)) * chartW;
         const y = chartH - (val / maxVal) * chartH + 10;
-        return <circle key={i} cx={x} cy={y} r={4} className="fill-accent-blue opacity-70 hover:opacity-100" />;
+        return <circle key={i} cx={x} cy={y} r={4} className="fill-cx-brand opacity-70 hover:opacity-100" />;
       })}
     </svg>
   );
@@ -368,37 +368,38 @@ export function AnalyticsPage() {
   // --- Report List View ---
   if (!activeReport) {
     return (
-      <div className="min-h-screen bg-bg-primary p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-2xl font-bold text-text-primary">Analytics</h1>
-              <p className="text-text-secondary mt-1">Build interactive reports and dashboards</p>
-            </div>
-            <button
-              onClick={handleCreateReport}
-              className="flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90 transition-colors"
-            >
-              <Plus size={16} />
-              New Report
-            </button>
+      <div className="h-full flex flex-col bg-cx-bg">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4">
+          <div>
+            <h1 className="font-display text-xl text-[var(--cx-text-1)]">Analytics</h1>
+            <p className="text-sm text-[var(--cx-text-3)] mt-1">Build interactive reports and dashboards</p>
           </div>
-
+          <button
+            onClick={handleCreateReport}
+            className="flex items-center gap-2 px-4 py-2 bg-cx-brand text-white rounded-lg hover:bg-cx-brand-hover transition-colors"
+          >
+            <Plus size={16} />
+            New Report
+          </button>
+        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {reports.map((report) => (
               <button
                 key={report.id}
                 onClick={() => setActiveReport(report)}
-                className="bg-bg-secondary border border-border-primary rounded-xl p-5 text-left hover:border-accent-blue/50 transition-colors group"
+                className="bg-cx-surface border border-white/8 rounded-xl p-5 text-left hover:border-cx-brand/50 transition-colors group"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <BarChart3 size={20} className="text-accent-blue" />
-                  <span className="text-xs text-text-secondary">{report.lastUpdated}</span>
+                  <BarChart3 size={20} className="text-cx-brand" />
+                  <span className="text-xs text-[var(--cx-text-2)]">{report.lastUpdated}</span>
                 </div>
-                <h3 className="text-text-primary font-semibold mb-1 group-hover:text-accent-blue transition-colors">
+                <h3 className="text-[var(--cx-text-1)] font-semibold mb-1 group-hover:text-cx-brand transition-colors">
                   {report.title}
                 </h3>
-                <div className="flex items-center gap-3 text-xs text-text-secondary mt-2">
+                <div className="flex items-center gap-3 text-xs text-[var(--cx-text-2)] mt-2">
                   <span className="flex items-center gap-1">
                     <LayoutGrid size={12} />
                     {report.chartCount} charts
@@ -418,11 +419,11 @@ export function AnalyticsPage() {
 
   // --- Editor View ---
   return (
-    <div className="h-screen bg-bg-primary flex flex-col overflow-hidden">
+    <div className="h-full bg-cx-bg flex flex-col overflow-hidden">
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary border-b border-border-primary shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-cx-surface border-b border-white/8 shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={() => { setActiveReport(null); setSelectedViz(null); }} className="text-text-secondary hover:text-text-primary">
+          <button onClick={() => { setActiveReport(null); setSelectedViz(null); }} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
             <ArrowLeft size={18} />
           </button>
           <input
@@ -432,7 +433,7 @@ export function AnalyticsPage() {
               setActiveReport(updated);
               setReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
             }}
-            className="bg-transparent text-text-primary font-semibold text-lg border-none outline-none focus:ring-1 focus:ring-accent-blue/30 rounded px-1"
+            className="bg-transparent text-[var(--cx-text-1)] font-semibold text-lg border-none outline-none focus:ring-1 focus:ring-cx-brand/30 rounded px-1"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -440,14 +441,14 @@ export function AnalyticsPage() {
           <div className="relative">
             <button
               onClick={() => setDataSourceOpen(!dataSourceOpen)}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm text-text-secondary border border-border-primary rounded-lg hover:bg-bg-primary"
+              className="flex items-center gap-1 px-3 py-1.5 text-sm text-[var(--cx-text-2)] border border-white/8 rounded-lg hover:bg-cx-bg"
             >
               <Database size={14} />
               {activeReport.dataSource}
               <ChevronDown size={14} />
             </button>
             {dataSourceOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-bg-secondary border border-border-primary rounded-lg shadow-xl z-20 min-w-[160px]">
+              <div className="absolute right-0 top-full mt-1 bg-cx-surface border border-white/8 rounded-lg shadow-xl z-20 min-w-[160px]">
                 {DATA_SOURCES.map((ds) => (
                   <button
                     key={ds}
@@ -458,8 +459,8 @@ export function AnalyticsPage() {
                       setDataSourceOpen(false);
                     }}
                     className={cn(
-                      'block w-full text-left px-3 py-2 text-sm hover:bg-bg-primary transition-colors',
-                      ds === activeReport.dataSource ? 'text-accent-blue' : 'text-text-primary'
+                      'block w-full text-left px-3 py-2 text-sm hover:bg-cx-bg transition-colors',
+                      ds === activeReport.dataSource ? 'text-cx-brand' : 'text-[var(--cx-text-1)]'
                     )}
                   >
                     {ds}
@@ -468,7 +469,7 @@ export function AnalyticsPage() {
               </div>
             )}
           </div>
-          <button onClick={handlePublish} className="flex items-center gap-1 px-3 py-1.5 text-sm bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90">
+          <button onClick={handlePublish} className="flex items-center gap-1 px-3 py-1.5 text-sm bg-cx-brand text-white rounded-lg hover:bg-cx-brand/90">
             <Share2 size={14} />
             Publish
           </button>
@@ -476,16 +477,16 @@ export function AnalyticsPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-bg-secondary/50 border-b border-border-primary shrink-0">
-        <Filter size={14} className="text-text-secondary" />
+      <div className="flex items-center gap-2 px-4 py-2 bg-cx-surface/50 border-b border-white/8 shrink-0">
+        <Filter size={14} className="text-[var(--cx-text-2)]" />
         <input
           value={filterText}
           onChange={(e) => setFilterText(e.target.value)}
           placeholder="Add filter..."
-          className="bg-transparent text-sm text-text-primary placeholder:text-text-secondary/50 outline-none flex-1"
+          className="bg-transparent text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-2)]/50 outline-none flex-1"
         />
         {activeReport.filters.map((f, i) => (
-          <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-accent-blue/10 text-accent-blue text-xs rounded-full">
+          <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-cx-brand/10 text-cx-brand text-xs rounded-full">
             {f}
             <X size={10} className="cursor-pointer" />
           </span>
@@ -494,8 +495,8 @@ export function AnalyticsPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel: Data Fields */}
-        <div className="w-56 bg-bg-secondary border-r border-border-primary p-3 overflow-y-auto shrink-0">
-          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">Data Fields</h3>
+        <div className="w-56 bg-cx-surface border-r border-white/8 p-3 overflow-y-auto shrink-0">
+          <h3 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider mb-3">Data Fields</h3>
           {SAMPLE_FIELDS.map((field) => (
             <div
               key={field.id}
@@ -503,20 +504,20 @@ export function AnalyticsPage() {
               onDragStart={() => setDragItem(field.id)}
               onDragEnd={() => setDragItem(null)}
               className={cn(
-                'flex items-center gap-2 px-2 py-1.5 rounded text-sm cursor-grab hover:bg-bg-primary transition-colors mb-0.5',
-                dragItem === field.id ? 'bg-accent-blue/10 text-accent-blue' : 'text-text-primary'
+                'flex items-center gap-2 px-2 py-1.5 rounded text-sm cursor-grab hover:bg-cx-bg transition-colors mb-0.5',
+                dragItem === field.id ? 'bg-cx-brand/10 text-cx-brand' : 'text-[var(--cx-text-1)]'
               )}
             >
-              <GripVertical size={12} className="text-text-secondary/50" />
+              <GripVertical size={12} className="text-[var(--cx-text-2)]/50" />
               <span className={cn(
                 'w-2 h-2 rounded-full',
-                field.type === 'number' ? 'bg-accent-blue' : field.type === 'date' ? 'bg-amber-400' : 'bg-green-400'
+                field.type === 'number' ? 'bg-cx-brand' : field.type === 'date' ? 'bg-amber-400' : 'bg-green-400'
               )} />
               {field.name}
             </div>
           ))}
-          <div className="mt-4 pt-3 border-t border-border-primary">
-            <button className="flex items-center gap-1 text-xs text-accent-blue hover:text-accent-blue/80">
+          <div className="mt-4 pt-3 border-t border-white/8">
+            <button className="flex items-center gap-1 text-xs text-cx-brand hover:text-cx-brand/80">
               <Upload size={12} />
               Upload CSV
             </button>
@@ -531,15 +532,15 @@ export function AnalyticsPage() {
                 key={viz.id}
                 onClick={() => setSelectedViz(viz)}
                 className={cn(
-                  'bg-bg-secondary border rounded-xl p-4 cursor-pointer transition-all relative group',
-                  selectedViz?.id === viz.id ? 'border-accent-blue ring-1 ring-accent-blue/20' : 'border-border-primary hover:border-border-primary/80'
+                  'bg-cx-surface border rounded-xl p-4 cursor-pointer transition-all relative group',
+                  selectedViz?.id === viz.id ? 'border-cx-brand ring-1 ring-cx-brand/20' : 'border-white/8 hover:border-white/8/80'
                 )}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium text-text-primary">{viz.title}</h4>
+                  <h4 className="text-sm font-medium text-[var(--cx-text-1)]">{viz.title}</h4>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeleteViz(viz.id); }}
-                    className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-red-400 transition-all"
+                    className="opacity-0 group-hover:opacity-100 text-[var(--cx-text-2)] hover:text-cx-danger transition-all"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -554,28 +555,28 @@ export function AnalyticsPage() {
             <div className="relative">
               <button
                 onClick={() => setShowChartPicker(!showChartPicker)}
-                className="w-full h-64 border-2 border-dashed border-border-primary rounded-xl flex flex-col items-center justify-center gap-2 text-text-secondary hover:border-accent-blue/50 hover:text-accent-blue transition-colors"
+                className="w-full h-64 border-2 border-dashed border-white/8 rounded-xl flex flex-col items-center justify-center gap-2 text-[var(--cx-text-2)] hover:border-cx-brand/50 hover:text-cx-brand transition-colors"
               >
                 <Plus size={24} />
                 <span className="text-sm">Add Visualization</span>
               </button>
 
               {showChartPicker && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-bg-secondary border border-border-primary rounded-xl shadow-2xl p-4 z-20 min-w-[280px]">
-                  <h4 className="text-sm font-semibold text-text-primary mb-3">Choose Chart Type</h4>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-cx-surface border border-white/8 rounded-xl shadow-2xl p-4 z-20 min-w-[280px]">
+                  <h4 className="text-sm font-semibold text-[var(--cx-text-1)] mb-3">Choose Chart Type</h4>
                   <div className="grid grid-cols-3 gap-2">
                     {CHART_TYPES.map((ct) => (
                       <button
                         key={ct.type}
                         onClick={() => handleAddVisualization(ct.type)}
-                        className="flex flex-col items-center gap-1 p-3 rounded-lg border border-border-primary hover:border-accent-blue hover:bg-accent-blue/5 transition-colors"
+                        className="flex flex-col items-center gap-1 p-3 rounded-lg border border-white/8 hover:border-cx-brand hover:bg-cx-brand/5 transition-colors"
                       >
-                        <span className="text-text-primary">{ct.icon}</span>
-                        <span className="text-xs text-text-secondary">{ct.label}</span>
+                        <span className="text-[var(--cx-text-1)]">{ct.icon}</span>
+                        <span className="text-xs text-[var(--cx-text-2)]">{ct.label}</span>
                       </button>
                     ))}
                   </div>
-                  <button onClick={() => setShowChartPicker(false)} className="mt-3 text-xs text-text-secondary hover:text-text-primary w-full text-center">
+                  <button onClick={() => setShowChartPicker(false)} className="mt-3 text-xs text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] w-full text-center">
                     Cancel
                   </button>
                 </div>
@@ -585,26 +586,26 @@ export function AnalyticsPage() {
         </div>
 
         {/* Right Panel: Config */}
-        <div className="w-64 bg-bg-secondary border-l border-border-primary p-4 overflow-y-auto shrink-0">
+        <div className="w-64 bg-cx-surface border-l border-white/8 p-4 overflow-y-auto shrink-0">
           {selectedViz ? (
             <>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-text-primary">Configuration</h3>
-                <Settings size={14} className="text-text-secondary" />
+                <h3 className="text-sm font-semibold text-[var(--cx-text-1)]">Configuration</h3>
+                <Settings size={14} className="text-[var(--cx-text-2)]" />
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-text-secondary mb-1">Title</label>
+                  <label className="block text-xs text-[var(--cx-text-2)] mb-1">Title</label>
                   <input
                     value={selectedViz.title}
                     onChange={(e) => handleUpdateVizTitle(selectedViz.id, e.target.value)}
-                    className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none focus:border-accent-blue"
+                    className="w-full bg-cx-bg border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none focus:border-cx-brand"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-text-secondary mb-1">Chart Type</label>
+                  <label className="block text-xs text-[var(--cx-text-2)] mb-1">Chart Type</label>
                   <div className="grid grid-cols-3 gap-1">
                     {CHART_TYPES.map((ct) => (
                       <button
@@ -622,7 +623,7 @@ export function AnalyticsPage() {
                         }}
                         className={cn(
                           'flex flex-col items-center gap-0.5 p-1.5 rounded text-xs transition-colors',
-                          selectedViz.type === ct.type ? 'bg-accent-blue/10 text-accent-blue' : 'text-text-secondary hover:bg-bg-primary'
+                          selectedViz.type === ct.type ? 'bg-cx-brand/10 text-cx-brand' : 'text-[var(--cx-text-2)] hover:bg-cx-bg'
                         )}
                       >
                         {ct.icon}
@@ -632,8 +633,8 @@ export function AnalyticsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-text-secondary mb-1">X-Axis Field</label>
-                  <select className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none">
+                  <label className="block text-xs text-[var(--cx-text-2)] mb-1">X-Axis Field</label>
+                  <select className="w-full bg-cx-bg border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none">
                     <option value="">Select field...</option>
                     {SAMPLE_FIELDS.map((f) => (
                       <option key={f.id} value={f.id}>{f.name}</option>
@@ -642,8 +643,8 @@ export function AnalyticsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-text-secondary mb-1">Y-Axis Field</label>
-                  <select className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none">
+                  <label className="block text-xs text-[var(--cx-text-2)] mb-1">Y-Axis Field</label>
+                  <select className="w-full bg-cx-bg border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none">
                     <option value="">Select field...</option>
                     {SAMPLE_FIELDS.filter((f) => f.type === 'number').map((f) => (
                       <option key={f.id} value={f.id}>{f.name}</option>
@@ -652,9 +653,9 @@ export function AnalyticsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-text-secondary mb-1">Color</label>
+                  <label className="block text-xs text-[var(--cx-text-2)] mb-1">Color</label>
                   <div className="flex gap-1.5">
-                    {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'].map((c) => (
+                    {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316'].map((c) => (
                       <button
                         key={c}
                         className="w-6 h-6 rounded-full border-2 border-transparent hover:border-white/30 transition-colors"
@@ -666,7 +667,7 @@ export function AnalyticsPage() {
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-text-secondary text-sm">
+            <div className="flex flex-col items-center justify-center h-full text-[var(--cx-text-2)] text-sm">
               <Settings size={24} className="mb-2 opacity-30" />
               <p>Select a visualization to configure</p>
             </div>

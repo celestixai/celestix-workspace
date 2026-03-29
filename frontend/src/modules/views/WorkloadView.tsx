@@ -101,9 +101,9 @@ function minutesToHours(m: number): string {
 }
 
 function getCapacityColor(ratio: number): { bg: string; bar: string; text: string } {
-  if (ratio > 1.0) return { bg: 'bg-red-500/10', bar: 'bg-red-500', text: 'text-red-400' };
-  if (ratio > 0.7) return { bg: 'bg-yellow-500/10', bar: 'bg-yellow-500', text: 'text-yellow-400' };
-  return { bg: 'bg-green-500/10', bar: 'bg-green-500', text: 'text-green-400' };
+  if (ratio > 1.0) return { bg: 'bg-cx-danger/10', bar: 'bg-cx-danger', text: 'text-cx-danger' };
+  if (ratio > 0.7) return { bg: 'bg-cx-warning/10', bar: 'bg-cx-warning', text: 'text-cx-warning' };
+  return { bg: 'bg-cx-success/10', bar: 'bg-cx-success', text: 'text-cx-success' };
 }
 
 function getAssigneeId(task: Task): string | null {
@@ -456,10 +456,10 @@ export function WorkloadView({
                             >
                               <span className={cn(
                                 'w-2 h-2 rounded-full flex-shrink-0',
-                                task.priority === 'URGENT' ? 'bg-red-500' :
+                                task.priority === 'URGENT' ? 'bg-cx-danger' :
                                 task.priority === 'HIGH' ? 'bg-orange-500' :
-                                task.priority === 'MEDIUM' ? 'bg-yellow-500' :
-                                task.priority === 'LOW' ? 'bg-blue-500' : 'bg-gray-500',
+                                task.priority === 'MEDIUM' ? 'bg-cx-warning' :
+                                task.priority === 'LOW' ? 'bg-cx-brand' : 'bg-[var(--cx-text-3)]',
                               )} />
                               <span className="text-xs text-text-primary truncate flex-1">{task.title}</span>
                               {task.timeEstimate != null && task.timeEstimate > 0 && (

@@ -1,13 +1,11 @@
-import { Search, Bell, Sun, Moon, Wifi, WifiOff } from 'lucide-react';
+import { Search, Bell, Sun, Moon, Sparkles } from 'lucide-react';
 import { useUIStore } from '@/stores/ui.store';
 import { useNotificationStore } from '@/stores/notification.store';
 import { Badge } from '@/components/shared/badge';
-import { AppLauncher } from '@/components/layout/app-launcher';
-import { AIStatusBadge } from '@/modules/ai/AIStatusBadge';
 import { AIChatPanel } from '@/modules/ai/AIChatPanel';
+import { useAIStatus } from '@/hooks/useAI';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
-import { getSocket } from '@/lib/socket';
+import { useState } from 'react';
 
 const moduleNames: Record<string, string> = {
   dashboard: 'Home',
@@ -54,88 +52,196 @@ const moduleNames: Record<string, string> = {
 export function TopBar() {
   const { activeModule, theme, setTheme, setSearchOpen, setNotificationPanelOpen } = useUIStore();
   const unreadCount = useNotificationStore((s) => s.unreadCount);
-  const [connected, setConnected] = useState(true);
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
-
-  useEffect(() => {
-    const socket = getSocket();
-    const onConnect = () => setConnected(true);
-    const onDisconnect = () => setConnected(false);
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    setConnected(socket.connected);
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-    };
-  }, []);
+  const { data: aiStatus } = useAIStatus();
+  const aiAvailable = aiStatus?.isAvailable ?? false;
 
   return (
-    <header className="h-11 bg-bg-secondary border-b border-border-primary flex items-center px-4 flex-shrink-0 z-10">
-      {/* Left — Module name */}
-      <div className="flex items-center gap-2 min-w-0 sm:min-w-[140px]">
-        <h1 className="text-sm font-semibold text-text-primary truncate">
-          {moduleNames[activeModule] || activeModule}
-        </h1>
-      </div>
-
-      {/* Center — Search */}
-      <div className="flex-1 flex justify-center max-w-xl mx-auto min-w-0 px-2">
-        <button
-          onClick={() => setSearchOpen(true)}
-          aria-label="Search everything (Ctrl+K)"
-          className="flex items-center gap-2 w-full max-w-md h-8 px-3 rounded-lg bg-bg-tertiary border border-border-primary text-text-tertiary text-sm hover:border-border-secondary transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
+    <header
+      className="sticky top-0 z-[100] flex items-center justify-between flex-shrink-0"
+      style={{
+        height: 44,
+        background: '#09090B',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        padding: '0 16px',
+      }}
+    >
+      {/* Left — Breadcrumbs */}
+      <nav className="flex items-center gap-0 min-w-0" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <span
+          className="cursor-pointer transition-colors"
+          style={{ fontSize: 13, color: 'rgba(255,255,255,0.40)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.65)')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.40)')}
         >
-          <Search size={14} className="flex-shrink-0" />
-          <span className="truncate hidden sm:inline">Search everything...</span>
-          <kbd className="ml-auto text-[10px] bg-bg-primary px-1.5 py-0.5 rounded-md border border-border-secondary flex-shrink-0 hidden sm:inline">
-            Ctrl+K
-          </kbd>
-        </button>
-      </div>
+          Celestix
+        </span>
+        <span className="mx-1.5 select-none" style={{ fontSize: 13, color: 'rgba(255,255,255,0.20)' }}>
+          ›
+        </span>
+        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.95)', fontWeight: 500 }}>
+          {moduleNames[activeModule] || activeModule}
+        </span>
+      </nav>
 
       {/* Right — Actions */}
-      <div className="flex items-center gap-1 min-w-0 sm:min-w-[140px] justify-end">
-        {/* App launcher */}
-        <AppLauncher />
-
-        {/* Connection status */}
-        <div
-          className={cn('p-2 flex-shrink-0', connected ? 'text-accent-emerald' : 'text-accent-red')}
-          role="status"
-          aria-label={connected ? 'Connected' : 'Disconnected'}
+      <div className="flex items-center" style={{ gap: 4 }}>
+        {/* Search trigger */}
+        <button
+          onClick={() => setSearchOpen(true)}
+          aria-label="Search everything (Cmd+K)"
+          className="flex items-center gap-2 transition-colors"
+          style={{
+            height: 32,
+            paddingLeft: 10,
+            paddingRight: 8,
+            background: 'transparent',
+            borderRadius: 6,
+            color: 'rgba(255,255,255,0.40)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+          }}
         >
-          {connected ? <Wifi size={14} /> : <WifiOff size={14} />}
-        </div>
+          <Search size={16} />
+          <span
+            className="flex items-center"
+            style={{
+              fontSize: 11,
+              color: 'rgba(255,255,255,0.20)',
+              background: 'rgba(255,255,255,0.04)',
+              borderRadius: 9999,
+              padding: '2px 6px',
+              lineHeight: 1,
+            }}
+          >
+            ⌘K
+          </span>
+        </button>
 
         {/* Theme toggle */}
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors flex-shrink-0 focus-visible:outline-2 focus-visible:outline-accent-blue"
+          className="flex items-center justify-center transition-colors"
+          style={{
+            width: 32,
+            height: 32,
+            background: 'transparent',
+            borderRadius: 6,
+            color: 'rgba(255,255,255,0.40)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+          }}
         >
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         </button>
 
-        {/* AI Status */}
-        <AIStatusBadge onClick={() => setAiPanelOpen(true)} />
+        {/* AI Brain */}
+        <button
+          onClick={() => setAiPanelOpen(true)}
+          aria-label={aiAvailable ? 'AI Assistant' : 'AI Offline'}
+          className="relative flex items-center justify-center transition-colors"
+          style={{
+            width: 32,
+            height: 32,
+            background: 'transparent',
+            borderRadius: 6,
+            color: 'rgba(255,255,255,0.40)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+          }}
+        >
+          <Sparkles size={16} />
+          <span
+            className="absolute flex-shrink-0 rounded-full"
+            style={{
+              width: 6,
+              height: 6,
+              bottom: 5,
+              right: 5,
+              background: aiAvailable ? '#22c55e' : 'rgba(255,255,255,0.25)',
+            }}
+          />
+        </button>
 
         {/* Notifications */}
         <button
           onClick={() => setNotificationPanelOpen(true)}
           aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
-          className="relative p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors flex-shrink-0 focus-visible:outline-2 focus-visible:outline-accent-blue"
+          className="relative flex items-center justify-center transition-colors"
+          style={{
+            width: 32,
+            height: 32,
+            background: 'transparent',
+            borderRadius: 6,
+            color: 'rgba(255,255,255,0.40)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+          }}
         >
           <Bell size={16} />
           {unreadCount > 0 && (
-            <Badge
-              count={unreadCount}
-              className="absolute -top-0.5 -right-0.5"
-              color="var(--accent-red)"
-            />
+            <span
+              className="absolute flex items-center justify-center"
+              style={{
+                top: 3,
+                right: 3,
+                minWidth: 14,
+                height: 14,
+                borderRadius: 9999,
+                background: '#ef4444',
+                color: 'white',
+                fontSize: 9,
+                fontWeight: 600,
+                lineHeight: 1,
+                padding: '0 3px',
+              }}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
           )}
         </button>
+
+        {/* User avatar */}
+        <button
+          className="flex items-center justify-center flex-shrink-0 overflow-hidden transition-opacity hover:opacity-80"
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.10)',
+            marginLeft: 4,
+          }}
+          aria-label="User menu"
+        >
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.60)', fontWeight: 500 }}>U</span>
+        </button>
       </div>
+
       <AIChatPanel open={aiPanelOpen} onClose={() => setAiPanelOpen(false)} />
     </header>
   );

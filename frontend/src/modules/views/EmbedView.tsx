@@ -43,7 +43,7 @@ interface EmbedHint {
 const EMBED_HINTS: EmbedHint[] = [
   {
     name: 'Google Docs',
-    icon: <FileText size={16} className="text-blue-500" />,
+    icon: <FileText size={16} className="text-cx-brand" />,
     hint: 'Use the "Publish to web" URL',
     example: 'https://docs.google.com/document/d/.../pub',
   },
@@ -55,13 +55,13 @@ const EMBED_HINTS: EmbedHint[] = [
   },
   {
     name: 'Miro',
-    icon: <LayoutGrid size={16} className="text-yellow-500" />,
+    icon: <LayoutGrid size={16} className="text-cx-warning" />,
     hint: 'Use the embed link from board settings',
     example: 'https://miro.com/app/live-embed/...',
   },
   {
     name: 'YouTube',
-    icon: <Video size={16} className="text-red-500" />,
+    icon: <Video size={16} className="text-cx-danger" />,
     hint: 'Use the embed URL',
     example: 'https://www.youtube.com/embed/VIDEO_ID',
   },
@@ -150,7 +150,7 @@ export function EmbedView({ config, onConfigChange }: EmbedViewProps) {
               Embed
             </button>
           </div>
-          {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+          {error && <p className="text-xs text-cx-danger mt-1">{error}</p>}
 
           {/* Embed hints */}
           <div className="mt-8">

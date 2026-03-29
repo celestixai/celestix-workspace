@@ -85,6 +85,7 @@ export function ContactsPage() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [filterFavorite, setFilterFavorite] = useState(false);
+  const [showAddToGroup, setShowAddToGroup] = useState(false);
 
   /* -- Queries -- */
 
@@ -97,6 +98,15 @@ export function ContactsPage() {
       if (searchQuery) params.search = searchQuery;
       const { data } = await api.get('/contacts', { params });
       return data.data as Contact[];
+    },
+  });
+
+  // Separate total count query (unfiltered)
+  const { data: totalContacts = 0 } = useQuery({
+    queryKey: ['contacts', 'total-count'],
+    queryFn: async () => {
+      const { data } = await api.get('/contacts', { params: { limit: '1' } });
+      return data.pagination?.total ?? data.data?.length ?? 0;
     },
   });
 
@@ -180,6 +190,19 @@ export function ContactsPage() {
     },
   });
 
+  const addToGroup = useMutation({
+    mutationFn: async (contactId: string) => {
+      if (!selectedGroupId) return;
+      await api.post(`/contacts/${contactId}/groups/${selectedGroupId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['contact-groups'] });
+      toast('Contact added to group', 'success');
+    },
+    onError: () => toast('Failed to add to group', 'error'),
+  });
+
   const createGroup = useMutation({
     mutationFn: async (name: string) => {
       await api.post('/contacts/groups', { name });
@@ -199,12 +222,19 @@ export function ContactsPage() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* ===== Group Sidebar ===== */}
-      <aside className="w-[200px] flex-shrink-0 bg-bg-secondary border-r border-border-primary flex flex-col">
+      <aside className="w-[200px] flex-shrink-0 bg-cx-surface border-r border-[var(--cx-border-1)] flex flex-col">
         <div className="p-3 flex-shrink-0">
-          <Button className="w-full" onClick={() => setShowCreateContact(true)}>
-            <UserPlus size={16} />
-            New Contact
-          </Button>
+          {selectedGroupId ? (
+            <Button className="w-full" onClick={() => setShowAddToGroup(true)}>
+              <Plus size={16} />
+              Add to Group
+            </Button>
+          ) : (
+            <Button className="w-full" onClick={() => setShowCreateContact(true)}>
+              <UserPlus size={16} />
+              New Contact
+            </Button>
+          )}
         </div>
 
         <nav className="flex-1 px-2 space-y-0.5 overflow-y-auto">
@@ -213,13 +243,13 @@ export function ContactsPage() {
             className={cn(
               'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
               !selectedGroupId && !filterFavorite
-                ? 'bg-bg-active text-text-primary font-medium'
-                : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                ? 'bg-[rgba(255,255,255,0.06)] text-[var(--cx-text-1)] font-medium'
+                : 'text-[var(--cx-text-2)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--cx-text-1)]'
             )}
           >
             <Users size={16} />
             <span className="flex-1 text-left">All Contacts</span>
-            <span className="text-xs text-text-tertiary">{contacts.length}</span>
+            <span className="text-xs text-[var(--cx-text-3)]">{totalContacts}</span>
           </button>
 
           <button
@@ -227,8 +257,8 @@ export function ContactsPage() {
             className={cn(
               'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
               filterFavorite
-                ? 'bg-bg-active text-text-primary font-medium'
-                : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                ? 'bg-[rgba(255,255,255,0.06)] text-[var(--cx-text-1)] font-medium'
+                : 'text-[var(--cx-text-2)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--cx-text-1)]'
             )}
           >
             <Star size={16} />
@@ -238,12 +268,12 @@ export function ContactsPage() {
           {/* Groups */}
           <div className="pt-4">
             <div className="flex items-center justify-between px-3 mb-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--cx-text-3)]">
                 Groups
               </span>
               <button
                 onClick={() => setShowCreateGroup(true)}
-                className="p-0.5 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
+                className="p-0.5 rounded-lg hover:bg-[rgba(255,255,255,0.04)] text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
                 aria-label="Add group"
               >
                 <Plus size={12} />
@@ -257,7 +287,7 @@ export function ContactsPage() {
                 ))}
               </div>
             ) : groups.length === 0 ? (
-              <p className="text-xs text-text-tertiary px-3 py-2">No groups</p>
+              <p className="text-xs text-[var(--cx-text-3)] px-3 py-2">No groups</p>
             ) : (
               groups.map((group) => (
                 <button
@@ -266,13 +296,13 @@ export function ContactsPage() {
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                     selectedGroupId === group.id
-                      ? 'bg-bg-active text-text-primary font-medium'
-                      : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                      ? 'bg-[rgba(255,255,255,0.06)] text-[var(--cx-text-1)] font-medium'
+                      : 'text-[var(--cx-text-2)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--cx-text-1)]'
                   )}
                 >
                   <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: group.color }} />
                   <span className="truncate flex-1 text-left">{group.name}</span>
-                  <span className="text-xs text-text-tertiary">
+                  <span className="text-xs text-[var(--cx-text-3)]">
                     {group.contactCount ?? group._count?.members ?? 0}
                   </span>
                 </button>
@@ -281,27 +311,27 @@ export function ContactsPage() {
           </div>
         </nav>
 
-        <div className="p-3 border-t border-border-primary flex-shrink-0 space-y-1">
-          <button className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-text-tertiary hover:text-text-secondary hover:bg-bg-hover transition-colors">
+        <div className="p-3 border-t border-[var(--cx-border-1)] flex-shrink-0 space-y-1">
+          <button onClick={() => toast('Import coming soon', 'info')} className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-[var(--cx-text-3)] hover:text-[var(--cx-text-2)] hover:bg-[rgba(255,255,255,0.04)] transition-colors">
             <Upload size={12} className="flex-shrink-0" /> Import
           </button>
-          <button className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-text-tertiary hover:text-text-secondary hover:bg-bg-hover transition-colors">
+          <button onClick={() => toast('Export coming soon', 'info')} className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-[var(--cx-text-3)] hover:text-[var(--cx-text-2)] hover:bg-[rgba(255,255,255,0.04)] transition-colors">
             <Download size={12} className="flex-shrink-0" /> Export
           </button>
         </div>
       </aside>
 
       {/* ===== Contact List ===== */}
-      <div className="flex-1 flex flex-col min-w-0 border-r border-border-primary">
-        <div className="h-12 flex items-center gap-2 px-3 border-b border-border-primary flex-shrink-0">
+      <div className="flex-1 flex flex-col min-w-0 border-r border-[var(--cx-border-1)]">
+        <div className="h-12 flex items-center gap-2 px-3 border-b border-[var(--cx-border-1)] flex-shrink-0">
           <div className="relative flex-1">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--cx-text-3)]" />
             <input
               type="text"
               placeholder="Search contacts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-8 pl-8 pr-3 rounded-lg bg-bg-tertiary border border-border-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue"
+              className="w-full h-8 pl-8 pr-3 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:border-accent-blue"
             />
           </div>
         </div>
@@ -335,7 +365,7 @@ export function ContactsPage() {
           ) : (
             letters.map((letter) => (
               <div key={letter}>
-                <div className="px-4 py-1.5 bg-bg-secondary/50 sticky top-0 z-10">
+                <div className="px-4 py-1.5 bg-cx-surface/50 sticky top-0 z-10">
                   <span className="text-xs font-bold text-accent-blue">{letter}</span>
                 </div>
                 {groupedContacts[letter].map((contact) => (
@@ -344,22 +374,22 @@ export function ContactsPage() {
                     onClick={() => setSelectedContactId(contact.id)}
                     className={cn(
                       'w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left',
-                      selectedContactId === contact.id ? 'bg-bg-active' : 'hover:bg-bg-hover'
+                      selectedContactId === contact.id ? 'bg-[rgba(255,255,255,0.06)]' : 'hover:bg-[rgba(255,255,255,0.04)]'
                     )}
                   >
                     <Avatar src={contact.avatarUrl} name={contact.displayName} size="md" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
-                        <p className="text-sm font-medium text-text-primary truncate">{contact.displayName}</p>
+                        <p className="text-sm font-medium text-[var(--cx-text-1)] truncate">{contact.displayName}</p>
                         {(contact.isFavorite || contact.isStarred) && (
                           <Star size={10} className="text-accent-amber flex-shrink-0" fill="currentColor" />
                         )}
                       </div>
                       {contact.company && (
-                        <p className="text-xs text-text-tertiary truncate">{contact.company}</p>
+                        <p className="text-xs text-[var(--cx-text-3)] truncate">{contact.company}</p>
                       )}
                       {contact.emails?.[0] && (
-                        <p className="text-xs text-text-tertiary truncate">{contact.emails[0].email}</p>
+                        <p className="text-xs text-[var(--cx-text-3)] truncate">{contact.emails[0].email}</p>
                       )}
                     </div>
                   </button>
@@ -371,23 +401,23 @@ export function ContactsPage() {
       </div>
 
       {/* ===== Contact Detail Panel ===== */}
-      <aside className="w-[380px] flex-shrink-0 bg-bg-secondary flex flex-col overflow-y-auto">
+      <aside className="w-[380px] flex-shrink-0 bg-cx-surface flex flex-col overflow-y-auto">
         {selectedContact ? (
           <div className="flex-1">
             {/* Header */}
-            <div className="p-6 text-center border-b border-border-primary">
+            <div className="p-6 text-center border-b border-[var(--cx-border-1)]">
               <Avatar
                 src={selectedContact.avatarUrl}
                 name={selectedContact.displayName}
                 size="xl"
                 className="mx-auto mb-3"
               />
-              <h2 className="text-xl font-semibold text-text-primary">{selectedContact.displayName}</h2>
+              <h2 className="text-xl font-semibold text-[var(--cx-text-1)]">{selectedContact.displayName}</h2>
               {(selectedContact.title || selectedContact.jobTitle) && (
-                <p className="text-sm text-text-secondary mt-0.5">{selectedContact.title || selectedContact.jobTitle}</p>
+                <p className="text-sm text-[var(--cx-text-2)] mt-0.5">{selectedContact.title || selectedContact.jobTitle}</p>
               )}
               {selectedContact.company && (
-                <p className="text-sm text-text-tertiary flex items-center gap-1 justify-center mt-0.5">
+                <p className="text-sm text-[var(--cx-text-3)] flex items-center gap-1 justify-center mt-0.5">
                   <Building2 size={12} /> {selectedContact.company}
                 </p>
               )}
@@ -396,7 +426,7 @@ export function ContactsPage() {
                 {selectedContact.emails?.[0] && (
                   <a
                     href={`mailto:${selectedContact.emails[0].email}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-tertiary border border-border-primary text-xs text-text-secondary hover:text-text-primary hover:border-accent-blue transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-xs text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:border-accent-blue transition-colors"
                   >
                     <Mail size={12} /> Email
                   </a>
@@ -404,12 +434,12 @@ export function ContactsPage() {
                 {selectedContact.phones?.[0] && (
                   <a
                     href={`tel:${selectedContact.phones[0].phone}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-tertiary border border-border-primary text-xs text-text-secondary hover:text-text-primary hover:border-accent-blue transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-xs text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:border-accent-blue transition-colors"
                   >
                     <Phone size={12} /> Call
                   </a>
                 )}
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-tertiary border border-border-primary text-xs text-text-secondary hover:text-text-primary hover:border-accent-blue transition-colors">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-xs text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:border-accent-blue transition-colors">
                   <MessageSquare size={12} /> Message
                 </button>
               </div>
@@ -420,13 +450,13 @@ export function ContactsPage() {
               {/* Emails */}
               {selectedContact.emails?.length > 0 && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary mb-2">Email</h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--cx-text-3)] mb-2">Email</h3>
                   {selectedContact.emails.map((email) => (
                     <div key={email.id} className="flex items-start gap-3 py-1.5">
-                      <Mail size={14} className="text-text-tertiary mt-0.5" />
+                      <Mail size={14} className="text-[var(--cx-text-3)] mt-0.5" />
                       <div>
-                        <p className="text-sm text-text-primary">{email.email}</p>
-                        <p className="text-[10px] text-text-tertiary capitalize">{email.label}</p>
+                        <p className="text-sm text-[var(--cx-text-1)]">{email.email}</p>
+                        <p className="text-[10px] text-[var(--cx-text-3)] capitalize">{email.label}</p>
                       </div>
                     </div>
                   ))}
@@ -436,13 +466,13 @@ export function ContactsPage() {
               {/* Phones */}
               {selectedContact.phones?.length > 0 && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary mb-2">Phone</h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--cx-text-3)] mb-2">Phone</h3>
                   {selectedContact.phones.map((phone) => (
                     <div key={phone.id} className="flex items-start gap-3 py-1.5">
-                      <Phone size={14} className="text-text-tertiary mt-0.5" />
+                      <Phone size={14} className="text-[var(--cx-text-3)] mt-0.5" />
                       <div>
-                        <p className="text-sm text-text-primary">{phone.phone}</p>
-                        <p className="text-[10px] text-text-tertiary capitalize">{phone.label}</p>
+                        <p className="text-sm text-[var(--cx-text-1)]">{phone.phone}</p>
+                        <p className="text-[10px] text-[var(--cx-text-3)] capitalize">{phone.label}</p>
                       </div>
                     </div>
                   ))}
@@ -452,15 +482,15 @@ export function ContactsPage() {
               {/* Addresses */}
               {selectedContact.addresses && selectedContact.addresses.length > 0 && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary mb-2">Address</h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--cx-text-3)] mb-2">Address</h3>
                   {selectedContact.addresses.map((addr) => (
                     <div key={addr.id} className="flex items-start gap-3 py-1.5">
-                      <MapPin size={14} className="text-text-tertiary mt-0.5" />
+                      <MapPin size={14} className="text-[var(--cx-text-3)] mt-0.5" />
                       <div>
-                        <p className="text-sm text-text-primary">
+                        <p className="text-sm text-[var(--cx-text-1)]">
                           {[addr.street, addr.city, addr.state, addr.zip, addr.country].filter(Boolean).join(', ')}
                         </p>
-                        <p className="text-[10px] text-text-tertiary capitalize">{addr.label}</p>
+                        <p className="text-[10px] text-[var(--cx-text-3)] capitalize">{addr.label}</p>
                       </div>
                     </div>
                   ))}
@@ -470,10 +500,10 @@ export function ContactsPage() {
               {/* Birthday */}
               {selectedContact.birthday && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary mb-2">Birthday</h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--cx-text-3)] mb-2">Birthday</h3>
                   <div className="flex items-center gap-3 py-1.5">
-                    <Calendar size={14} className="text-text-tertiary" />
-                    <p className="text-sm text-text-primary">
+                    <Calendar size={14} className="text-[var(--cx-text-3)]" />
+                    <p className="text-sm text-[var(--cx-text-1)]">
                       {new Date(selectedContact.birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
@@ -483,20 +513,20 @@ export function ContactsPage() {
               {/* Notes */}
               {selectedContact.notes && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary mb-2">Notes</h3>
-                  <p className="text-sm text-text-secondary whitespace-pre-wrap">{selectedContact.notes}</p>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--cx-text-3)] mb-2">Notes</h3>
+                  <p className="text-sm text-[var(--cx-text-2)] whitespace-pre-wrap">{selectedContact.notes}</p>
                 </div>
               )}
 
               {/* Groups */}
               {selectedContact.groups?.length > 0 && (
                 <div>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary mb-2">Groups</h3>
+                  <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--cx-text-3)] mb-2">Groups</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {selectedContact.groups.map((g) => (
                       <span
                         key={g.group.id}
-                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-border-secondary"
+                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-[var(--cx-border-2)]"
                       >
                         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: g.group.color }} />
                         {g.group.name}
@@ -508,7 +538,7 @@ export function ContactsPage() {
             </div>
 
             {/* Actions */}
-            <div className="p-4 border-t border-border-primary flex items-center gap-2">
+            <div className="p-4 border-t border-[var(--cx-border-1)] flex items-center gap-2">
               <Button variant="secondary" size="sm" className="flex-1" onClick={() => setEditingContact(selectedContact)}>
                 <Pencil size={14} /> Edit
               </Button>
@@ -563,6 +593,15 @@ export function ContactsPage() {
         onClose={() => setShowCreateGroup(false)}
         onCreate={(name) => createGroup.mutate(name)}
         loading={createGroup.isPending}
+      />
+
+      {/* ===== Add to Group Modal ===== */}
+      <AddToGroupModal
+        open={showAddToGroup}
+        onClose={() => setShowAddToGroup(false)}
+        currentGroupContacts={contacts}
+        onAdd={(contactId) => addToGroup.mutate(contactId)}
+        loading={addToGroup.isPending}
       />
     </div>
   );
@@ -675,13 +714,13 @@ function ContactFormModal({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-text-secondary">Notes</label>
+          <label className="text-sm font-medium text-[var(--cx-text-2)]">Notes</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add notes..."
             rows={3}
-            className="w-full px-3 py-2 rounded-lg bg-bg-tertiary border border-border-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue resize-none"
+            className="w-full px-3 py-2 rounded-lg bg-cx-raised border border-[var(--cx-border-2)] text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:border-accent-blue resize-none"
           />
         </div>
       </div>
@@ -734,6 +773,86 @@ function CreateGroupModal({
           <Button onClick={handleCreate} loading={loading} disabled={!name.trim()}>
             Create
           </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Add to Group Modal                                                 */
+/* ------------------------------------------------------------------ */
+
+function AddToGroupModal({
+  open,
+  onClose,
+  currentGroupContacts,
+  onAdd,
+  loading,
+}: {
+  open: boolean;
+  onClose: () => void;
+  currentGroupContacts: Contact[];
+  onAdd: (contactId: string) => void;
+  loading: boolean;
+}) {
+  const [search, setSearch] = useState('');
+  const currentIds = new Set(currentGroupContacts.map((c) => c.id));
+
+  // Fetch all contacts (unfiltered) to pick from
+  const { data: allContacts = [] } = useQuery({
+    queryKey: ['contacts', 'all-for-group'],
+    queryFn: async () => {
+      const { data } = await api.get('/contacts', { params: { limit: '200' } });
+      return data.data as Contact[];
+    },
+    enabled: open,
+  });
+
+  const available = useMemo(() => {
+    const filtered = allContacts.filter((c) => !currentIds.has(c.id));
+    if (!search.trim()) return filtered;
+    const q = search.toLowerCase();
+    return filtered.filter(
+      (c) =>
+        c.displayName.toLowerCase().includes(q) ||
+        c.emails?.[0]?.email?.toLowerCase().includes(q),
+    );
+  }, [allContacts, currentIds, search]);
+
+  return (
+    <Modal open={open} onClose={() => { onClose(); setSearch(''); }} title="Add Contact to Group" size="sm">
+      <div className="space-y-3">
+        <Input
+          placeholder="Search contacts..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          icon={<Search size={14} />}
+          autoFocus
+        />
+        <div className="max-h-[300px] overflow-y-auto space-y-0.5">
+          {available.length === 0 && (
+            <p className="text-sm text-[var(--cx-text-3)] text-center py-6">
+              {search ? 'No contacts found' : 'All contacts are already in this group'}
+            </p>
+          )}
+          {available.map((contact) => (
+            <button
+              key={contact.id}
+              onClick={() => { onAdd(contact.id); }}
+              disabled={loading}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.04)] transition-colors text-left"
+            >
+              <Avatar src={contact.avatarUrl} name={contact.displayName} size="sm" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-[var(--cx-text-1)] truncate">{contact.displayName}</p>
+                {contact.emails?.[0] && (
+                  <p className="text-xs text-[var(--cx-text-3)] truncate">{contact.emails[0].email}</p>
+                )}
+              </div>
+              <Plus size={14} className="text-accent-blue flex-shrink-0" />
+            </button>
+          ))}
         </div>
       </div>
     </Modal>

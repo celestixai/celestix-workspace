@@ -1,4 +1,5 @@
-import { Search, Pin, BellOff, Bell, Video, MoreVertical, Phone, ChevronLeft, Hash } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { Search, Pin, BellOff, Bell, Video, MoreVertical, Phone, ChevronLeft, Hash, Trash2, Archive } from 'lucide-react';
 import { Avatar } from '@/components/shared/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,7 +16,7 @@ export interface ChatInfo {
   type: 'DM' | 'GROUP' | 'CHANNEL';
   avatarUrl?: string | null;
   memberCount?: number;
-  members?: Array<{ id: string; displayName: string }>;
+  members?: Array<{ id: string; displayName: string; username?: string }>;
   isMuted?: boolean;
   /** For DM chats, the other user's ID */
   dmUserId?: string | null;
@@ -26,7 +27,9 @@ interface ChatHeaderProps {
   onSearchMessages: () => void;
   onToggleMute: () => void;
   onVideoCall: () => void;
+  onPhoneCall: () => void;
   onShowPinned: () => void;
+  onDeleteChat?: () => void;
   onClickProfile?: () => void;
   onBack?: () => void;
 }
@@ -40,13 +43,29 @@ export function ChatHeader({
   onSearchMessages,
   onToggleMute,
   onVideoCall,
+  onPhoneCall,
   onShowPinned,
+  onDeleteChat,
   onClickProfile,
   onBack,
 }: ChatHeaderProps) {
   const currentUser = useAuthStore((s) => s.user);
   const getUserStatus = usePresenceStore((s) => s.getUserStatus);
   const getTypingUsers = usePresenceStore((s) => s.getTypingUsers);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close more menu on outside click
+  useEffect(() => {
+    if (!showMoreMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setShowMoreMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showMoreMenu]);
 
   const typingUserIds = getTypingUsers(chat.id);
   const typingNames = chat.members
@@ -108,7 +127,7 @@ export function ChatHeader({
   };
 
   return (
-    <div className="h-14 flex items-center gap-3 px-4 border-b border-border-primary bg-bg-secondary flex-shrink-0">
+    <div className="h-14 flex items-center gap-3 px-4 border-b border-[rgba(255,255,255,0.08)] bg-[#0C0C0E] flex-shrink-0">
       {/* Back button (mobile or optional) */}
       {onBack && (
         <button
@@ -158,21 +177,11 @@ export function ChatHeader({
         <Button
           variant="ghost"
           size="icon"
-          onClick={onShowPinned}
-          aria-label="Pinned messages"
+          onClick={onPhoneCall}
+          aria-label="Phone call"
           className="text-text-secondary hover:text-text-primary"
         >
-          <Pin size={18} />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleMute}
-          aria-label={chat.isMuted ? 'Unmute notifications' : 'Mute notifications'}
-          className="text-text-secondary hover:text-text-primary"
-        >
-          {chat.isMuted ? <BellOff size={18} /> : <Bell size={18} />}
+          <Phone size={18} />
         </Button>
 
         <Button
@@ -184,6 +193,45 @@ export function ChatHeader({
         >
           <Video size={18} />
         </Button>
+
+        {/* More options dropdown */}
+        <div className="relative" ref={moreMenuRef}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowMoreMenu(!showMoreMenu)}
+            aria-label="More options"
+            className="text-text-secondary hover:text-text-primary"
+          >
+            <MoreVertical size={18} />
+          </Button>
+
+          {showMoreMenu && (
+            <div className="absolute right-0 top-full mt-1 w-48 bg-[#161618] border border-[rgba(255,255,255,0.12)] rounded-lg shadow-lg py-1 z-50 animate-scale-in">
+              <button
+                onClick={() => { onShowPinned(); setShowMoreMenu(false); }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[rgba(255,255,255,0.65)] hover:bg-[rgba(255,255,255,0.06)] hover:text-white transition-colors"
+              >
+                <Pin size={15} /> Pinned Messages
+              </button>
+              <button
+                onClick={() => { onToggleMute(); setShowMoreMenu(false); }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[rgba(255,255,255,0.65)] hover:bg-[rgba(255,255,255,0.06)] hover:text-white transition-colors"
+              >
+                {chat.isMuted ? <Bell size={15} /> : <BellOff size={15} />}
+                {chat.isMuted ? 'Unmute' : 'Mute'} Notifications
+              </button>
+              {onDeleteChat && (
+                <button
+                  onClick={() => { onDeleteChat(); setShowMoreMenu(false); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] transition-colors"
+                >
+                  <Trash2 size={15} /> Delete Chat
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

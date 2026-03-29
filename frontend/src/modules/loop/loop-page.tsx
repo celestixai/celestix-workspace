@@ -99,10 +99,10 @@ function TableComponent({ content, onChange }: { content: any; onChange: (c: any
         </tbody>
       </table>
       <div className="flex gap-2 mt-2">
-        <button onClick={addRow} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+        <button onClick={addRow} className="text-xs text-cx-brand hover:text-cx-brand flex items-center gap-1">
           <Plus size={12} /> Add Row
         </button>
-        <button onClick={addColumn} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+        <button onClick={addColumn} className="text-xs text-cx-brand hover:text-cx-brand flex items-center gap-1">
           <Plus size={12} /> Add Column
         </button>
       </div>
@@ -127,7 +127,7 @@ function TaskListComponent({ content, onChange }: { content: any; onChange: (c: 
             type="checkbox"
             checked={task.done}
             onChange={(e) => update(idx, 'done', e.target.checked)}
-            className="w-4 h-4 rounded border-white/20 bg-white/5 accent-blue-600"
+            className="w-4 h-4 rounded border-white/20 bg-white/5 accent-cx-brand"
           />
           <input
             className={`bg-transparent flex-1 outline-none text-sm ${task.done ? 'line-through text-white/40' : 'text-white'}`}
@@ -147,12 +147,12 @@ function TaskListComponent({ content, onChange }: { content: any; onChange: (c: 
             value={task.dueDate}
             onChange={(e) => update(idx, 'dueDate', e.target.value)}
           />
-          <button onClick={() => removeTask(idx)} className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-red-400">
+          <button onClick={() => removeTask(idx)} className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-cx-danger">
             <X size={14} />
           </button>
         </div>
       ))}
-      <button onClick={addTask} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+      <button onClick={addTask} className="text-xs text-cx-brand hover:text-cx-brand flex items-center gap-1">
         <Plus size={12} /> Add Task
       </button>
     </div>
@@ -187,7 +187,7 @@ function VotingTableComponent({ content, onChange }: { content: any; onChange: (
               <span className="text-xs text-white/50">{opt.votes} votes</span>
               <button
                 onClick={() => vote(idx)}
-                className="px-2 py-1 text-xs bg-blue-600/20 text-blue-400 rounded hover:bg-blue-600/30"
+                className="px-2 py-1 text-xs bg-cx-brand/20 text-cx-brand rounded hover:bg-cx-brand/30"
               >
                 Vote
               </button>
@@ -195,13 +195,13 @@ function VotingTableComponent({ content, onChange }: { content: any; onChange: (
           </div>
           <div className="w-full bg-white/5 rounded-full h-1.5">
             <div
-              className="bg-blue-600 h-1.5 rounded-full transition-all"
+              className="bg-cx-brand h-1.5 rounded-full transition-all"
               style={{ width: total > 0 ? `${(opt.votes / total) * 100}%` : '0%' }}
             />
           </div>
         </div>
       ))}
-      <button onClick={addOption} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+      <button onClick={addOption} className="text-xs text-cx-brand hover:text-cx-brand flex items-center gap-1">
         <Plus size={12} /> Add Option
       </button>
     </div>
@@ -212,8 +212,8 @@ function StatusTrackerComponent({ content, onChange }: { content: any; onChange:
   const statuses = ['Not Started', 'In Progress', 'Done'];
   const statusColor: Record<string, string> = {
     'Not Started': 'bg-white/10 text-white/50',
-    'In Progress': 'bg-yellow-500/20 text-yellow-400',
-    'Done': 'bg-green-500/20 text-green-400',
+    'In Progress': 'bg-cx-warning/20 text-cx-warning',
+    'Done': 'bg-cx-success/20 text-cx-success',
   };
   const { items } = content;
   const update = (idx: number, field: string, val: string) => {
@@ -238,12 +238,12 @@ function StatusTrackerComponent({ content, onChange }: { content: any; onChange:
             className={`text-xs px-2 py-1 rounded border-0 outline-none cursor-pointer ${statusColor[item.status]}`}
           >
             {statuses.map((s) => (
-              <option key={s} value={s} className="bg-[#1a1a2e] text-white">{s}</option>
+              <option key={s} value={s} className="bg-cx-bg text-white">{s}</option>
             ))}
           </select>
         </div>
       ))}
-      <button onClick={addItem} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+      <button onClick={addItem} className="text-xs text-cx-brand hover:text-cx-brand flex items-center gap-1">
         <Plus size={12} /> Add Item
       </button>
     </div>
@@ -274,7 +274,7 @@ function CodeSnippetComponent({ content, onChange }: { content: any; onChange: (
         />
       </div>
       <textarea
-        className="w-full bg-[#0a0a0f] border border-white/10 rounded p-3 text-sm text-green-400 font-mono outline-none resize-y min-h-[80px]"
+        className="w-full bg-[#09090B] border border-white/10 rounded p-3 text-sm text-cx-success font-mono outline-none resize-y min-h-[80px]"
         value={content.code}
         onChange={(e) => onChange({ ...content, code: e.target.value })}
       />
@@ -391,9 +391,9 @@ export function LoopPage() {
   };
 
   return (
-    <div className="flex h-full bg-[#0a0a0f] text-white">
+    <div className="flex h-full bg-[#09090B] text-white">
       {/* Sidebar */}
-      <div className="w-64 bg-[#12121a] border-r border-white/10 flex flex-col">
+      <div className="w-64 bg-cx-bg border-r border-white/10 flex flex-col">
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Loop Pages</h2>
@@ -408,13 +408,13 @@ export function LoopPage() {
             <div className="flex gap-2">
               <input
                 autoFocus
-                className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-sm outline-none focus:border-blue-600"
+                className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-sm outline-none focus:border-cx-brand"
                 value={newPageTitle}
                 onChange={(e) => setNewPageTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && createPage()}
                 placeholder="Page title"
               />
-              <button onClick={createPage} className="text-blue-400 text-sm hover:text-blue-300">Add</button>
+              <button onClick={createPage} className="text-cx-brand text-sm hover:text-cx-brand">Add</button>
               <button onClick={() => setCreatingPage(false)} className="text-white/30 hover:text-white/50">
                 <X size={14} />
               </button>
@@ -427,7 +427,7 @@ export function LoopPage() {
               key={page.id}
               onClick={() => setSelectedPage(page)}
               className={`group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-                selectedPage?.id === page.id ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-white/5 text-white/70'
+                selectedPage?.id === page.id ? 'bg-cx-brand/20 text-cx-brand' : 'hover:bg-white/5 text-white/70'
               }`}
             >
               <div className="flex items-center gap-2 min-w-0">
@@ -436,7 +436,7 @@ export function LoopPage() {
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); deletePage(page.id); }}
-                className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-red-400 shrink-0"
+                className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-cx-danger shrink-0"
               >
                 <Trash2 size={14} />
               </button>
@@ -471,7 +471,7 @@ export function LoopPage() {
                 .map((comp) => (
                   <div
                     key={comp.id}
-                    className="group bg-[#1a1a2e] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors"
+                    className="group bg-cx-bg border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2 text-white/40 text-xs uppercase tracking-wider">
@@ -480,7 +480,7 @@ export function LoopPage() {
                       </div>
                       <button
                         onClick={() => deleteComponent(comp.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-white/30 hover:text-red-400 transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-cx-danger/20 text-white/30 hover:text-cx-danger transition-all"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -502,7 +502,7 @@ export function LoopPage() {
                   <span className="text-sm">Add Component</span>
                 </button>
                 {showToolbar && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-[#12121a] border border-white/10 rounded-xl p-2 shadow-2xl z-10 min-w-[200px]">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-cx-bg border border-white/10 rounded-xl p-2 shadow-2xl z-10 min-w-[200px]">
                     {COMPONENT_TYPES.map(({ type, label, icon }) => (
                       <button
                         key={type}

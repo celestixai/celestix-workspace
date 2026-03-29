@@ -65,30 +65,30 @@ export function ApplyTemplateModal({ templateId, onClose, workspaceId }: ApplyTe
     <Modal open={true} onClose={onClose} title="Apply Template" size="md">
       <div className="flex flex-col gap-4">
         {loadingTemplate ? (
-          <div className="text-sm text-zinc-400">Loading template...</div>
+          <div className="text-sm text-[var(--cx-text-2)]">Loading template...</div>
         ) : template ? (
           <>
             {/* Template info */}
-            <div className="p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
-              <h4 className="text-sm font-medium text-white">{template.name}</h4>
+            <div className="p-3 rounded-lg bg-cx-surface/50 border border-[var(--cx-border-1)]">
+              <h4 className="text-sm font-medium text-[var(--cx-text-1)]">{template.name}</h4>
               {template.description && (
-                <p className="text-xs text-zinc-400 mt-1">{template.description}</p>
+                <p className="text-xs text-[var(--cx-text-2)] mt-1">{template.description}</p>
               )}
-              <span className="inline-block text-[10px] mt-2 px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300">
+              <span className="inline-block text-[10px] mt-2 px-1.5 py-0.5 rounded bg-cx-raised text-[var(--cx-text-1)]">
                 {template.templateType}
               </span>
             </div>
 
             {/* Target selection */}
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Select Space</label>
+              <label className="block text-xs font-medium text-[var(--cx-text-1)] mb-1">Select Space</label>
               <select
                 value={selectedSpaceId}
                 onChange={(e) => {
                   setSelectedSpaceId(e.target.value);
                   setSelectedListId('');
                 }}
-                className="w-full h-9 rounded-md border border-zinc-700 bg-zinc-800 px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full h-9 rounded-md border border-[var(--cx-border-1)] bg-cx-surface px-3 text-sm text-[var(--cx-text-1)] focus:outline-none focus:ring-1 focus:ring-cx-brand"
               >
                 <option value="">Choose a space...</option>
                 {spaces?.map((s) => (
@@ -98,12 +98,12 @@ export function ApplyTemplateModal({ templateId, onClose, workspaceId }: ApplyTe
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Select Target List</label>
+              <label className="block text-xs font-medium text-[var(--cx-text-1)] mb-1">Select Target List</label>
               <select
                 value={selectedListId}
                 onChange={(e) => setSelectedListId(e.target.value)}
                 disabled={!selectedSpaceId}
-                className="w-full h-9 rounded-md border border-zinc-700 bg-zinc-800 px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full h-9 rounded-md border border-[var(--cx-border-1)] bg-cx-surface px-3 text-sm text-[var(--cx-text-1)] focus:outline-none focus:ring-1 focus:ring-cx-brand disabled:opacity-50"
               >
                 <option value="">Choose a list...</option>
                 {lists?.map((l: TaskList) => (
@@ -119,23 +119,23 @@ export function ApplyTemplateModal({ templateId, onClose, workspaceId }: ApplyTe
                 id="remapDates"
                 checked={remapDates}
                 onChange={(e) => setRemapDates(e.target.checked)}
-                className="rounded border-zinc-600"
+                className="rounded border-[var(--cx-border-2)]"
               />
-              <label htmlFor="remapDates" className="text-xs text-zinc-300">
+              <label htmlFor="remapDates" className="text-xs text-[var(--cx-text-1)]">
                 Remap dates relative to today
               </label>
             </div>
 
             {remapDates && (
               <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1">Date offset (days)</label>
+                <label className="block text-xs font-medium text-[var(--cx-text-1)] mb-1">Date offset (days)</label>
                 <Input
                   type="number"
                   value={dateOffset}
                   onChange={(e) => setDateOffset(parseInt(e.target.value, 10) || 0)}
                   placeholder="0"
                 />
-                <p className="text-[10px] text-zinc-500 mt-1">
+                <p className="text-[10px] text-[var(--cx-text-3)] mt-1">
                   Positive = future, negative = past
                 </p>
               </div>
@@ -143,11 +143,11 @@ export function ApplyTemplateModal({ templateId, onClose, workspaceId }: ApplyTe
 
             {/* Preview */}
             {previewItems.length > 0 && (
-              <div className="p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
-                <h4 className="text-xs font-medium text-zinc-300 mb-2">Will Create</h4>
+              <div className="p-3 rounded-lg bg-cx-surface/50 border border-[var(--cx-border-1)]">
+                <h4 className="text-xs font-medium text-[var(--cx-text-1)] mb-2">Will Create</h4>
                 <ul className="space-y-0.5">
                   {previewItems.map((item, i) => (
-                    <li key={i} className="text-xs text-zinc-400">{item}</li>
+                    <li key={i} className="text-xs text-[var(--cx-text-2)]">{item}</li>
                   ))}
                 </ul>
               </div>
@@ -167,7 +167,7 @@ export function ApplyTemplateModal({ templateId, onClose, workspaceId }: ApplyTe
             </div>
           </>
         ) : (
-          <div className="text-sm text-red-400">Template not found</div>
+          <div className="text-sm text-cx-danger">Template not found</div>
         )}
       </div>
     </Modal>

@@ -156,9 +156,9 @@ export function StreamPage() {
   // --- LIBRARY VIEW ---
   if (view === 'library') {
     return (
-      <div className="flex h-full bg-[#0a0a0f] text-white">
+      <div className="flex h-full bg-[#09090B] text-white">
         {/* Channels Sidebar */}
-        <div className="w-56 bg-[#12121a] border-r border-white/10 flex flex-col">
+        <div className="w-56 bg-cx-bg border-r border-white/10 flex flex-col">
           <div className="p-4 border-b border-white/10">
             <h2 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Channels</h2>
           </div>
@@ -166,7 +166,7 @@ export function StreamPage() {
             <button
               onClick={() => setSelectedChannel(null)}
               className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                !selectedChannel ? 'bg-blue-600/20 text-blue-400' : 'text-white/70 hover:bg-white/5'
+                !selectedChannel ? 'bg-cx-brand/20 text-cx-brand' : 'text-white/70 hover:bg-white/5'
               }`}
             >
               <Film size={14} />
@@ -177,7 +177,7 @@ export function StreamPage() {
                 key={ch.id}
                 onClick={() => setSelectedChannel(ch.id)}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                  selectedChannel === ch.id ? 'bg-blue-600/20 text-blue-400' : 'text-white/70 hover:bg-white/5'
+                  selectedChannel === ch.id ? 'bg-cx-brand/20 text-cx-brand' : 'text-white/70 hover:bg-white/5'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ export function StreamPage() {
             <div className="flex-1 relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
               <input
-                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-blue-600 text-white placeholder:text-white/30"
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:border-cx-brand text-white placeholder:text-white/30"
                 placeholder="Search videos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -205,7 +205,7 @@ export function StreamPage() {
             </div>
             <button
               onClick={() => setShowUpload(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-cx-brand hover:bg-[var(--cx-brand-hover)] rounded-lg text-sm font-medium transition-colors"
             >
               <Upload size={16} />
               Upload
@@ -219,7 +219,7 @@ export function StreamPage() {
                 <div
                   key={video.id}
                   onClick={() => openVideo(video)}
-                  className="bg-[#1a1a2e] border border-white/10 rounded-xl overflow-hidden cursor-pointer hover:border-white/20 transition-all group"
+                  className="bg-cx-bg border border-white/10 rounded-xl overflow-hidden cursor-pointer hover:border-white/20 transition-all group"
                 >
                   {/* Thumbnail */}
                   <div className="relative aspect-video">
@@ -236,7 +236,7 @@ export function StreamPage() {
                   </div>
                   {/* Info */}
                   <div className="p-3">
-                    <h3 className="text-sm font-medium text-white truncate group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-sm font-medium text-white truncate group-hover:text-cx-brand transition-colors">
                       {video.title}
                     </h3>
                     <div className="flex items-center gap-3 mt-1.5 text-xs text-white/40">
@@ -260,7 +260,7 @@ export function StreamPage() {
         {/* Upload Dialog */}
         {showUpload && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-[#12121a] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <div className="bg-cx-bg border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Upload Video</h3>
                 <button onClick={() => setShowUpload(false)} className="text-white/30 hover:text-white/50">
@@ -285,13 +285,13 @@ export function StreamPage() {
                   />
                 </div>
                 <input
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-600"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-cx-brand"
                   placeholder="Video title"
                   value={uploadTitle}
                   onChange={(e) => setUploadTitle(e.target.value)}
                 />
                 <textarea
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-600 resize-none h-20"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-cx-brand resize-none h-20"
                   placeholder="Description (optional)"
                   value={uploadDesc}
                   onChange={(e) => setUploadDesc(e.target.value)}
@@ -300,7 +300,7 @@ export function StreamPage() {
                   <div className="space-y-1">
                     <div className="w-full bg-white/5 rounded-full h-2">
                       <div
-                        className="bg-blue-600 h-2 rounded-full transition-all"
+                        className="bg-cx-brand h-2 rounded-full transition-all"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
@@ -310,7 +310,7 @@ export function StreamPage() {
                 <button
                   onClick={handleUpload}
                   disabled={!uploadFile || !uploadTitle.trim() || uploading}
-                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-white/10 disabled:text-white/30 rounded-lg text-sm font-medium transition-colors"
+                  className="w-full py-2 bg-cx-brand hover:bg-[var(--cx-brand-hover)] disabled:bg-white/10 disabled:text-white/30 rounded-lg text-sm font-medium transition-colors"
                 >
                   {uploading ? 'Uploading...' : 'Upload Video'}
                 </button>
@@ -324,7 +324,7 @@ export function StreamPage() {
 
   // --- PLAYER VIEW ---
   return (
-    <div className="flex h-full bg-[#0a0a0f] text-white overflow-hidden">
+    <div className="flex h-full bg-[#09090B] text-white overflow-hidden">
       <div className="flex-1 flex flex-col overflow-y-auto">
         {/* Back Button */}
         <div className="p-4 border-b border-white/10">
@@ -372,7 +372,7 @@ export function StreamPage() {
                 </div>
                 <button
                   onClick={() => deleteVideo(selectedVideo.id)}
-                  className="p-2 rounded-lg hover:bg-red-500/20 text-white/30 hover:text-red-400 transition-colors"
+                  className="p-2 rounded-lg hover:bg-cx-danger/20 text-white/30 hover:text-cx-danger transition-colors"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -393,14 +393,14 @@ export function StreamPage() {
               <div className="flex gap-3 mb-6">
                 <div className="flex-1 space-y-2">
                   <textarea
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-600 resize-none h-16"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-cx-brand resize-none h-16"
                     placeholder="Add a comment..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                   />
                   <div className="flex items-center justify-between">
                     <input
-                      className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs outline-none focus:border-blue-600 w-32"
+                      className="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs outline-none focus:border-cx-brand w-32"
                       placeholder="Timestamp (sec)"
                       value={commentTimestamp}
                       onChange={(e) => setCommentTimestamp(e.target.value)}
@@ -408,7 +408,7 @@ export function StreamPage() {
                     <button
                       onClick={addComment}
                       disabled={!newComment.trim()}
-                      className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-white/10 disabled:text-white/30 rounded-lg text-xs font-medium transition-colors"
+                      className="flex items-center gap-1 px-3 py-1 bg-cx-brand hover:bg-[var(--cx-brand-hover)] disabled:bg-white/10 disabled:text-white/30 rounded-lg text-xs font-medium transition-colors"
                     >
                       <Send size={12} />
                       Comment
@@ -431,7 +431,7 @@ export function StreamPage() {
                         {comment.timestamp != null && (
                           <button
                             onClick={() => seekToTimestamp(comment.timestamp!)}
-                            className="text-xs text-blue-400 hover:text-blue-300"
+                            className="text-xs text-cx-brand hover:text-cx-brand"
                           >
                             {formatDuration(comment.timestamp)}
                           </button>

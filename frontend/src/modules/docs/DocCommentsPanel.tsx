@@ -40,7 +40,7 @@ function CommentItem({
     >
       {/* Highlighted text quote */}
       {comment.highlightedText && (
-        <div className="mb-2 px-2 py-1.5 bg-yellow-500/10 border-l-2 border-yellow-500/50 rounded-r text-xs text-text-secondary italic">
+        <div className="mb-2 px-2 py-1.5 bg-cx-warning/10 border-l-2 border-yellow-500/50 rounded-r text-xs text-text-secondary italic">
           "{comment.highlightedText}"
         </div>
       )}
@@ -80,7 +80,7 @@ function CommentItem({
         )}
         <button
           onClick={() => onDelete(comment.id)}
-          className="text-xs text-text-secondary hover:text-red-400 flex items-center gap-1"
+          className="text-xs text-text-secondary hover:text-cx-danger flex items-center gap-1"
         >
           <Trash2 size={10} />
         </button>

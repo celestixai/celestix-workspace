@@ -24,6 +24,7 @@ export interface ProfileTeam {
 export interface Profile {
   id: string;
   email: string;
+  username?: string;
   displayName: string;
   firstName?: string;
   lastName?: string;

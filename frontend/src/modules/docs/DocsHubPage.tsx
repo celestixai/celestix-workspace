@@ -130,7 +130,7 @@ function DocCard({ doc, onOpen }: { doc: DocHubItem; onOpen: () => void }) {
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 font-medium">Wiki</span>
           )}
           {doc.isPublished && (
-            <Globe size={14} className="text-green-400" />
+            <Globe size={14} className="text-cx-success" />
           )}
         </div>
       </div>
@@ -224,7 +224,7 @@ export function DocsHubPage() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="px-6 pt-5 pb-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold capitalize">
+          <h1 className="text-xl font-display capitalize">
             {FILTERS.find((f) => f.key === activeFilter)?.label || 'All Docs'}
           </h1>
           <div className="flex items-center gap-2">

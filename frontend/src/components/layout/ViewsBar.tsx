@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useViewsAtLocation } from '@/hooks/useViews';
 import { AddViewModal } from '@/components/views/AddViewModal';
@@ -16,7 +16,29 @@ import {
   FileText,
   Plus,
   Pin,
+  Filter,
+  ArrowUpDown,
+  Layers,
+  Search,
+  MoreHorizontal,
+  Monitor,
 } from 'lucide-react';
+
+/** View types that are too complex for mobile */
+const DESKTOP_ONLY_VIEWS = new Set(['gantt', 'timeline', 'workload']);
+
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
 
 const VIEW_TYPE_ICONS: Record<string, React.ElementType> = {
   list: List,
@@ -48,6 +70,7 @@ const DEFAULT_TABS = [
 export function ViewsBar({ locationType, locationId, activeViewId, onSelectView, onAddView }: ViewsBarProps) {
   const { data: views } = useViewsAtLocation(locationType, locationId);
   const [showAddModal, setShowAddModal] = useState(false);
+  const isMobile = useIsMobile();
 
   const displayViews = views && views.length > 0 ? views : DEFAULT_TABS;
 
@@ -58,12 +81,31 @@ export function ViewsBar({ locationType, locationId, activeViewId, onSelectView,
     return 0;
   });
 
-  const effectiveActive = activeViewId || sorted[0]?.id;
+  // D7.8: On mobile, hide Gantt / Timeline / Workload tabs
+  const visibleTabs = isMobile
+    ? sorted.filter((v) => !DESKTOP_ONLY_VIEWS.has(v.viewType))
+    : sorted;
+
+  // Check if user navigated to a desktop-only view on mobile
+  const activeView = sorted.find((v) => v.id === activeViewId);
+  const isDesktopOnlyActive = isMobile && activeView && DESKTOP_ONLY_VIEWS.has(activeView.viewType);
+
+  const effectiveActive = activeViewId || visibleTabs[0]?.id;
 
   return (
     <>
-      <div className="flex items-center gap-0.5 border-b border-border-secondary px-4 bg-bg-secondary overflow-x-auto scrollbar-none">
-        {sorted.map((view) => {
+      <div
+        className="flex items-center overflow-x-auto scrollbar-none"
+        style={{
+          height: 36,
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          background: '#09090B',
+          padding: '0 16px',
+          gap: 2,
+        }}
+      >
+        {/* View tabs */}
+        {visibleTabs.map((view) => {
           const Icon = VIEW_TYPE_ICONS[view.viewType] || List;
           const isActive = view.id === effectiveActive;
           return (
@@ -71,34 +113,159 @@ export function ViewsBar({ locationType, locationId, activeViewId, onSelectView,
               key={view.id}
               onClick={() => onSelectView(view.id)}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors relative',
-                'hover:text-text-primary',
-                isActive
-                  ? 'text-accent-blue'
-                  : 'text-text-tertiary',
+                'flex items-center gap-1.5 whitespace-nowrap',
+                'transition-all duration-100',
               )}
+              style={{
+                padding: '4px 12px',
+                fontSize: 13,
+                borderRadius: 6,
+                fontWeight: isActive ? 500 : 400,
+                color: isActive ? '#ffffff' : 'rgba(255,255,255,0.40)',
+                background: isActive ? '#2563EB' : 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                  e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+                }
+              }}
             >
-              {view.isPinned && <Pin size={10} className="text-text-tertiary" />}
+              {view.isPinned && <Pin size={10} style={{ color: 'rgba(255,255,255,0.40)' }} />}
               <Icon size={14} />
               <span>{view.name}</span>
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-blue rounded-t" />
-              )}
             </button>
           );
         })}
 
+        {/* + Add view button */}
         <button
           onClick={() => {
             setShowAddModal(true);
             onAddView();
           }}
-          className="flex items-center gap-1 px-2 py-2 text-xs text-text-tertiary hover:text-text-primary transition-colors"
+          className="flex items-center justify-center flex-shrink-0 transition-all duration-100"
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 6,
+            color: 'rgba(255,255,255,0.40)',
+            background: 'transparent',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+            e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+          }}
           aria-label="Add view"
         >
           <Plus size={14} />
         </button>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Right side controls */}
+        <div className="flex items-center" style={{ gap: 2 }}>
+          {[
+            { icon: Filter, label: 'Filter' },
+            { icon: ArrowUpDown, label: 'Sort' },
+            { icon: Layers, label: 'Group' },
+          ].map(({ icon: BtnIcon, label }) => (
+            <button
+              key={label}
+              className="flex items-center gap-1 whitespace-nowrap transition-all duration-100"
+              style={{
+                padding: '4px 10px',
+                fontSize: 12,
+                borderRadius: 6,
+                color: 'rgba(255,255,255,0.40)',
+                background: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+              }}
+            >
+              <BtnIcon size={12} />
+              <span>{label}</span>
+            </button>
+          ))}
+
+          {/* Search icon */}
+          <button
+            className="flex items-center justify-center transition-all duration-100"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              color: 'rgba(255,255,255,0.40)',
+              background: 'transparent',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+            }}
+            aria-label="Search"
+          >
+            <Search size={14} />
+          </button>
+
+          {/* More button */}
+          <button
+            className="flex items-center justify-center transition-all duration-100"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              color: 'rgba(255,255,255,0.40)',
+              background: 'transparent',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+            }}
+            aria-label="More options"
+          >
+            <MoreHorizontal size={14} />
+          </button>
+        </div>
       </div>
+
+      {/* D7.8: Desktop-only view message */}
+      {isDesktopOnlyActive && (
+        <div
+          className="flex items-center justify-center gap-2 text-sm text-text-tertiary"
+          style={{
+            padding: '48px 24px',
+            textAlign: 'center',
+          }}
+        >
+          <Monitor size={18} style={{ opacity: 0.5 }} />
+          <span>This view is available on desktop</span>
+        </div>
+      )}
 
       <AddViewModal
         open={showAddModal}

@@ -22,7 +22,9 @@ import { useView } from '@/hooks/useViews';
 import { useViewQuery } from '@/hooks/useViewQuery';
 import { useCustomFieldsAtLocation } from '@/hooks/useCustomFields';
 import type { FilterCondition, SortCondition } from '@/hooks/useViews';
-import { Layers } from 'lucide-react';
+import { Layers, PanelLeft } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { SpacesIllustration } from '@/components/shared/EmptyIllustrations';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { useSpace } from '@/hooks/useSpaces';
 import { useFolder } from '@/hooks/useFolders';
@@ -40,6 +42,7 @@ interface ViewState {
 
 export function SpacesPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [view, setView] = useState<ViewState>({ type: 'none' });
   const [settings, setSettings] = useState<SettingsTarget>(null);
 
@@ -125,13 +128,24 @@ export function SpacesPage() {
         onToggle={() => setSidebarCollapsed((p) => !p)}
         activeItemId={activeItemId}
         activeItemType={activeItemType}
-        onSelectSpace={handleSelectSpace}
-        onSelectFolder={handleSelectFolder}
-        onSelectList={handleSelectList}
+        onSelectSpace={(id) => { handleSelectSpace(id); setMobileSidebarOpen(false); }}
+        onSelectFolder={(fId, sId) => { handleSelectFolder(fId, sId); setMobileSidebarOpen(false); }}
+        onSelectList={(lId, sId, fId) => { handleSelectList(lId, sId, fId); setMobileSidebarOpen(false); }}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
       {/* Main content area */}
       <div className="flex-1 min-w-0 flex flex-col">
+        {/* Mobile sidebar toggle */}
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          className="md:hidden flex items-center gap-2 px-4 py-2 text-sm text-[rgba(255,255,255,0.50)] hover:text-white transition-colors border-b border-[rgba(255,255,255,0.08)]"
+          aria-label="Open spaces sidebar"
+        >
+          <PanelLeft size={16} />
+          <span>Spaces</span>
+        </button>
         {settings?.kind === 'space' ? (
           <SpaceSettingsPage spaceId={settings.spaceId} onBack={handleCloseSettings} />
         ) : settings?.kind === 'folder' ? (
@@ -176,11 +190,12 @@ export function SpacesPage() {
             onSelectFolder={handleSelectFolder}
           />
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-text-tertiary">
-            <Layers size={48} className="mb-4 opacity-30" />
-            <p className="text-lg font-medium text-text-secondary">Spaces</p>
-            <p className="text-sm mt-1 opacity-70">Select a space from the sidebar to get started</p>
-          </div>
+          <EmptyState
+            icon={Layers}
+            title="No spaces yet"
+            description="Create your first space to organize projects"
+            illustration={<SpacesIllustration />}
+          />
         )}
       </div>
     </div>

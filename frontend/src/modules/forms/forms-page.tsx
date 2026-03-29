@@ -106,7 +106,7 @@ const QUESTION_TYPES: { type: QuestionType; label: string; icon: React.Component
 ];
 
 const STATUS_STYLES: Record<Form['status'], { label: string; bg: string; text: string }> = {
-  DRAFT: { label: 'Draft', bg: 'bg-text-tertiary/15', text: 'text-text-secondary' },
+  DRAFT: { label: 'Draft', bg: 'bg-text-tertiary/15', text: 'text-[var(--cx-text-2)]' },
   PUBLISHED: { label: 'Published', bg: 'bg-accent-emerald/15', text: 'text-accent-emerald' },
   CLOSED: { label: 'Closed', bg: 'bg-accent-red/15', text: 'text-accent-red' },
 };
@@ -172,7 +172,7 @@ export function FormsPage() {
   });
 
   const updateForm = useMutation({
-    mutationFn: async ({ id, ...payload }: { id: string; title?: string; description?: string; status?: Form['status'] }) => {
+    mutationFn: async ({ id, ...payload }: { id: string; title?: string; description?: string; isPublished?: boolean; status?: Form['status'] }) => {
       const { data } = await api.patch(`/forms/${id}`, payload);
       return data.data as Form;
     },
@@ -304,8 +304,8 @@ export function FormsPage() {
         onUpdateForm={(payload) => activeFormId && updateForm.mutate({ id: activeFormId, ...payload })}
         onTogglePublish={() => {
           if (!activeForm) return;
-          const next = activeForm.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-          updateForm.mutate({ id: activeForm.id, status: next });
+          const shouldPublish = activeForm.status !== 'PUBLISHED';
+          updateForm.mutate({ id: activeForm.id, isPublished: shouldPublish } as any);
         }}
         onAddQuestion={() => setShowAddQuestion(true)}
         onEditQuestion={setEditingQuestion}
@@ -337,22 +337,22 @@ export function FormsPage() {
   /* -- List View -- */
 
   return (
-    <div className="flex-1 overflow-auto bg-bg-primary">
+    <div className="flex-1 overflow-auto bg-cx-bg">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-xl border-b border-border-primary">
+      <div className="sticky top-0 z-10 bg-cx-bg/80 backdrop-blur-xl border-b border-[var(--cx-border-1)]">
         <div className="flex items-center justify-between px-6 h-14">
           <div className="flex items-center gap-3">
-            <ClipboardList size={20} className="text-text-tertiary" />
-            <h1 className="text-lg font-semibold text-text-primary">Forms</h1>
+            <ClipboardList size={20} className="text-[var(--cx-text-3)]" />
+            <h1 className="text-lg font-display text-[var(--cx-text-1)]">Forms</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--cx-text-3)]" />
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search forms..."
-                className="h-8 w-56 pl-9 pr-3 rounded-lg bg-bg-tertiary border border-border-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 focus:outline-none transition-all"
+                className="h-8 w-56 pl-9 pr-3 rounded-lg bg-cx-raised border border-[var(--cx-border-2)] text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 focus:outline-none transition-all"
               />
             </div>
             <Button size="sm" onClick={() => setShowCreateModal(true)}>
@@ -420,7 +420,7 @@ export function FormsPage() {
         title="Delete Form"
         size="sm"
       >
-        <p className="text-sm text-text-secondary mb-4">
+        <p className="text-sm text-[var(--cx-text-2)] mb-4">
           Are you sure you want to delete this form? All responses will be permanently removed. This action cannot be undone.
         </p>
         <div className="flex justify-end gap-2">
@@ -463,14 +463,14 @@ function FormCard({
 
   return (
     <div
-      className="bg-bg-secondary border border-border-primary rounded-xl p-4 hover:border-border-hover transition-colors group cursor-pointer"
+      className="bg-cx-surface border border-[var(--cx-border-1)] rounded-xl p-4 hover:border-border-hover transition-colors group cursor-pointer"
       onClick={onEdit}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0 mr-2">
-          <h3 className="text-sm font-medium text-text-primary truncate">{form.title}</h3>
+          <h3 className="text-sm font-medium text-[var(--cx-text-1)] truncate">{form.title}</h3>
           {form.description && (
-            <p className="text-xs text-text-tertiary truncate mt-0.5">{form.description}</p>
+            <p className="text-xs text-[var(--cx-text-3)] truncate mt-0.5">{form.description}</p>
           )}
         </div>
         <div className="relative flex-shrink-0">
@@ -479,18 +479,18 @@ function FormCard({
               e.stopPropagation();
               setMenuOpen(!menuOpen);
             }}
-            className="p-1 rounded-md hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors opacity-0 group-hover:opacity-100"
+            className="p-1 rounded-md hover:bg-[rgba(255,255,255,0.04)] text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors opacity-0 group-hover:opacity-100"
           >
             <MoreHorizontal size={16} />
           </button>
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-20" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-full mt-1 w-40 bg-bg-secondary border border-border-primary rounded-lg shadow-lg z-30 py-1">
+              <div className="absolute right-0 top-full mt-1 w-40 bg-cx-surface border border-[var(--cx-border-1)] rounded-lg shadow-lg z-30 py-1">
                 <MenuButton icon={<Pencil size={14} />} label="Edit" onClick={() => { setMenuOpen(false); onEdit(); }} />
                 <MenuButton icon={<BarChart3 size={14} />} label="Responses" onClick={() => { setMenuOpen(false); onViewResponses(); }} />
                 <MenuButton icon={<Copy size={14} />} label="Duplicate" onClick={() => { setMenuOpen(false); onDuplicate(); }} />
-                <div className="border-t border-border-primary my-1" />
+                <div className="border-t border-[var(--cx-border-1)] my-1" />
                 <MenuButton icon={<Trash2 size={14} />} label="Delete" onClick={() => { setMenuOpen(false); onDelete(); }} danger />
               </div>
             </>
@@ -502,13 +502,13 @@ function FormCard({
         <span className={cn('px-2 py-0.5 rounded-full font-medium', status.bg, status.text)}>
           {status.label}
         </span>
-        <span className="text-text-tertiary capitalize">{form.type.toLowerCase()}</span>
-        <span className="text-text-tertiary ml-auto flex items-center gap-1">
+        <span className="text-[var(--cx-text-3)] capitalize">{form.type.toLowerCase()}</span>
+        <span className="text-[var(--cx-text-3)] ml-auto flex items-center gap-1">
           <Users size={12} /> {form.responseCount}
         </span>
       </div>
 
-      <div className="text-xs text-text-tertiary mt-3">
+      <div className="text-xs text-[var(--cx-text-3)] mt-3">
         Updated {formatRelativeTime(form.updatedAt)}
       </div>
     </div>
@@ -540,7 +540,7 @@ function MenuButton({
         'w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-colors',
         danger
           ? 'text-accent-red hover:bg-accent-red/10'
-          : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+          : 'text-[var(--cx-text-2)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--cx-text-1)]'
       )}
     >
       {icon}
@@ -593,7 +593,7 @@ function CreateFormModal({
           placeholder="Brief description"
         />
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-text-secondary">Type</label>
+          <label className="text-sm font-medium text-[var(--cx-text-2)]">Type</label>
           <div className="flex gap-2">
             {(['FORM', 'QUIZ'] as const).map((t) => (
               <button
@@ -603,7 +603,7 @@ function CreateFormModal({
                   'px-4 py-2 rounded-lg text-sm border transition-colors',
                   type === t
                     ? 'bg-accent-blue/15 border-accent-blue text-accent-blue'
-                    : 'bg-bg-tertiary border-border-secondary text-text-secondary hover:bg-bg-hover'
+                    : 'bg-cx-raised border-[var(--cx-border-2)] text-[var(--cx-text-2)] hover:bg-[rgba(255,255,255,0.04)]'
                 )}
               >
                 {t === 'FORM' ? 'Form' : 'Quiz'}
@@ -672,7 +672,7 @@ function FormBuilder({
 
   if (loading || !form) {
     return (
-      <div className="flex-1 overflow-auto bg-bg-primary p-6">
+      <div className="flex-1 overflow-auto bg-cx-bg p-6">
         <Skeleton className="h-8 w-48 mb-4" />
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -687,19 +687,19 @@ function FormBuilder({
   const statusCfg = STATUS_STYLES[form.status];
 
   return (
-    <div className="flex-1 overflow-auto bg-bg-primary">
+    <div className="flex-1 overflow-auto bg-cx-bg">
       {/* Builder Header */}
-      <div className="sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-xl border-b border-border-primary">
+      <div className="sticky top-0 z-10 bg-cx-bg/80 backdrop-blur-xl border-b border-[var(--cx-border-1)]">
         <div className="flex items-center justify-between px-6 h-14">
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="p-1.5 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors"
+              className="p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.04)] text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors"
             >
               <ChevronLeft size={18} />
             </button>
-            <ClipboardList size={18} className="text-text-tertiary" />
-            <span className="text-sm font-semibold text-text-primary truncate max-w-xs">
+            <ClipboardList size={18} className="text-[var(--cx-text-3)]" />
+            <span className="text-sm font-semibold text-[var(--cx-text-1)] truncate max-w-xs">
               {form.title}
             </span>
             <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-bold', statusCfg.bg, statusCfg.text)}>
@@ -729,13 +729,13 @@ function FormBuilder({
       {/* Builder Body */}
       <div className="max-w-2xl mx-auto p-6 space-y-4">
         {/* Title */}
-        <div className="bg-bg-secondary border border-border-primary rounded-xl p-5">
+        <div className="bg-cx-surface border border-[var(--cx-border-1)] rounded-xl p-5">
           {editingTitle ? (
             <div className="flex items-center gap-2">
               <input
                 value={titleDraft}
                 onChange={(e) => setTitleDraft(e.target.value)}
-                className="flex-1 text-lg font-semibold bg-transparent text-text-primary border-b border-accent-blue pb-1 focus:outline-none"
+                className="flex-1 text-lg font-semibold bg-transparent text-[var(--cx-text-1)] border-b border-accent-blue pb-1 focus:outline-none"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -754,13 +754,13 @@ function FormBuilder({
               >
                 <Check size={16} />
               </button>
-              <button onClick={() => setEditingTitle(false)} className="p-1 text-text-tertiary hover:bg-bg-hover rounded">
+              <button onClick={() => setEditingTitle(false)} className="p-1 text-[var(--cx-text-3)] hover:bg-[rgba(255,255,255,0.04)] rounded">
                 <X size={16} />
               </button>
             </div>
           ) : (
             <h2
-              className="text-lg font-semibold text-text-primary cursor-pointer hover:text-accent-blue transition-colors"
+              className="text-lg font-semibold text-[var(--cx-text-1)] cursor-pointer hover:text-accent-blue transition-colors"
               onClick={() => {
                 setTitleDraft(form.title);
                 setEditingTitle(true);
@@ -775,7 +775,7 @@ function FormBuilder({
               <input
                 value={descDraft}
                 onChange={(e) => setDescDraft(e.target.value)}
-                className="flex-1 text-sm bg-transparent text-text-secondary border-b border-accent-blue pb-1 focus:outline-none"
+                className="flex-1 text-sm bg-transparent text-[var(--cx-text-2)] border-b border-accent-blue pb-1 focus:outline-none"
                 placeholder="Add a description..."
                 autoFocus
                 onKeyDown={(e) => {
@@ -795,13 +795,13 @@ function FormBuilder({
               >
                 <Check size={16} />
               </button>
-              <button onClick={() => setEditingDesc(false)} className="p-1 text-text-tertiary hover:bg-bg-hover rounded">
+              <button onClick={() => setEditingDesc(false)} className="p-1 text-[var(--cx-text-3)] hover:bg-[rgba(255,255,255,0.04)] rounded">
                 <X size={16} />
               </button>
             </div>
           ) : (
             <p
-              className="text-sm text-text-tertiary mt-1 cursor-pointer hover:text-text-secondary transition-colors"
+              className="text-sm text-[var(--cx-text-3)] mt-1 cursor-pointer hover:text-[var(--cx-text-2)] transition-colors"
               onClick={() => {
                 setDescDraft(form.description || '');
                 setEditingDesc(true);
@@ -814,9 +814,9 @@ function FormBuilder({
 
         {/* Questions */}
         {questions.length === 0 ? (
-          <div className="bg-bg-secondary border border-border-primary border-dashed rounded-xl p-8 text-center">
-            <ClipboardList size={32} className="text-text-tertiary mx-auto mb-2" />
-            <p className="text-sm text-text-tertiary mb-3">No questions yet</p>
+          <div className="bg-cx-surface border border-[var(--cx-border-1)] border-dashed rounded-xl p-8 text-center">
+            <ClipboardList size={32} className="text-[var(--cx-text-3)] mx-auto mb-2" />
+            <p className="text-sm text-[var(--cx-text-3)] mb-3">No questions yet</p>
             <Button size="sm" onClick={onAddQuestion}>
               <Plus size={14} /> Add Question
             </Button>
@@ -829,15 +829,15 @@ function FormBuilder({
               return (
                 <div
                   key={q.id}
-                  className="bg-bg-secondary border border-border-primary rounded-xl p-4 group hover:border-border-hover transition-colors"
+                  className="bg-cx-surface border border-[var(--cx-border-1)] rounded-xl p-4 group hover:border-border-hover transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex flex-col items-center gap-1 pt-0.5">
-                      <GripVertical size={14} className="text-text-tertiary/40 cursor-grab" />
+                      <GripVertical size={14} className="text-[var(--cx-text-3)]/40 cursor-grab" />
                       <button
                         onClick={() => onMoveQuestion(q.id, 'up')}
                         disabled={idx === 0}
-                        className="p-0.5 text-text-tertiary hover:text-text-primary disabled:opacity-20 transition-colors"
+                        className="p-0.5 text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] disabled:opacity-20 transition-colors"
                         title="Move up"
                       >
                         <ChevronLeft size={12} className="rotate-90" />
@@ -845,7 +845,7 @@ function FormBuilder({
                       <button
                         onClick={() => onMoveQuestion(q.id, 'down')}
                         disabled={idx === questions.length - 1}
-                        className="p-0.5 text-text-tertiary hover:text-text-primary disabled:opacity-20 transition-colors"
+                        className="p-0.5 text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] disabled:opacity-20 transition-colors"
                         title="Move down"
                       >
                         <ChevronLeft size={12} className="-rotate-90" />
@@ -858,33 +858,33 @@ function FormBuilder({
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-text-primary">{q.label}</span>
+                        <span className="text-sm font-medium text-[var(--cx-text-1)]">{q.label}</span>
                         {q.required && (
                           <span className="text-[10px] font-bold text-accent-red">*</span>
                         )}
                       </div>
-                      <div className="text-xs text-text-tertiary mt-0.5">
+                      <div className="text-xs text-[var(--cx-text-3)] mt-0.5">
                         {qType?.label || q.type}
                         {q.options && q.options.length > 0 && (
                           <span> &middot; {q.options.length} option{q.options.length !== 1 ? 's' : ''}</span>
                         )}
                       </div>
                       {q.description && (
-                        <p className="text-xs text-text-tertiary/70 mt-1">{q.description}</p>
+                        <p className="text-xs text-[var(--cx-text-3)]/70 mt-1">{q.description}</p>
                       )}
                     </div>
 
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => onEditQuestion(q)}
-                        className="p-1.5 rounded-md hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors"
+                        className="p-1.5 rounded-md hover:bg-[rgba(255,255,255,0.04)] text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors"
                         title="Edit question"
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => onDeleteQuestion(q.id)}
-                        className="p-1.5 rounded-md hover:bg-accent-red/10 text-text-tertiary hover:text-accent-red transition-colors"
+                        className="p-1.5 rounded-md hover:bg-accent-red/10 text-[var(--cx-text-3)] hover:text-accent-red transition-colors"
                         title="Delete question"
                       >
                         <Trash2 size={14} />
@@ -901,7 +901,7 @@ function FormBuilder({
         {questions.length > 0 && (
           <button
             onClick={onAddQuestion}
-            className="w-full py-3 rounded-xl border border-dashed border-border-secondary text-sm text-text-tertiary hover:text-accent-blue hover:border-accent-blue/40 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl border border-dashed border-[var(--cx-border-2)] text-sm text-[var(--cx-text-3)] hover:text-accent-blue hover:border-accent-blue/40 transition-colors flex items-center justify-center gap-2"
           >
             <Plus size={16} /> Add Question
           </button>
@@ -980,7 +980,7 @@ function QuestionModal({
       <div className="space-y-4">
         {/* Question Type Picker */}
         <div>
-          <label className="text-sm font-medium text-text-secondary mb-2 block">Question Type</label>
+          <label className="text-sm font-medium text-[var(--cx-text-2)] mb-2 block">Question Type</label>
           <div className="grid grid-cols-5 gap-2">
             {QUESTION_TYPES.map((qt) => (
               <button
@@ -990,7 +990,7 @@ function QuestionModal({
                   'flex flex-col items-center gap-1.5 p-2.5 rounded-lg border text-xs transition-colors',
                   type === qt.type
                     ? 'bg-accent-blue/15 border-accent-blue text-accent-blue'
-                    : 'bg-bg-tertiary border-border-secondary text-text-tertiary hover:bg-bg-hover hover:text-text-secondary'
+                    : 'bg-cx-raised border-[var(--cx-border-2)] text-[var(--cx-text-3)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--cx-text-2)]'
                 )}
               >
                 <qt.icon size={16} />
@@ -1018,11 +1018,11 @@ function QuestionModal({
         {/* Options (for applicable types) */}
         {hasOptions && (
           <div>
-            <label className="text-sm font-medium text-text-secondary mb-2 block">Options</label>
+            <label className="text-sm font-medium text-[var(--cx-text-2)] mb-2 block">Options</label>
             <div className="space-y-2">
               {options.map((opt, idx) => (
                 <div key={idx} className="flex items-center gap-2">
-                  <span className="text-xs text-text-tertiary w-5 text-right">{idx + 1}.</span>
+                  <span className="text-xs text-[var(--cx-text-3)] w-5 text-right">{idx + 1}.</span>
                   <input
                     value={opt}
                     onChange={(e) => {
@@ -1031,12 +1031,12 @@ function QuestionModal({
                       setOptions(next);
                     }}
                     placeholder={`Option ${idx + 1}`}
-                    className="flex-1 h-8 px-3 rounded-lg bg-bg-tertiary border border-border-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 focus:outline-none transition-all"
+                    className="flex-1 h-8 px-3 rounded-lg bg-cx-raised border border-[var(--cx-border-2)] text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 focus:outline-none transition-all"
                   />
                   {options.length > 1 && (
                     <button
                       onClick={() => setOptions(options.filter((_, i) => i !== idx))}
-                      className="p-1 text-text-tertiary hover:text-accent-red transition-colors"
+                      className="p-1 text-[var(--cx-text-3)] hover:text-accent-red transition-colors"
                     >
                       <X size={14} />
                     </button>
@@ -1055,12 +1055,12 @@ function QuestionModal({
 
         {/* Required toggle */}
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-text-secondary">Required</label>
+          <label className="text-sm font-medium text-[var(--cx-text-2)]">Required</label>
           <button
             onClick={() => setRequired(!required)}
             className={cn(
               'w-10 h-6 rounded-full transition-colors relative',
-              required ? 'bg-accent-blue' : 'bg-bg-active'
+              required ? 'bg-accent-blue' : 'bg-[rgba(255,255,255,0.06)]'
             )}
           >
             <div
@@ -1104,7 +1104,7 @@ function ResponsesView({
 }) {
   if (loading || !form) {
     return (
-      <div className="flex-1 overflow-auto bg-bg-primary p-6">
+      <div className="flex-1 overflow-auto bg-cx-bg p-6">
         <Skeleton className="h-8 w-48 mb-4" />
         <Skeleton className="h-64 w-full rounded-xl" />
       </div>
@@ -1119,19 +1119,19 @@ function ResponsesView({
     : null;
 
   return (
-    <div className="flex-1 overflow-auto bg-bg-primary">
+    <div className="flex-1 overflow-auto bg-cx-bg">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-xl border-b border-border-primary">
+      <div className="sticky top-0 z-10 bg-cx-bg/80 backdrop-blur-xl border-b border-[var(--cx-border-1)]">
         <div className="flex items-center justify-between px-6 h-14">
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="p-1.5 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors"
+              className="p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.04)] text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors"
             >
               <ChevronLeft size={18} />
             </button>
-            <BarChart3 size={18} className="text-text-tertiary" />
-            <span className="text-sm font-semibold text-text-primary truncate max-w-xs">
+            <BarChart3 size={18} className="text-[var(--cx-text-3)]" />
+            <span className="text-sm font-semibold text-[var(--cx-text-1)] truncate max-w-xs">
               {form.title} &mdash; Responses
             </span>
           </div>
@@ -1164,26 +1164,26 @@ function ResponsesView({
             }
           />
         ) : (
-          <div className="bg-bg-secondary border border-border-primary rounded-xl overflow-hidden">
+          <div className="bg-cx-surface border border-[var(--cx-border-1)] rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border-primary">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                  <tr className="border-b border-[var(--cx-border-1)]">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--cx-text-3)] uppercase tracking-wider">
                       #
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--cx-text-3)] uppercase tracking-wider">
                       Respondent
                     </th>
                     {questions.map((q) => (
                       <th
                         key={q.id}
-                        className="px-4 py-3 text-left text-xs font-medium text-text-tertiary uppercase tracking-wider max-w-[200px]"
+                        className="px-4 py-3 text-left text-xs font-medium text-[var(--cx-text-3)] uppercase tracking-wider max-w-[200px]"
                       >
                         <span className="truncate block">{q.label}</span>
                       </th>
                     ))}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--cx-text-3)] uppercase tracking-wider">
                       Submitted
                     </th>
                   </tr>
@@ -1192,10 +1192,10 @@ function ResponsesView({
                   {responses.map((response, idx) => (
                     <tr
                       key={response.id}
-                      className="border-b border-border-primary last:border-b-0 hover:bg-bg-hover transition-colors"
+                      className="border-b border-[var(--cx-border-1)] last:border-b-0 hover:bg-[rgba(255,255,255,0.04)] transition-colors"
                     >
-                      <td className="px-4 py-3 text-text-tertiary">{idx + 1}</td>
-                      <td className="px-4 py-3 text-text-primary">
+                      <td className="px-4 py-3 text-[var(--cx-text-3)]">{idx + 1}</td>
+                      <td className="px-4 py-3 text-[var(--cx-text-1)]">
                         {response.respondentName || response.respondentEmail || 'Anonymous'}
                       </td>
                       {questions.map((q) => {
@@ -1204,14 +1204,14 @@ function ResponsesView({
                         return (
                           <td
                             key={q.id}
-                            className="px-4 py-3 text-text-secondary max-w-[200px] truncate"
+                            className="px-4 py-3 text-[var(--cx-text-2)] max-w-[200px] truncate"
                             title={String(display)}
                           >
-                            {String(display) || <span className="text-text-tertiary/40">&mdash;</span>}
+                            {String(display) || <span className="text-[var(--cx-text-3)]/40">&mdash;</span>}
                           </td>
                         );
                       })}
-                      <td className="px-4 py-3 text-text-tertiary whitespace-nowrap">
+                      <td className="px-4 py-3 text-[var(--cx-text-3)] whitespace-nowrap">
                         {formatRelativeTime(response.submittedAt)}
                       </td>
                     </tr>
@@ -1232,9 +1232,9 @@ function ResponsesView({
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-bg-secondary border border-border-primary rounded-xl p-4">
-      <div className="text-xs text-text-tertiary mb-1">{label}</div>
-      <div className="text-xl font-semibold text-text-primary">{value}</div>
+    <div className="bg-cx-surface border border-[var(--cx-border-1)] rounded-xl p-4">
+      <div className="text-xs text-[var(--cx-text-3)] mb-1">{label}</div>
+      <div className="text-xl font-semibold text-[var(--cx-text-1)]">{value}</div>
     </div>
   );
 }

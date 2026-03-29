@@ -196,7 +196,7 @@ export function MessageInput({
   }, [editingMessage, replyTo, onCancelEdit, onCancelReply]);
 
   return (
-    <div className="border-t border-border-primary bg-bg-secondary">
+    <div className="sticky bottom-0 border-t border-[rgba(255,255,255,0.08)] bg-[#111113]">
       {/* Reply / Edit preview bar */}
       {(replyTo || editingMessage) && (
         <div className="flex items-center gap-2 px-4 py-2 bg-bg-tertiary/50 border-b border-border-primary">
@@ -280,7 +280,7 @@ export function MessageInput({
       {/* Input row — buttons level with message box */}
       <div className="flex items-end gap-1.5 px-3 py-2">
         {/* Message box with inline buttons */}
-        <div className="flex-1 flex items-end bg-bg-tertiary border border-border-secondary rounded-xl focus-within:border-accent-blue focus-within:ring-1 focus-within:ring-accent-blue/30 transition-all duration-150">
+        <div className="flex-1 flex items-end bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-lg focus-within:border-accent-blue focus-within:ring-1 focus-within:ring-accent-blue/30 transition-all duration-150">
           {/* Attach button - inside box, left side */}
           <button
             onClick={() => fileInputRef.current?.click()}

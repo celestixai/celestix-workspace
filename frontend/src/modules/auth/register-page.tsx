@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Check, X as XIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { api } from '@/lib/api';
@@ -13,6 +13,11 @@ import logoIcon from '@/assets/logo-icon-blue.png';
 
 const registerSchema = z.object({
   displayName: z.string().min(2, 'At least 2 characters').max(50),
+  username: z
+    .string()
+    .min(3, 'At least 3 characters')
+    .max(20, 'Max 20 characters')
+    .regex(/^[a-z0-9_]+$/, 'Only lowercase letters, numbers, and underscores'),
   email: z.string().email('Invalid email'),
   password: z
     .string()
@@ -31,18 +36,55 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const usernameTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterForm>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
   });
 
+  const watchedUsername = watch('username');
+
+  const checkUsernameAvailability = useCallback(async (username: string) => {
+    if (!username || username.length < 3 || !/^[a-z0-9_]+$/.test(username)) {
+      setUsernameStatus('idle');
+      return;
+    }
+    setUsernameStatus('checking');
+    try {
+      const { data } = await api.get(`/auth/check-username/${username}`);
+      setUsernameStatus(data.data?.available ? 'available' : 'taken');
+    } catch {
+      setUsernameStatus('idle');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current);
+    if (!watchedUsername || watchedUsername.length < 3) {
+      setUsernameStatus('idle');
+      return;
+    }
+    usernameTimerRef.current = setTimeout(() => {
+      checkUsernameAvailability(watchedUsername);
+    }, 500);
+    return () => {
+      if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current);
+    };
+  }, [watchedUsername, checkUsernameAvailability]);
+
   const onSubmit = async (data: RegisterForm) => {
+    if (usernameStatus === 'taken') {
+      toast('Username is already taken', 'error');
+      return;
+    }
     setLoading(true);
     try {
       const res = await api.post('/auth/register', {
         displayName: data.displayName,
+        username: data.username,
         email: data.email,
         password: data.password,
       });
@@ -77,6 +119,44 @@ export function RegisterPage() {
               error={errors.displayName?.message}
               {...register('displayName')}
             />
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[rgba(255,255,255,0.65)]">Username</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgba(255,255,255,0.40)] text-sm select-none">@</span>
+                <input
+                  placeholder="username"
+                  {...register('username', {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                    },
+                  })}
+                  className={`w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[8px] py-2.5 pl-8 pr-10 text-sm text-[rgba(255,255,255,0.95)] placeholder:text-[rgba(255,255,255,0.40)] outline-none hover:border-[rgba(255,255,255,0.12)] hover:bg-[rgba(255,255,255,0.06)] focus:border-[#2563EB] focus:shadow-[0_0_0_2px_rgba(37,99,235,0.2)] transition-[border-color,box-shadow,background] duration-100 ${
+                    errors.username ? 'border-[#EF4444] focus:border-[#EF4444] focus:shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''
+                  } ${
+                    usernameStatus === 'available' ? 'border-[#22C55E] focus:border-[#22C55E] focus:shadow-[0_0_0_2px_rgba(34,197,94,0.2)]' : ''
+                  } ${
+                    usernameStatus === 'taken' ? 'border-[#EF4444] focus:border-[#EF4444] focus:shadow-[0_0_0_2px_rgba(239,68,68,0.2)]' : ''
+                  }`}
+                />
+                {usernameStatus === 'checking' && (
+                  <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgba(255,255,255,0.40)] animate-spin" />
+                )}
+                {usernameStatus === 'available' && (
+                  <Check size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#22C55E]" />
+                )}
+                {usernameStatus === 'taken' && (
+                  <XIcon size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#EF4444]" />
+                )}
+              </div>
+              {errors.username && <p className="text-xs text-[#EF4444]" role="alert">{errors.username.message}</p>}
+              {usernameStatus === 'taken' && !errors.username && (
+                <p className="text-xs text-[#EF4444]">Username is already taken</p>
+              )}
+              {usernameStatus === 'available' && !errors.username && (
+                <p className="text-xs text-[#22C55E]">Username is available</p>
+              )}
+            </div>
 
             <Input
               label="Email"

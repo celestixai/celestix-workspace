@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { Skeleton } from '@/components/ui/skeleton';
-import { EmptyState } from '@/components/shared/empty-state';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { Avatar } from '@/components/shared/avatar';
 import { toast } from '@/components/ui/toast';
 import { cn, formatFullDate, formatRelativeTime } from '@/lib/utils';
@@ -201,7 +201,7 @@ export function MeetingsPage() {
         {/* Hero / Quick actions */}
         <div className="px-6 py-8 bg-gradient-to-br from-bg-secondary to-bg-primary border-b border-border-primary">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold text-text-primary mb-1">Meetings</h1>
+            <h1 className="text-2xl font-display text-text-primary mb-1">Meetings</h1>
             <p className="text-sm text-text-secondary mb-6">
               Start, schedule, or join video meetings
             </p>
@@ -229,9 +229,11 @@ export function MeetingsPage() {
             <MeetingsSkeleton />
           ) : meetings.length === 0 ? (
             <EmptyState
-              icon={<Video size={48} />}
+              icon={Video}
               title="No meetings"
-              description="Start an instant meeting or schedule one for later"
+              description="Start or schedule a meeting"
+              actionLabel="New Meeting"
+              onAction={() => startInstantMeeting.mutate()}
             />
           ) : (
             <>
@@ -590,7 +592,7 @@ function ActiveMeetingView({
   const gridCols = displayParticipants.length <= 1 ? 1 : displayParticipants.length <= 4 ? 2 : 3;
 
   return (
-    <div className="flex h-full bg-[#0a0a12]">
+    <div className="flex h-full bg-[#09090B]">
       <div className="flex-1 flex flex-col">
         <div className="flex-1 p-3">
           <div

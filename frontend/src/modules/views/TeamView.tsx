@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Users,
@@ -58,7 +59,7 @@ function getInitials(name: string): string {
 }
 
 const AVATAR_COLORS = [
-  'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500',
+  'bg-cx-brand', 'bg-cx-success', 'bg-purple-500', 'bg-orange-500',
   'bg-pink-500', 'bg-teal-500', 'bg-indigo-500', 'bg-rose-500',
 ];
 
@@ -71,15 +72,15 @@ function avatarColor(id: string): string {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  'To Do': 'bg-gray-400',
-  'In Progress': 'bg-blue-500',
-  'In Review': 'bg-yellow-500',
-  'Done': 'bg-green-500',
-  'Blocked': 'bg-red-500',
+  'To Do': 'bg-[var(--cx-text-2)]',
+  'In Progress': 'bg-cx-brand',
+  'In Review': 'bg-cx-warning',
+  'Done': 'bg-cx-success',
+  'Blocked': 'bg-cx-danger',
 };
 
 function getStatusColor(status: string): string {
-  return STATUS_COLORS[status] ?? 'bg-gray-400';
+  return STATUS_COLORS[status] ?? 'bg-[var(--cx-text-2)]';
 }
 
 function isCompletedStatus(status: string): boolean {
@@ -215,22 +216,31 @@ export function TeamView({ tasks, isLoading, spaceId: _spaceId }: TeamViewProps)
             Sort: {sortLabels[sortBy]}
             <ChevronDown size={12} />
           </button>
-          {showSortDropdown && (
-            <div className="absolute right-0 top-full mt-1 z-50 bg-bg-primary border border-border rounded-md shadow-lg py-1 min-w-[140px]">
-              {(Object.keys(sortLabels) as SortBy[]).map(key => (
-                <button
-                  key={key}
-                  onClick={() => { setSortBy(key); setShowSortDropdown(false); }}
-                  className={cn(
-                    'w-full text-left px-3 py-1.5 text-xs hover:bg-bg-secondary transition-colors',
-                    sortBy === key && 'bg-bg-secondary font-medium',
-                  )}
-                >
-                  {sortLabels[key]}
-                </button>
-              ))}
-            </div>
-          )}
+          <AnimatePresence>
+            {showSortDropdown && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                transition={{ duration: 0.15, ease: 'easeOut' }}
+                style={{ transformOrigin: 'top right' }}
+                className="absolute right-0 top-full mt-1 z-50 bg-bg-primary border border-border rounded-md shadow-lg py-1 min-w-[140px]"
+              >
+                {(Object.keys(sortLabels) as SortBy[]).map(key => (
+                  <button
+                    key={key}
+                    onClick={() => { setSortBy(key); setShowSortDropdown(false); }}
+                    className={cn(
+                      'w-full text-left px-3 py-1.5 text-xs hover:bg-bg-secondary transition-colors',
+                      sortBy === key && 'bg-bg-secondary font-medium',
+                    )}
+                  >
+                    {sortLabels[key]}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -279,11 +289,11 @@ export function TeamView({ tasks, isLoading, spaceId: _spaceId }: TeamViewProps)
                     {/* Stats */}
                     <div className="flex items-center gap-3 mt-2 text-[11px] text-text-tertiary">
                       <span className="flex items-center gap-1">
-                        <Circle size={10} className="text-blue-500" />
+                        <Circle size={10} className="text-cx-brand" />
                         {member.activeTasks} active
                       </span>
                       <span className="flex items-center gap-1">
-                        <CheckCircle2 size={10} className="text-green-500" />
+                        <CheckCircle2 size={10} className="text-cx-success" />
                         {member.completedThisWeek} done this week
                       </span>
                     </div>

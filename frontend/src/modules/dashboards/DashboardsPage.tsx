@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   LayoutDashboard,
+  BarChart3,
   Plus,
   Search,
   Star,
@@ -10,6 +11,7 @@ import {
   Trash2,
   Pencil,
 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { cn, formatRelativeTime } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -83,7 +85,7 @@ export function DashboardsPage() {
       <div className="flex items-center justify-between px-6 py-4 border-b border-border-primary">
         <div className="flex items-center gap-3">
           <LayoutDashboard size={20} className="text-accent-blue" />
-          <h1 className="text-lg font-semibold text-text-primary">Dashboards</h1>
+          <h1 className="text-lg font-display text-text-primary">Dashboards</h1>
           {dashboards && (
             <span className="text-xs text-text-tertiary bg-bg-tertiary px-2 py-0.5 rounded-full">
               {dashboards.length}
@@ -123,21 +125,13 @@ export function DashboardsPage() {
         {isLoading ? (
           <DashboardListSkeleton />
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-60 text-text-tertiary">
-            <LayoutDashboard size={40} className="mb-3 opacity-30" />
-            <p className="text-sm font-medium text-text-secondary">
-              No dashboards yet
-            </p>
-            <p className="text-xs mt-1">
-              Create a dashboard to visualize your workspace data.
-            </p>
-            <button
-              onClick={handleCreate}
-              className="mt-4 px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-blue text-white hover:bg-accent-blue/90 transition-colors"
-            >
-              Create Dashboard
-            </button>
-          </div>
+          <EmptyState
+            icon={BarChart3}
+            title="No dashboards"
+            description="Build custom dashboards"
+            actionLabel="+ Create Dashboard"
+            onAction={handleCreate}
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filtered.map((dashboard) => (

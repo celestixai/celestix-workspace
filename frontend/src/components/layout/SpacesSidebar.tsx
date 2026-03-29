@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight,
   ChevronDown,
@@ -12,6 +13,7 @@ import {
   Hash,
   FolderPlus,
   ListPlus,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSpaces, Space } from '@/hooks/useSpaces';
@@ -35,6 +37,9 @@ interface SpacesSidebarProps {
   onSelectSpace: (spaceId: string) => void;
   onSelectFolder: (folderId: string, spaceId: string) => void;
   onSelectList: (listId: string, spaceId: string, folderId?: string) => void;
+  /** Mobile overlay control */
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -76,16 +81,34 @@ function ListItem({
     <button
       onClick={() => onSelect(list.id, spaceId, folderId)}
       className={cn(
-        'w-full flex items-center gap-2 px-2 py-1 rounded-md text-xs transition-colors text-left group',
+        'w-full flex items-center gap-2 h-7 rounded-lg text-[13px] transition-all duration-100 text-left group',
         isActive
-          ? 'bg-bg-active text-accent-blue'
-          : 'text-text-tertiary hover:text-text-secondary hover:bg-bg-hover'
+          ? 'font-medium'
+          : ''
       )}
+      style={{
+        paddingLeft: 36,
+        paddingRight: 12,
+        backgroundColor: isActive ? 'rgba(255,255,255,0.08)' : undefined,
+        color: isActive ? '#fff' : 'rgba(255,255,255,0.65)',
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
+          e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.backgroundColor = '';
+          e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+        }
+      }}
     >
-      <List size={14} className="flex-shrink-0 opacity-60" />
+      <List size={14} className="flex-shrink-0" style={{ color: 'rgba(255,255,255,0.20)' }} />
       <span className="truncate flex-1">{list.name}</span>
       {list.taskCount != null && list.taskCount > 0 && (
-        <span className="text-[10px] text-text-tertiary opacity-70">{list.taskCount}</span>
+        <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.30)' }}>{list.taskCount}</span>
       )}
     </button>
   );
@@ -122,18 +145,32 @@ function FolderNode({
           onSelectFolder(folder.id, spaceId);
         }}
         className={cn(
-          'w-full flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-colors text-left group',
-          isActiveFolder
-            ? 'bg-bg-active text-accent-blue'
-            : 'text-text-secondary hover:text-text-primary hover:bg-bg-hover'
+          'w-full flex items-center gap-1.5 h-7 rounded-lg text-[13px] transition-all duration-100 text-left group',
+          isActiveFolder ? 'font-medium' : ''
         )}
+        style={{
+          paddingLeft: 24,
+          paddingRight: 12,
+          backgroundColor: isActiveFolder ? 'rgba(255,255,255,0.08)' : undefined,
+          color: isActiveFolder ? '#fff' : 'rgba(255,255,255,0.65)',
+        }}
+        onMouseEnter={(e) => {
+          if (!isActiveFolder) {
+            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isActiveFolder) {
+            e.currentTarget.style.backgroundColor = '';
+          }
+        }}
       >
-        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        <Folder size={14} className="flex-shrink-0 opacity-70" />
+        {expanded ? <ChevronDown size={12} className="flex-shrink-0 opacity-40" /> : <ChevronRight size={12} className="flex-shrink-0 opacity-40" />}
+        <Folder size={14} className="flex-shrink-0" style={{ color: 'rgba(255,255,255,0.20)' }} />
         <span className="truncate flex-1">{folder.name}</span>
       </button>
       {expanded && lists && (
-        <div className="ml-5 mt-0.5 space-y-0.5">
+        <div className="mt-0.5 space-y-0.5">
           {lists.map((list) => (
             <ListItem
               key={list.id}
@@ -185,7 +222,7 @@ function SpaceNode({
   const isActiveSpace = activeItemType === 'space' && activeItemId === space.id;
 
   return (
-    <div className="mb-1">
+    <div className="mb-0.5">
       <div className="flex items-center group">
         <button
           onClick={() => {
@@ -193,30 +230,37 @@ function SpaceNode({
             onSelectSpace(space.id);
           }}
           className={cn(
-            'flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm font-medium transition-colors text-left',
-            isActiveSpace
-              ? 'bg-bg-active text-accent-blue'
-              : 'text-text-primary hover:bg-bg-hover'
+            'flex-1 flex items-center gap-1.5 h-7 rounded-lg text-sm transition-all duration-100 text-left',
+            isActiveSpace ? 'font-medium' : ''
           )}
+          style={{
+            paddingLeft: 12,
+            paddingRight: 8,
+            backgroundColor: isActiveSpace ? 'rgba(255,255,255,0.08)' : undefined,
+            color: isActiveSpace ? '#fff' : 'rgba(255,255,255,0.65)',
+          }}
+          onMouseEnter={(e) => {
+            if (!isActiveSpace) {
+              e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isActiveSpace) {
+              e.currentTarget.style.backgroundColor = '';
+            }
+          }}
         >
-          {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          <Circle
-            size={10}
-            className="flex-shrink-0"
-            style={{ color: space.color || '#4F8EF7', fill: space.color || '#4F8EF7' }}
+          {expanded ? <ChevronDown size={12} className="flex-shrink-0 opacity-40" /> : <ChevronRight size={12} className="flex-shrink-0 opacity-40" />}
+          <span
+            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+            style={{ backgroundColor: space.color || '#3B82F6' }}
           />
           <span className="truncate flex-1">{space.name}</span>
-          {space.memberCount != null && space.memberCount > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px] text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity">
-              <Users size={10} />
-              {space.memberCount}
-            </span>
-          )}
         </button>
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity pr-1">
           <button
             onClick={(e) => { e.stopPropagation(); onCreateFolder(space.id); }}
-            className="p-0.5 rounded text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
+            className="p-0.5 rounded text-text-tertiary hover:text-text-primary hover:bg-[rgba(255,255,255,0.08)] transition-colors"
             aria-label="New folder"
             title="New Folder"
           >
@@ -224,7 +268,7 @@ function SpaceNode({
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onCreateList(space.id); }}
-            className="p-0.5 rounded text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
+            className="p-0.5 rounded text-text-tertiary hover:text-text-primary hover:bg-[rgba(255,255,255,0.08)] transition-colors"
             aria-label="New list"
             title="New List"
           >
@@ -234,7 +278,7 @@ function SpaceNode({
       </div>
 
       {expanded && (
-        <div className="ml-3 mt-0.5 space-y-0.5">
+        <div className="mt-0.5 space-y-0.5">
           {(folders ?? []).map((folder) => (
             <FolderNode
               key={folder.id}
@@ -276,6 +320,8 @@ export function SpacesSidebar({
   onSelectSpace,
   onSelectFolder,
   onSelectList,
+  mobileOpen,
+  onMobileClose,
 }: SpacesSidebarProps) {
   const { data: workspaces } = useQuery({
     queryKey: ['workspaces'],
@@ -315,63 +361,72 @@ export function SpacesSidebar({
     setShowCreateList(true);
   }, []);
 
-  if (collapsed) {
-    return (
-      <div className="w-10 h-full bg-bg-secondary border-r border-border-primary flex flex-col items-center pt-3 flex-shrink-0">
-        <button
-          onClick={onToggle}
-          className="p-1.5 rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
-          aria-label="Expand spaces sidebar"
-        >
-          <PanelLeft size={16} />
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-[260px] h-full bg-bg-secondary border-r border-border-primary flex flex-col flex-shrink-0">
+  // ----------------------------------------------------------------
+  // Sidebar content (shared between desktop & mobile)
+  // ----------------------------------------------------------------
+  const sidebarContent = (
+    <div
+      className="w-[85vw] max-w-[280px] md:w-[280px] h-full flex flex-col flex-shrink-0"
+      style={{
+        backgroundColor: '#09090B',
+        borderRight: '1px solid rgba(255,255,255,0.08)',
+        padding: '12px 0',
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2.5 border-b border-border-primary">
-        <div className="flex items-center gap-2">
-          <Hash size={16} className="text-text-tertiary" />
-          <span className="text-sm font-semibold text-text-primary">Spaces</span>
-        </div>
+      <div className="flex items-center justify-between" style={{ padding: '8px 20px' }}>
+        <span
+          className="uppercase"
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            letterSpacing: '0.08em',
+            color: 'rgba(255,255,255,0.20)',
+          }}
+        >
+          Spaces
+        </span>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setShowCreateSpace(true)}
-            className="p-1 rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
+            className="p-1 rounded-md hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+            style={{ color: 'rgba(255,255,255,0.40)' }}
             aria-label="Create space"
             title="Create space"
           >
             <Plus size={16} />
           </button>
+          {/* Desktop: collapse toggle; Mobile: close button */}
           <button
-            onClick={onToggle}
-            className="p-1 rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
-            aria-label="Collapse sidebar"
+            onClick={() => {
+              if (onMobileClose) onMobileClose();
+              else onToggle();
+            }}
+            className="p-1 rounded-md hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+            style={{ color: 'rgba(255,255,255,0.40)' }}
+            aria-label={onMobileClose ? 'Close sidebar' : 'Collapse sidebar'}
           >
-            <PanelLeftClose size={16} />
+            {onMobileClose ? <X size={16} /> : <PanelLeftClose size={16} />}
           </button>
         </div>
       </div>
 
       {/* Tree */}
-      <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
+      <div className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
         {isLoading ? (
           <div className="space-y-3 px-2">
             {[1, 2, 3].map((i) => (
               <div key={i} className="space-y-1.5">
-                <div className="h-4 w-24 bg-bg-tertiary rounded animate-pulse" />
+                <div className="h-4 w-24 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
                 <div className="ml-4 space-y-1">
-                  <div className="h-3 w-20 bg-bg-tertiary rounded animate-pulse" />
-                  <div className="h-3 w-16 bg-bg-tertiary rounded animate-pulse" />
+                  <div className="h-3 w-20 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
+                  <div className="h-3 w-16 bg-[rgba(255,255,255,0.06)] rounded animate-pulse" />
                 </div>
               </div>
             ))}
           </div>
         ) : !spaces || spaces.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-text-tertiary">
+          <div className="flex flex-col items-center justify-center py-8" style={{ color: 'rgba(255,255,255,0.30)' }}>
             <Hash size={24} className="mb-2 opacity-40" />
             <p className="text-xs">No spaces yet</p>
             <p className="text-[10px] mt-1 opacity-70">Create your first space to get started</p>
@@ -421,5 +476,92 @@ export function SpacesSidebar({
         />
       )}
     </div>
+  );
+
+  // ----------------------------------------------------------------
+  // Desktop: collapsed state
+  // ----------------------------------------------------------------
+  if (collapsed) {
+    return (
+      <>
+        <div
+          className="hidden md:flex w-10 h-full flex-col items-center pt-3 flex-shrink-0"
+          style={{
+            backgroundColor: '#09090B',
+            borderRight: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <button
+            onClick={onToggle}
+            className="p-1.5 rounded-md text-text-tertiary hover:text-text-primary hover:bg-[rgba(255,255,255,0.04)] transition-colors"
+            aria-label="Expand spaces sidebar"
+          >
+            <PanelLeft size={16} />
+          </button>
+        </div>
+
+        {/* Mobile overlay when collapsed on desktop but mobileOpen */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <>
+              <motion.div
+                className="fixed inset-0 bg-black/60 z-[200] md:hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={onMobileClose}
+              />
+              <motion.div
+                className="fixed top-0 left-0 bottom-0 z-[200] md:hidden"
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+              >
+                {sidebarContent}
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </>
+    );
+  }
+
+  // ----------------------------------------------------------------
+  // Desktop: expanded (normal) + Mobile overlay
+  // ----------------------------------------------------------------
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden md:block h-full">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/60 z-[200] md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={onMobileClose}
+            />
+            <motion.div
+              className="fixed top-0 left-0 bottom-0 z-[200] md:hidden"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+            >
+              {sidebarContent}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

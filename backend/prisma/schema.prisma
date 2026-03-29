@@ -350,6 +350,7 @@ model User {
   storageUsed     BigInt      @default(0) @map("storage_used")
   storageQuota    BigInt      @default(5368709120) @map("storage_quota")
   navOrder        Json?       @map("nav_order")
+  notificationPrefs Json?     @map("notification_prefs")
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
   deletedAt       DateTime?   @map("deleted_at")
@@ -873,6 +874,10 @@ model EmailAccount {
   syncInterval Int     @default(5) @map("sync_interval")
   lastSyncAt  DateTime? @map("last_sync_at")
   isDefault   Boolean  @default(false) @map("is_default")
+  provider    String?  @default("CUSTOM")
+  accessToken String?  @map("access_token")
+  refreshToken String? @map("refresh_token")
+  tokenExpiry DateTime? @map("token_expiry")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 

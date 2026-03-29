@@ -10,11 +10,11 @@ interface Props {
 }
 
 const STATUS_COLUMNS = [
-  { key: 'BACKLOG', label: 'Backlog', color: 'bg-gray-400' },
-  { key: 'TODO', label: 'To Do', color: 'bg-blue-400' },
-  { key: 'IN_PROGRESS', label: 'In Progress', color: 'bg-yellow-400' },
+  { key: 'BACKLOG', label: 'Backlog', color: 'bg-[var(--cx-text-2)]' },
+  { key: 'TODO', label: 'To Do', color: 'bg-cx-brand' },
+  { key: 'IN_PROGRESS', label: 'In Progress', color: 'bg-cx-warning' },
   { key: 'REVIEW', label: 'Review', color: 'bg-purple-400' },
-  { key: 'DONE', label: 'Done', color: 'bg-green-400' },
+  { key: 'DONE', label: 'Done', color: 'bg-cx-success' },
 ];
 
 export function SprintBoard({ sprintId, sprintStatus }: Props) {
@@ -26,7 +26,7 @@ export function SprintBoard({ sprintId, sprintStatus }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-48 text-text-secondary text-sm">
+      <div className="flex items-center justify-center h-48 text-[var(--cx-text-2)] text-sm">
         Loading sprint tasks...
       </div>
     );
@@ -65,7 +65,7 @@ export function SprintBoard({ sprintId, sprintStatus }: Props) {
                 value={addTaskInput}
                 onChange={(e) => setAddTaskInput(e.target.value)}
                 placeholder="Paste task IDs (comma-separated)"
-                className="flex-1 px-3 py-1.5 text-sm bg-bg-secondary border border-border rounded-lg text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-1 focus:ring-accent-blue"
+                className="flex-1 px-3 py-1.5 text-sm bg-cx-surface border border-[rgba(255,255,255,0.08)]rounded-lg text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:ring-1 focus:ring-accent-blue"
                 onKeyDown={(e) => e.key === 'Enter' && handleAddTasks()}
               />
               <button
@@ -76,7 +76,7 @@ export function SprintBoard({ sprintId, sprintStatus }: Props) {
               </button>
               <button
                 onClick={() => { setShowAddInput(false); setAddTaskInput(''); }}
-                className="p-1.5 text-text-secondary hover:bg-bg-tertiary rounded-lg"
+                className="p-1.5 text-[var(--cx-text-2)] hover:bg-cx-raised rounded-lg"
               >
                 <X size={16} />
               </button>
@@ -84,7 +84,7 @@ export function SprintBoard({ sprintId, sprintStatus }: Props) {
           ) : (
             <button
               onClick={() => setShowAddInput(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-text-secondary hover:bg-bg-secondary rounded-lg border border-dashed border-border"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--cx-text-2)] hover:bg-cx-surface rounded-lg border border-dashed border-[rgba(255,255,255,0.08)]"
             >
               <Plus size={14} />
               Add Tasks
@@ -102,10 +102,10 @@ export function SprintBoard({ sprintId, sprintStatus }: Props) {
               {/* Column header */}
               <div className="flex items-center gap-2 mb-2 px-1">
                 <div className={cn('w-2 h-2 rounded-full', col.color)} />
-                <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">
+                <span className="text-xs font-medium text-[var(--cx-text-2)] uppercase tracking-wide">
                   {col.label}
                 </span>
-                <span className="text-xs text-text-tertiary">({colTasks.length})</span>
+                <span className="text-xs text-[var(--cx-text-3)]">({colTasks.length})</span>
               </div>
 
               {/* Cards */}
@@ -119,7 +119,7 @@ export function SprintBoard({ sprintId, sprintStatus }: Props) {
                   />
                 ))}
                 {colTasks.length === 0 && (
-                  <div className="text-xs text-text-tertiary text-center py-6 border border-dashed border-border rounded-lg">
+                  <div className="text-xs text-[var(--cx-text-3)] text-center py-6 border border-dashed border-[rgba(255,255,255,0.08)]rounded-lg">
                     No tasks
                   </div>
                 )}
@@ -144,20 +144,20 @@ function TaskCard({ task, onRemove, canRemove }: { task: SprintTask; onRemove: (
   return (
     <div
       className={cn(
-        'bg-bg-secondary border border-border rounded-lg p-2.5 group relative border-l-[3px]',
+        'bg-cx-surface border border-[rgba(255,255,255,0.08)]rounded-lg p-2.5 group relative border-l-[3px]',
         priorityColors[task.priority] || 'border-l-transparent'
       )}
     >
       {canRemove && (
         <button
           onClick={onRemove}
-          className="absolute top-1.5 right-1.5 p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-bg-tertiary text-text-tertiary"
+          className="absolute top-1.5 right-1.5 p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-cx-raised text-[var(--cx-text-3)]"
         >
           <X size={12} />
         </button>
       )}
 
-      <div className="text-sm text-text-primary leading-snug mb-1.5 pr-4">{task.title}</div>
+      <div className="text-sm text-[var(--cx-text-1)] leading-snug mb-1.5 pr-4">{task.title}</div>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
@@ -167,7 +167,7 @@ function TaskCard({ task, onRemove, canRemove }: { task: SprintTask; onRemove: (
             </span>
           )}
           {task.dueDate && (
-            <span className="text-[10px] text-text-tertiary">
+            <span className="text-[10px] text-[var(--cx-text-3)]">
               {new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
             </span>
           )}
@@ -176,13 +176,13 @@ function TaskCard({ task, onRemove, canRemove }: { task: SprintTask; onRemove: (
           {task.assignees.slice(0, 2).map((a) => (
             <div
               key={a.user.id}
-              className="w-5 h-5 rounded-full bg-bg-tertiary border border-bg-secondary flex items-center justify-center"
+              className="w-5 h-5 rounded-full bg-cx-raised border border-bg-secondary flex items-center justify-center"
               title={a.user.displayName}
             >
               {a.user.avatarUrl ? (
                 <img src={a.user.avatarUrl} className="w-full h-full rounded-full object-cover" alt="" />
               ) : (
-                <User size={10} className="text-text-tertiary" />
+                <User size={10} className="text-[var(--cx-text-3)]" />
               )}
             </div>
           ))}

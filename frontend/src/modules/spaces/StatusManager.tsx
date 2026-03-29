@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const PRESET_COLORS = [
-  '#4A90D9',
-  '#E91E63',
-  '#4CAF50',
-  '#F59E0B',
-  '#8B5CF6',
+  '#3B82F6',
   '#EF4444',
   '#10B981',
-  '#06B6D4',
+  '#F59E0B',
+  '#8B5CF6',
+  '#DC2626',
+  '#14B8A6',
+  '#60A5FA',
   '#F97316',
-  '#6366F1',
+  '#22c55e',
 ];
 
 type StatusGroup = 'not_started' | 'active' | 'done' | 'closed';

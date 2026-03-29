@@ -65,33 +65,33 @@ const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MAX_VISIBLE_TASKS = 3;
 
 const PRIORITY_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  urgent: { bg: 'bg-red-500/20', border: 'border-red-500', text: 'text-red-300' },
+  urgent: { bg: 'bg-cx-danger/20', border: 'border-red-500', text: 'text-cx-danger' },
   high: { bg: 'bg-orange-400/20', border: 'border-orange-400', text: 'text-orange-300' },
-  medium: { bg: 'bg-yellow-400/20', border: 'border-yellow-400', text: 'text-yellow-300' },
-  low: { bg: 'bg-blue-400/20', border: 'border-blue-400', text: 'text-blue-300' },
+  medium: { bg: 'bg-yellow-400/20', border: 'border-yellow-400', text: 'text-cx-warning' },
+  low: { bg: 'bg-cx-brand/20', border: 'border-cx-brand', text: 'text-cx-brand' },
   none: { bg: 'bg-bg-tertiary', border: 'border-border-secondary', text: 'text-text-tertiary' },
 };
 
 const STATUS_GROUP_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  done: { bg: 'bg-green-500/20', border: 'border-green-500', text: 'text-green-300' },
-  active: { bg: 'bg-blue-500/20', border: 'border-blue-500', text: 'text-blue-300' },
-  not_started: { bg: 'bg-gray-400/20', border: 'border-gray-400', text: 'text-gray-300' },
-  closed: { bg: 'bg-gray-600/20', border: 'border-gray-600', text: 'text-gray-400' },
+  done: { bg: 'bg-cx-success/20', border: 'border-green-500', text: 'text-cx-success' },
+  active: { bg: 'bg-cx-brand/20', border: 'border-cx-brand', text: 'text-cx-brand' },
+  not_started: { bg: 'bg-[var(--cx-text-2)]/20', border: 'border-[var(--cx-text-2)]', text: 'text-[var(--cx-text-1)]' },
+  closed: { bg: 'bg-[var(--cx-text-4)]/20', border: 'border-[var(--cx-text-4)]', text: 'text-[var(--cx-text-2)]' },
 };
 
 const LEGEND_ITEMS_PRIORITY = [
-  { label: 'Urgent', color: 'bg-red-500' },
+  { label: 'Urgent', color: 'bg-cx-danger' },
   { label: 'High', color: 'bg-orange-400' },
   { label: 'Medium', color: 'bg-yellow-400' },
-  { label: 'Low', color: 'bg-blue-400' },
-  { label: 'None', color: 'bg-gray-400' },
+  { label: 'Low', color: 'bg-cx-brand' },
+  { label: 'None', color: 'bg-[var(--cx-text-2)]' },
 ];
 
 const LEGEND_ITEMS_STATUS = [
-  { label: 'Not Started', color: 'bg-gray-400' },
-  { label: 'Active', color: 'bg-blue-500' },
-  { label: 'Done', color: 'bg-green-500' },
-  { label: 'Closed', color: 'bg-gray-600' },
+  { label: 'Not Started', color: 'bg-[var(--cx-text-2)]' },
+  { label: 'Active', color: 'bg-cx-brand' },
+  { label: 'Done', color: 'bg-cx-success' },
+  { label: 'Closed', color: 'bg-[var(--cx-text-4)]' },
 ];
 
 // -----------------------------------------------
@@ -239,7 +239,7 @@ function DraggableTaskPill({
         onClick();
       }}
       className={cn(
-        'text-[10px] leading-tight px-1.5 py-0.5 rounded border cursor-grab truncate transition-all',
+        'h-[22px] flex items-center text-[11px] font-medium leading-tight px-1.5 py-0.5 rounded-[6px] cursor-grab truncate transition-all',
         colors.bg,
         colors.border,
         colors.text,
@@ -294,22 +294,24 @@ function DroppableDayCell({
         onQuickAdd(date);
       }}
       className={cn(
-        'min-h-[90px] border border-border-secondary/50 p-1 flex flex-col gap-0.5 cursor-pointer transition-colors group/cell',
-        !isCurrentMonth && 'bg-bg-primary/30',
-        isCurrentMonth && 'bg-bg-secondary/50',
-        isToday && 'ring-1 ring-accent-blue bg-accent-blue/5',
-        isOver && 'bg-accent-blue/10 ring-1 ring-accent-blue/50',
+        'min-h-[90px] p-2 flex flex-col gap-0.5 cursor-pointer transition-colors group/cell',
+        !isCurrentMonth && 'bg-transparent',
+        isCurrentMonth && 'bg-transparent',
+        isToday && 'bg-[#2563EB]/5',
+        isOver && 'bg-[#2563EB]/10',
       )}
+      style={{ border: '1px solid rgba(255,255,255,0.04)' }}
     >
       {/* Day number */}
       <div className="flex items-center justify-between">
         <span
           className={cn(
-            'text-[11px] font-medium w-5 h-5 flex items-center justify-center rounded-full',
-            !isCurrentMonth && 'text-text-tertiary/50',
-            isCurrentMonth && 'text-text-secondary',
-            isToday && 'bg-accent-blue text-white font-bold',
+            'text-[13px] font-medium w-6 h-6 flex items-center justify-center rounded-full',
+            isToday && 'bg-[#2563EB] text-white font-bold',
           )}
+          style={{
+            color: isToday ? '#fff' : isCurrentMonth ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.20)',
+          }}
         >
           {date.getDate()}
         </span>
@@ -463,14 +465,14 @@ function DraggableUnscheduledTask({
   const priorityKey = (task.priority ?? 'none').toLowerCase();
   const priorityDot =
     priorityKey === 'urgent'
-      ? 'bg-red-500'
+      ? 'bg-cx-danger'
       : priorityKey === 'high'
         ? 'bg-orange-400'
         : priorityKey === 'medium'
           ? 'bg-yellow-400'
           : priorityKey === 'low'
-            ? 'bg-blue-400'
-            : 'bg-gray-400';
+            ? 'bg-cx-brand'
+            : 'bg-[var(--cx-text-2)]';
 
   return (
     <div
@@ -779,7 +781,10 @@ export function CalendarView({
             >
               <ChevronLeft size={16} />
             </button>
-            <h2 className="text-sm font-semibold text-text-primary min-w-[160px] text-center">
+            <h2
+              className="text-text-primary min-w-[160px] text-center"
+              style={{ fontFamily: "'Instrument Serif', 'Inter', serif", fontSize: '20px', fontWeight: 400 }}
+            >
               {viewMode === 'month'
                 ? formatMonthYear(currentYear, currentMonth)
                 : `Week of ${weekGrid[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekGrid[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
@@ -829,29 +834,22 @@ export function CalendarView({
             </div>
 
             {/* View mode toggle */}
-            <div className="flex items-center border border-border-secondary rounded overflow-hidden">
-              <button
-                onClick={() => setViewMode('month')}
-                className={cn(
-                  'px-2.5 py-1 text-[11px] font-medium transition-colors',
-                  viewMode === 'month'
-                    ? 'bg-accent-blue text-white'
-                    : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
-                )}
-              >
-                Month
-              </button>
-              <button
-                onClick={() => setViewMode('week')}
-                className={cn(
-                  'px-2.5 py-1 text-[11px] font-medium transition-colors',
-                  viewMode === 'week'
-                    ? 'bg-accent-blue text-white'
-                    : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
-                )}
-              >
-                Week
-              </button>
+            <div className="flex items-center gap-0.5 rounded-lg p-0.5" style={{ background: 'rgba(255,255,255,0.06)' }}>
+              {(['month', 'week'] as ViewMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={cn(
+                    'text-[11px] font-medium transition-all rounded-md capitalize',
+                    viewMode === mode
+                      ? 'bg-[#2563EB] text-white shadow-sm'
+                      : 'text-[rgba(255,255,255,0.5)] hover:text-white',
+                  )}
+                  style={{ padding: '4px 12px' }}
+                >
+                  {mode}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -865,7 +863,8 @@ export function CalendarView({
               {WEEKDAY_LABELS.map((label) => (
                 <div
                   key={label}
-                  className="text-center text-[10px] font-semibold text-text-tertiary uppercase tracking-wider py-1.5"
+                  className="text-center text-[11px] font-medium uppercase tracking-wider py-1.5"
+                  style={{ color: 'rgba(255,255,255,0.20)' }}
                 >
                   {label}
                 </div>

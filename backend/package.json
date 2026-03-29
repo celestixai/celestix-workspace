@@ -36,6 +36,7 @@
     "express": "^4.21.0",
     "express-async-errors": "^3.1.1",
     "express-rate-limit": "^7.4.0",
+    "googleapis": "^171.4.0",
     "helmet": "^7.1.0",
     "imapflow": "^1.0.164",
     "ioredis": "^5.4.1",

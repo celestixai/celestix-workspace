@@ -33,11 +33,11 @@ import { RequestTimeOffModal } from './RequestTimeOffModal';
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const TYPE_COLORS: Record<TimeOffType, string> = {
-  VACATION: 'bg-blue-500',
-  SICK: 'bg-red-500',
-  PERSONAL: 'bg-green-500',
+  VACATION: 'bg-cx-brand',
+  SICK: 'bg-cx-danger',
+  PERSONAL: 'bg-cx-success',
   HOLIDAY: 'bg-purple-500',
-  OTHER: 'bg-gray-500',
+  OTHER: 'bg-[var(--cx-text-3)]',
 };
 
 type Tab = 'schedules' | 'time-off';
@@ -79,7 +79,7 @@ export default function SchedulesPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Calendar className="text-accent" size={24} />
-            <h1 className="text-xl font-semibold text-text-primary">Schedules & Time Off</h1>
+            <h1 className="text-xl font-display text-text-primary">Schedules & Time Off</h1>
           </div>
           <div className="flex items-center gap-2">
             {activeTab === 'schedules' && (
@@ -220,7 +220,7 @@ function SchedulesTab({
               </button>
               <button
                 onClick={() => onDelete(schedule.id)}
-                className="p-1.5 hover:bg-bg-tertiary rounded-lg text-text-tertiary hover:text-red-400"
+                className="p-1.5 hover:bg-bg-tertiary rounded-lg text-text-tertiary hover:text-cx-danger"
               >
                 <Trash2 size={14} />
               </button>
@@ -301,19 +301,19 @@ function TimeOffTab({
                 key={a.userId}
                 className={cn(
                   'flex items-center gap-2 px-3 py-2 rounded-lg border text-sm',
-                  a.status === 'available' && 'border-green-500/30 bg-green-500/5',
-                  a.status === 'off' && 'border-red-500/30 bg-red-500/5',
-                  a.status === 'half-day' && 'border-yellow-500/30 bg-yellow-500/5',
+                  a.status === 'available' && 'border-cx-success/30 bg-cx-success/5',
+                  a.status === 'off' && 'border-cx-danger/30 bg-cx-danger/5',
+                  a.status === 'half-day' && 'border-cx-warning/30 bg-cx-warning/5',
                   a.status === 'non-working' && 'border-border bg-bg-tertiary'
                 )}
               >
                 <div
                   className={cn(
                     'w-2 h-2 rounded-full',
-                    a.status === 'available' && 'bg-green-500',
-                    a.status === 'off' && 'bg-red-500',
-                    a.status === 'half-day' && 'bg-yellow-500',
-                    a.status === 'non-working' && 'bg-gray-500'
+                    a.status === 'available' && 'bg-cx-success',
+                    a.status === 'off' && 'bg-cx-danger',
+                    a.status === 'half-day' && 'bg-cx-warning',
+                    a.status === 'non-working' && 'bg-[var(--cx-text-3)]'
                   )}
                 />
                 <span className="text-text-primary">{a.displayName}</span>
@@ -334,7 +334,7 @@ function TimeOffTab({
             {pendingTimeOff.map((t) => (
               <div
                 key={t.id}
-                className="flex items-center justify-between bg-bg-secondary border border-yellow-500/30 rounded-lg px-4 py-3"
+                className="flex items-center justify-between bg-bg-secondary border border-cx-warning/30 rounded-lg px-4 py-3"
               >
                 <div className="flex items-center gap-3">
                   <span className={cn('w-2.5 h-2.5 rounded-full', TYPE_COLORS[t.type])} />
@@ -342,20 +342,20 @@ function TimeOffTab({
                   <span className="text-xs text-text-tertiary">
                     {new Date(t.startDate).toLocaleDateString()} - {new Date(t.endDate).toLocaleDateString()}
                   </span>
-                  {t.isHalfDay && <span className="text-xs text-yellow-500">Half day</span>}
+                  {t.isHalfDay && <span className="text-xs text-cx-warning">Half day</span>}
                   {t.note && <span className="text-xs text-text-tertiary truncate max-w-[200px]">{t.note}</span>}
                 </div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => onApprove(t.id)}
-                    className="p-1.5 hover:bg-green-500/10 rounded-lg text-green-500"
+                    className="p-1.5 hover:bg-cx-success/10 rounded-lg text-cx-success"
                     title="Approve"
                   >
                     <Check size={16} />
                   </button>
                   <button
                     onClick={() => onReject(t.id)}
-                    className="p-1.5 hover:bg-red-500/10 rounded-lg text-red-500"
+                    className="p-1.5 hover:bg-cx-danger/10 rounded-lg text-cx-danger"
                     title="Reject"
                   >
                     <X size={16} />
@@ -416,13 +416,13 @@ function TimeOffTab({
                   <span className="text-xs text-text-tertiary">
                     {new Date(t.startDate).toLocaleDateString()} - {new Date(t.endDate).toLocaleDateString()}
                   </span>
-                  {t.isHalfDay && <span className="text-xs text-yellow-500">Half day</span>}
+                  {t.isHalfDay && <span className="text-xs text-cx-warning">Half day</span>}
                   <span
                     className={cn(
                       'text-xs px-1.5 py-0.5 rounded',
-                      t.status === 'APPROVED' && 'bg-green-500/10 text-green-500',
-                      t.status === 'PENDING' && 'bg-yellow-500/10 text-yellow-500',
-                      t.status === 'REJECTED' && 'bg-red-500/10 text-red-500'
+                      t.status === 'APPROVED' && 'bg-cx-success/10 text-cx-success',
+                      t.status === 'PENDING' && 'bg-cx-warning/10 text-cx-warning',
+                      t.status === 'REJECTED' && 'bg-cx-danger/10 text-cx-danger'
                     )}
                   >
                     {t.status.toLowerCase()}
@@ -431,7 +431,7 @@ function TimeOffTab({
                 {t.status !== 'REJECTED' && (
                   <button
                     onClick={() => onCancel(t.id)}
-                    className="p-1.5 hover:bg-bg-tertiary rounded-lg text-text-tertiary hover:text-red-400"
+                    className="p-1.5 hover:bg-bg-tertiary rounded-lg text-text-tertiary hover:text-cx-danger"
                     title="Cancel"
                   >
                     <Trash2 size={14} />

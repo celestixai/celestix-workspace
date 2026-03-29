@@ -67,13 +67,13 @@ const COLUMN_WIDTHS: Record<ZoomLevel, number> = {
   month: 180,
 };
 
-const ROW_HEIGHT = 40;
+const ROW_HEIGHT = 36;
 const HEADER_HEIGHT = 50;
-const BAR_HEIGHT = 26;
+const BAR_HEIGHT = 20;
 const BAR_TOP_OFFSET = (ROW_HEIGHT - BAR_HEIGHT) / 2;
 const MIN_LEFT_PANEL = 200;
 const MAX_LEFT_PANEL = 600;
-const DEFAULT_LEFT_PANEL = 320;
+const DEFAULT_LEFT_PANEL = 280;
 
 const PRIORITY_BAR_COLORS: Record<string, { bg: string; fill: string; border: string }> = {
   urgent: { bg: '#ef4444', fill: '#dc2626', border: '#b91c1c' },
@@ -343,12 +343,17 @@ function TimelineHeader({
       <div
         key={i}
         className={cn(
-          'flex-shrink-0 border-r border-border-secondary/30 flex items-end justify-center pb-1',
-          isToday && 'bg-accent-blue/10',
+          'flex-shrink-0 flex items-end justify-center pb-1',
+          isToday && 'bg-[#2563EB]/10',
         )}
-        style={{ width: colWidth, height: HEADER_HEIGHT }}
+        style={{ width: colWidth, height: HEADER_HEIGHT, borderRight: '1px solid rgba(255,255,255,0.04)' }}
       >
-        <span className={cn('text-[10px] text-text-tertiary', isToday && 'text-accent-blue font-semibold')}>
+        <span
+          className={cn(
+            'text-[11px] font-mono',
+            isToday ? 'text-[#2563EB] font-semibold' : 'text-[rgba(255,255,255,0.40)]',
+          )}
+        >
           {label}
         </span>
       </div>,
@@ -360,7 +365,7 @@ function TimelineHeader({
   }
 
   return (
-    <div className="flex border-b border-border-secondary" style={{ height: HEADER_HEIGHT }}>
+    <div className="flex" style={{ height: HEADER_HEIGHT, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
       {cells}
     </div>
   );
@@ -701,17 +706,18 @@ export function GanttView({
       <div className="flex items-center justify-between px-4 py-2 border-b border-border-secondary/50">
         <div className="flex items-center gap-2">
           {/* Zoom controls */}
-          <div className="flex items-center border border-border-secondary rounded overflow-hidden">
+          <div className="flex items-center gap-0.5 rounded-lg p-0.5" style={{ background: 'rgba(255,255,255,0.06)' }}>
             {(['day', 'week', 'month'] as ZoomLevel[]).map((level) => (
               <button
                 key={level}
                 onClick={() => setZoom(level)}
                 className={cn(
-                  'px-2.5 py-1 text-[11px] font-medium transition-colors capitalize',
+                  'text-[11px] font-medium transition-all rounded-md capitalize',
                   zoom === level
-                    ? 'bg-accent-blue text-white'
-                    : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
+                    ? 'bg-[#2563EB] text-white shadow-sm'
+                    : 'text-[rgba(255,255,255,0.5)] hover:text-white',
                 )}
+                style={{ padding: '4px 12px' }}
               >
                 {level}
               </button>
@@ -779,17 +785,16 @@ export function GanttView({
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* Left Panel (task list) */}
         <div
-          className="flex flex-col border-r border-border-secondary bg-bg-primary"
-          style={{ width: leftPanelWidth, minWidth: leftPanelWidth }}
+          className="flex flex-col bg-bg-primary"
+          style={{ width: leftPanelWidth, minWidth: leftPanelWidth, borderRight: '1px solid rgba(255,255,255,0.06)' }}
         >
           {/* Left header */}
           <div
-            className="flex items-end border-b border-border-secondary px-2 pb-1 text-[10px] text-text-tertiary uppercase tracking-wider"
-            style={{ height: HEADER_HEIGHT, minHeight: HEADER_HEIGHT }}
+            className="flex items-end px-2 pb-1 text-[10px] uppercase tracking-wider"
+            style={{ height: HEADER_HEIGHT, minHeight: HEADER_HEIGHT, borderBottom: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.30)' }}
           >
             <span className="flex-1">Task</span>
-            <span className="w-16 text-center">Start</span>
-            <span className="w-16 text-center">Due</span>
+            <span className="w-16 text-center">Assignee</span>
           </div>
 
           {/* Left rows */}
@@ -808,8 +813,8 @@ export function GanttView({
                   {/* Group header */}
                   {groupName && (
                     <div
-                      className="flex items-center gap-1.5 px-2 bg-bg-tertiary/50 border-b border-border-secondary/30 cursor-pointer hover:bg-bg-tertiary/80"
-                      style={{ height: ROW_HEIGHT }}
+                      className="flex items-center gap-1.5 px-2 cursor-pointer hover:bg-bg-tertiary/80"
+                      style={{ height: ROW_HEIGHT, backgroundColor: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
                       onClick={() => toggleGroup(groupName)}
                     >
                       {collapsedGroups.has(groupName) ? (
@@ -823,12 +828,12 @@ export function GanttView({
                   {/* Task row (skip if just a collapsed group placeholder) */}
                   {!isGroupHeader && (
                     <div
-                      className="flex items-center border-b border-border-secondary/20 hover:bg-bg-hover/50 cursor-pointer group/row"
-                      style={{ height: ROW_HEIGHT }}
+                      className="flex items-center hover:bg-bg-hover/50 cursor-pointer group/row"
+                      style={{ height: ROW_HEIGHT, borderBottom: '1px solid rgba(255,255,255,0.04)' }}
                       onClick={() => onTaskClick(row.task.id)}
                     >
                       <div
-                        className="flex-1 flex items-center gap-1 px-2 min-w-0"
+                        className="flex-1 flex items-center gap-1.5 px-2 min-w-0"
                         style={{ paddingLeft: 8 + row.depth * 16 }}
                       >
                         {row.hasChildren && (
@@ -847,10 +852,13 @@ export function GanttView({
                           </button>
                         )}
                         {!row.hasChildren && <span className="w-3 flex-shrink-0" />}
-                        {/* Assignee avatar */}
-                        {row.task.assignees?.[0] && (
+                        <span className="text-xs text-text-primary truncate">{row.task.title}</span>
+                      </div>
+                      {/* Assignee column */}
+                      <div className="w-16 flex items-center justify-center flex-shrink-0">
+                        {row.task.assignees?.[0] ? (
                           <div
-                            className="w-5 h-5 rounded-full bg-accent-blue/30 flex items-center justify-center text-[8px] font-bold text-accent-blue flex-shrink-0"
+                            className="w-5 h-5 rounded-full bg-[#2563EB]/30 flex items-center justify-center text-[8px] font-bold text-[#2563EB] flex-shrink-0"
                             title={row.task.assignees[0].displayName}
                           >
                             {row.task.assignees[0].avatarUrl ? (
@@ -863,25 +871,10 @@ export function GanttView({
                               row.task.assignees[0].displayName?.[0]?.toUpperCase() ?? '?'
                             )}
                           </div>
+                        ) : (
+                          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.20)' }}>--</span>
                         )}
-                        <span className="text-xs text-text-primary truncate">{row.task.title}</span>
                       </div>
-                      <span className="w-16 text-center text-[10px] text-text-tertiary flex-shrink-0">
-                        {row.task.startDate
-                          ? new Date(row.task.startDate).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                            })
-                          : '-'}
-                      </span>
-                      <span className="w-16 text-center text-[10px] text-text-tertiary flex-shrink-0">
-                        {row.task.dueDate
-                          ? new Date(row.task.dueDate).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                            })
-                          : '-'}
-                      </span>
                     </div>
                   )}
                 </div>
@@ -907,10 +900,11 @@ export function GanttView({
         <div
           ref={timelineRef}
           className="flex-1 overflow-auto relative"
+          style={{ backgroundColor: '#09090B' }}
           onScroll={handleTimelineScroll}
         >
           {/* Timeline header */}
-          <div className="sticky top-0 z-10 bg-bg-primary">
+          <div className="sticky top-0 z-10" style={{ backgroundColor: '#09090B' }}>
             <TimelineHeader
               timelineStart={timelineStart}
               totalCols={totalCols}
@@ -925,8 +919,8 @@ export function GanttView({
             {Array.from({ length: totalCols }).map((_, i) => (
               <div
                 key={`col-${i}`}
-                className="absolute top-0 border-r border-border-secondary/15"
-                style={{ left: i * colWidth, width: colWidth, height: totalHeight }}
+                className="absolute top-0"
+                style={{ left: i * colWidth, width: colWidth, height: totalHeight, borderRight: '1px solid rgba(255,255,255,0.04)' }}
               />
             ))}
 
@@ -934,12 +928,14 @@ export function GanttView({
             {rows.map((row, idx) => (
               <div
                 key={`rowbg-${idx}`}
-                className={cn(
-                  'absolute left-0 right-0 border-b border-border-secondary/10',
-                  idx % 2 === 0 ? 'bg-transparent' : 'bg-bg-secondary/20',
-                  row.groupName && 'bg-bg-tertiary/20',
-                )}
-                style={{ top: idx * ROW_HEIGHT, height: ROW_HEIGHT, width: totalTimelineWidth }}
+                className="absolute left-0 right-0"
+                style={{
+                  top: idx * ROW_HEIGHT,
+                  height: ROW_HEIGHT,
+                  width: totalTimelineWidth,
+                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                  backgroundColor: row.groupName ? 'rgba(255,255,255,0.02)' : idx % 2 !== 0 ? 'rgba(255,255,255,0.01)' : 'transparent',
+                }}
               />
             ))}
 
@@ -948,10 +944,13 @@ export function GanttView({
               className="absolute top-0 z-20 pointer-events-none"
               style={{ left: todayX, height: totalHeight }}
             >
-              <div className="w-px h-full border-l-2 border-dashed border-red-500/70" />
               <div
-                className="absolute -top-1 -left-[7px] w-[14px] h-3 rounded-sm bg-red-500 text-white text-[7px] font-bold flex items-center justify-center"
-                style={{ letterSpacing: '-0.5px' }}
+                className="w-px h-full"
+                style={{ borderLeft: '2px dashed #EF4444' }}
+              />
+              <div
+                className="absolute -top-1 -left-[7px] w-[14px] h-3 rounded-sm text-white text-[7px] font-bold flex items-center justify-center"
+                style={{ backgroundColor: '#EF4444', letterSpacing: '-0.5px' }}
               >
                 T
               </div>
@@ -981,7 +980,7 @@ export function GanttView({
                 return (
                   <div
                     key={`bar-${task.id}`}
-                    className="absolute z-10 w-2 h-2 rounded-full bg-gray-500/50 cursor-pointer"
+                    className="absolute z-10 w-2 h-2 rounded-full bg-[var(--cx-text-3)]/50 cursor-pointer"
                     style={{
                       left: x - 4,
                       top: idx * ROW_HEIGHT + ROW_HEIGHT / 2 - 4,
@@ -1056,15 +1055,18 @@ export function GanttView({
                 >
                   {/* Left resize handle */}
                   <div
-                    className="absolute left-0 top-0 w-2 h-full cursor-ew-resize z-20 opacity-0 group-hover/bar:opacity-100 hover:bg-white/20 rounded-l"
+                    className="absolute left-0 top-0 w-2 h-full cursor-ew-resize z-20 opacity-0 group-hover/bar:opacity-100 hover:bg-white/20"
+                    style={{ borderRadius: '4px 0 0 4px' }}
                     onMouseDown={(e) => handleBarDragStart(e, task, 'resize-left')}
                   />
 
                   {/* Bar body */}
                   <div
-                    className="w-full h-full rounded cursor-grab active:cursor-grabbing overflow-hidden relative"
+                    className="w-full h-full cursor-grab active:cursor-grabbing overflow-hidden relative transition-all hover:brightness-125 hover:shadow-lg hover:shadow-[#2563EB]/20"
                     style={{
-                      backgroundColor: colors.bg + '33',
+                      borderRadius: '4px',
+                      backgroundColor: colors.bg,
+                      opacity: progress > 0 ? 0.7 + progress * 0.3 : 0.85,
                       border: `1px solid ${colors.border}`,
                     }}
                     onMouseDown={(e) => handleBarDragStart(e, task, 'move')}
@@ -1077,10 +1079,11 @@ export function GanttView({
                     {/* Progress fill */}
                     {progress > 0 && (
                       <div
-                        className="absolute top-0 left-0 h-full rounded-l"
+                        className="absolute top-0 left-0 h-full"
                         style={{
+                          borderRadius: '4px 0 0 4px',
                           width: `${progress * 100}%`,
-                          backgroundColor: colors.bg + '66',
+                          backgroundColor: 'rgba(255,255,255,0.15)',
                         }}
                       />
                     )}
@@ -1097,7 +1100,8 @@ export function GanttView({
 
                   {/* Right resize handle */}
                   <div
-                    className="absolute right-0 top-0 w-2 h-full cursor-ew-resize z-20 opacity-0 group-hover/bar:opacity-100 hover:bg-white/20 rounded-r"
+                    className="absolute right-0 top-0 w-2 h-full cursor-ew-resize z-20 opacity-0 group-hover/bar:opacity-100 hover:bg-white/20"
+                    style={{ borderRadius: '0 4px 4px 0' }}
                     onMouseDown={(e) => handleBarDragStart(e, task, 'resize-right')}
                   />
                 </div>

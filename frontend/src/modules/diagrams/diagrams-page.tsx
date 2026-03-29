@@ -131,7 +131,7 @@ const SHAPE_LIBRARIES: Record<string, ShapeTemplate[]> = {
   ],
 };
 
-const DEFAULT_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#ef4444', '#f97316', '#eab308', '#ec4899', '#06b6d4'];
+const DEFAULT_COLORS = ['#3B82F6', '#8B5CF6', '#22c55e', '#EF4444', '#F97316', '#eab308', '#F97316', '#14B8A6'];
 
 let seq = 0;
 function uid() { return `ds_${Date.now()}_${++seq}`; }
@@ -258,7 +258,7 @@ export function DiagramsPage() {
       id: uid(), type: template.render, shapeKind: template.shapeKind,
       x: centerX - template.defaultWidth / 2, y: centerY - template.defaultHeight / 2,
       width: template.defaultWidth, height: template.defaultHeight,
-      text: template.label, fillColor: '#3b82f6', borderColor: '#60a5fa',
+      text: template.label, fillColor: '#3B82F6', borderColor: '#60A5FA',
       borderWidth: 2, fontSize: 13,
     };
     setShapes((prev) => [...prev, shape]);
@@ -345,7 +345,7 @@ export function DiagramsPage() {
       } else if (connectorStart !== shape.id) {
         const conn: DiagramConnector = {
           id: uid(), fromId: connectorStart, toId: shape.id,
-          lineType: connectorLineType, color: '#94a3b8', label: '',
+          lineType: connectorLineType, color: 'rgba(255,255,255,0.40)', label: '',
         };
         setConnectors((prev) => [...prev, conn]);
         setConnectorStart(null);
@@ -492,7 +492,7 @@ export function DiagramsPage() {
               onKeyDown={(e) => { if (e.key === 'Enter') setEditingTextId(null); }}
               style={{
                 width: '100%', height: '100%', background: 'transparent', border: 'none',
-                outline: 'none', color: '#e2e8f0', fontSize: shape.fontSize, textAlign: 'center',
+                outline: 'none', color: 'rgba(255,255,255,0.90)', fontSize: shape.fontSize, textAlign: 'center',
                 fontFamily: 'inherit',
               }}
               onClick={(e) => e.stopPropagation()}
@@ -502,7 +502,7 @@ export function DiagramsPage() {
           <text
             x={shape.width / 2} y={shape.height / 2}
             textAnchor="middle" dominantBaseline="central"
-            fill="#e2e8f0" fontSize={shape.fontSize}
+            fill="rgba(255,255,255,0.90)" fontSize={shape.fontSize}
             style={{ pointerEvents: 'none', userSelect: 'none' }}
           >
             {shape.text}
@@ -560,7 +560,7 @@ export function DiagramsPage() {
       <g key={conn.id}>
         <path d={pathD} fill="none" stroke={conn.color} strokeWidth={2} markerEnd="url(#arrowhead)" />
         {conn.label && (
-          <text x={(fx + tx) / 2} y={(fy + ty) / 2 - 8} textAnchor="middle" fill="#94a3b8" fontSize={11}>
+          <text x={(fx + tx) / 2} y={(fy + ty) / 2 - 8} textAnchor="middle" fill="rgba(255,255,255,0.40)" fontSize={11}>
             {conn.label}
           </text>
         )}
@@ -589,14 +589,14 @@ export function DiagramsPage() {
 
   if (mode === 'list') {
     return (
-      <div className="flex flex-col h-full bg-bg-primary">
-        <div className="h-14 flex items-center gap-3 px-6 border-b border-border-primary flex-shrink-0">
-          <Share2 size={18} className="text-accent-purple" />
-          <h1 className="text-base font-semibold text-text-primary">Diagrams</h1>
+      <div className="flex flex-col h-full bg-cx-bg">
+        <div className="h-14 flex items-center gap-3 px-6 border-b border-white/8 flex-shrink-0">
+          <Share2 size={18} className="text-cx-purple" />
+          <h1 className="text-base font-display text-[var(--cx-text-1)]">Diagrams</h1>
           <div className="flex-1" />
           <button
             onClick={() => { setNewName(''); setNewType('flowchart'); setShowCreate(true); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-accent-blue text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:opacity-90 transition-opacity"
           >
             <Plus size={14} />
             New Diagram
@@ -607,17 +607,17 @@ export function DiagramsPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-bg-secondary border border-border-primary rounded-lg h-44 animate-pulse" />
+                <div key={i} className="bg-cx-surface border border-white/8 rounded-lg h-44 animate-pulse" />
               ))}
             </div>
           ) : diagrams.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <Share2 size={48} className="text-text-tertiary mb-3" />
-              <p className="text-base text-text-secondary mb-1">No diagrams</p>
-              <p className="text-sm text-text-tertiary mb-4">Create your first diagram</p>
+              <Share2 size={48} className="text-[var(--cx-text-3)] mb-3" />
+              <p className="text-base text-[var(--cx-text-2)] mb-1">No diagrams</p>
+              <p className="text-sm text-[var(--cx-text-3)] mb-4">Create your first diagram</p>
               <button
                 onClick={() => setShowCreate(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent-blue text-white text-sm hover:opacity-90 transition-opacity"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cx-brand text-white text-sm hover:opacity-90 transition-opacity"
               >
                 <Plus size={14} />
                 Create Diagram
@@ -631,25 +631,25 @@ export function DiagramsPage() {
                 return (
                   <div
                     key={d.id}
-                    className="bg-bg-secondary border border-border-primary rounded-lg overflow-hidden cursor-pointer hover:border-accent-blue/40 transition-colors group"
+                    className="bg-cx-surface border border-white/8 rounded-lg overflow-hidden cursor-pointer hover:border-cx-brand/40 transition-colors group"
                   >
-                    <div onClick={() => openDiagram(d)} className="h-28 bg-[#0d0d1a] flex items-center justify-center relative">
-                      <TypeIcon size={32} className="text-text-tertiary" />
-                      <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[10px] font-medium bg-bg-secondary border border-border-primary text-text-tertiary">
+                    <div onClick={() => openDiagram(d)} className="h-28 bg-[#0C0C0E] flex items-center justify-center relative">
+                      <TypeIcon size={32} className="text-[var(--cx-text-3)]" />
+                      <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[10px] font-medium bg-cx-surface border border-white/8 text-[var(--cx-text-3)]">
                         {typeInfo.label}
                       </span>
                     </div>
                     <div className="p-3 flex items-center justify-between">
                       <div className="min-w-0 flex-1" onClick={() => openDiagram(d)}>
-                        <h3 className="text-sm font-medium text-text-primary truncate">{d.name}</h3>
-                        <p className="text-[11px] text-text-tertiary mt-0.5">
+                        <h3 className="text-sm font-medium text-[var(--cx-text-1)] truncate">{d.name}</h3>
+                        <p className="text-[11px] text-[var(--cx-text-3)] mt-0.5">
                           {d.shapes?.length || 0} shapes &middot;{' '}
                           {new Date(d.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </p>
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(d.id); }}
-                        className="p-1 rounded hover:bg-bg-hover text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-accent-red transition-all"
+                        className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] opacity-0 group-hover:opacity-100 hover:text-cx-danger transition-all"
                       >
                         <Trash2 size={13} />
                       </button>
@@ -664,25 +664,25 @@ export function DiagramsPage() {
         {/* Create modal */}
         {showCreate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowCreate(false)}>
-            <div className="bg-bg-secondary border border-border-primary rounded-xl w-[500px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-cx-surface border border-white/8 rounded-xl w-[500px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-text-primary">New Diagram</h3>
-                <button onClick={() => setShowCreate(false)} className="p-1 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+                <h3 className="text-base font-semibold text-[var(--cx-text-1)]">New Diagram</h3>
+                <button onClick={() => setShowCreate(false)} className="p-1 rounded-lg hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
                   <X size={16} />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-text-tertiary mb-1.5">Name</label>
+                  <label className="block text-xs text-[var(--cx-text-3)] mb-1.5">Name</label>
                   <input
                     autoFocus type="text" placeholder="My Diagram" value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                    className="w-full h-9 px-3 rounded-lg bg-bg-primary border border-border-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue"
+                    className="w-full h-9 px-3 rounded-lg bg-cx-bg border border-white/8 text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:border-cx-brand"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-text-tertiary mb-2">Type</label>
+                  <label className="block text-xs text-[var(--cx-text-3)] mb-2">Type</label>
                   <div className="grid grid-cols-4 gap-2">
                     {DIAGRAM_TYPES.map(({ type, label, icon: Icon }) => (
                       <button
@@ -690,20 +690,20 @@ export function DiagramsPage() {
                         onClick={() => setNewType(type)}
                         className={cn(
                           'flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors',
-                          newType === type ? 'border-accent-blue bg-accent-blue/10' : 'border-border-primary hover:border-border-secondary'
+                          newType === type ? 'border-cx-brand bg-cx-brand/10' : 'border-white/8 hover:border-white/12'
                         )}
                       >
-                        <Icon size={20} className={newType === type ? 'text-accent-blue' : 'text-text-tertiary'} />
-                        <span className={cn('text-[10px]', newType === type ? 'text-accent-blue' : 'text-text-tertiary')}>{label}</span>
+                        <Icon size={20} className={newType === type ? 'text-cx-brand' : 'text-[var(--cx-text-3)]'} />
+                        <span className={cn('text-[10px]', newType === type ? 'text-cx-brand' : 'text-[var(--cx-text-3)]')}>{label}</span>
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button onClick={() => setShowCreate(false)} className="px-3 py-1.5 rounded-lg text-sm text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors">
+                  <button onClick={() => setShowCreate(false)} className="px-3 py-1.5 rounded-lg text-sm text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-cx-raised transition-colors">
                     Cancel
                   </button>
-                  <button onClick={handleCreate} disabled={!newName.trim()} className="px-3 py-1.5 rounded-lg text-sm bg-accent-blue text-white hover:opacity-90 transition-opacity disabled:opacity-40">
+                  <button onClick={handleCreate} disabled={!newName.trim()} className="px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:opacity-90 transition-opacity disabled:opacity-40">
                     Create
                   </button>
                 </div>
@@ -720,14 +720,14 @@ export function DiagramsPage() {
   /* ---------------------------------------------------------------- */
 
   return (
-    <div className="flex flex-col h-full bg-bg-primary overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-cx-bg overflow-hidden select-none">
       {/* Top toolbar */}
-      <div className="h-11 flex items-center gap-2 px-3 border-b border-border-primary flex-shrink-0 bg-bg-secondary">
-        <button onClick={goBack} className="p-1.5 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+      <div className="h-11 flex items-center gap-2 px-3 border-b border-white/8 flex-shrink-0 bg-cx-surface">
+        <button onClick={goBack} className="p-1.5 rounded-lg hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
           <ChevronLeft size={16} />
         </button>
-        <span className="text-sm font-medium text-text-primary truncate max-w-[180px]">{active?.name}</span>
-        <span className="text-[10px] text-text-tertiary px-1.5 py-0.5 rounded bg-bg-primary border border-border-primary">
+        <span className="text-sm font-medium text-[var(--cx-text-1)] truncate max-w-[180px]">{active?.name}</span>
+        <span className="text-[10px] text-[var(--cx-text-3)] px-1.5 py-0.5 rounded bg-cx-bg border border-white/8">
           {DIAGRAM_TYPES.find((t) => t.type === active?.type)?.label}
         </span>
 
@@ -736,14 +736,14 @@ export function DiagramsPage() {
         {/* Tools */}
         <button
           onClick={() => { setTool('select'); setConnectorStart(null); }}
-          className={cn('p-1.5 rounded-lg transition-colors', tool === 'select' ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary')}
+          className={cn('p-1.5 rounded-lg transition-colors', tool === 'select' ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised hover:text-[var(--cx-text-1)]')}
           title="Select"
         >
           <MousePointer2 size={14} />
         </button>
         <button
           onClick={() => setTool('connector')}
-          className={cn('p-1.5 rounded-lg transition-colors', tool === 'connector' ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary')}
+          className={cn('p-1.5 rounded-lg transition-colors', tool === 'connector' ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised hover:text-[var(--cx-text-1)]')}
           title="Connector"
         >
           <ArrowRight size={14} />
@@ -754,7 +754,7 @@ export function DiagramsPage() {
             <button
               onClick={() => setConnectorLineType('straight')}
               className={cn('px-2 py-0.5 rounded text-[10px] transition-colors',
-                connectorLineType === 'straight' ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover'
+                connectorLineType === 'straight' ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised'
               )}
             >
               Straight
@@ -762,7 +762,7 @@ export function DiagramsPage() {
             <button
               onClick={() => setConnectorLineType('elbow')}
               className={cn('px-2 py-0.5 rounded text-[10px] transition-colors',
-                connectorLineType === 'elbow' ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover'
+                connectorLineType === 'elbow' ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised'
               )}
             >
               Elbow
@@ -775,21 +775,21 @@ export function DiagramsPage() {
         {/* Grid toggle */}
         <button
           onClick={() => setShowGrid((v) => !v)}
-          className={cn('p-1.5 rounded-lg transition-colors', showGrid ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary')}
+          className={cn('p-1.5 rounded-lg transition-colors', showGrid ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised hover:text-[var(--cx-text-1)]')}
           title="Toggle grid"
         >
           <Grid3X3 size={14} />
         </button>
 
         {/* Zoom */}
-        <button onClick={() => setZoom((z) => Math.max(z - 0.2, 0.2))} className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+        <button onClick={() => setZoom((z) => Math.max(z - 0.2, 0.2))} className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
           <ZoomOut size={14} />
         </button>
-        <span className="text-[11px] text-text-tertiary min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
-        <button onClick={() => setZoom((z) => Math.min(z + 0.2, 5))} className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+        <span className="text-[11px] text-[var(--cx-text-3)] min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
+        <button onClick={() => setZoom((z) => Math.min(z + 0.2, 5))} className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
           <ZoomIn size={14} />
         </button>
-        <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors" title="Reset view">
+        <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors" title="Reset view">
           <RotateCcw size={14} />
         </button>
 
@@ -798,7 +798,7 @@ export function DiagramsPage() {
         {/* Auto-layout */}
         <button
           onClick={handleAutoLayout}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
           title="Auto layout"
         >
           <Layers size={13} />
@@ -810,7 +810,7 @@ export function DiagramsPage() {
         {/* Export */}
         <button
           onClick={handleExportSvg}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
           title="Export SVG"
         >
           <Download size={13} />
@@ -818,7 +818,7 @@ export function DiagramsPage() {
         </button>
         <button
           onClick={() => { /* PNG export placeholder */ }}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
           title="Export PNG"
         >
           <ImageIcon size={13} />
@@ -828,16 +828,16 @@ export function DiagramsPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left - Shape Library */}
-        <div className="w-[180px] flex-shrink-0 bg-bg-secondary border-r border-border-primary flex flex-col">
-          <div className="px-3 py-2 border-b border-border-primary">
-            <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">Shapes</span>
+        <div className="w-[180px] flex-shrink-0 bg-cx-surface border-r border-white/8 flex flex-col">
+          <div className="px-3 py-2 border-b border-white/8">
+            <span className="text-[11px] font-semibold text-[var(--cx-text-3)] uppercase tracking-wider">Shapes</span>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {shapeLib.map((template) => (
               <button
                 key={template.shapeKind}
                 onClick={() => addShapeFromLib(template)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
               >
                 <ShapeIcon render={template.render} />
                 {template.label}
@@ -850,7 +850,7 @@ export function DiagramsPage() {
                 <p className="text-[11px] text-accent-green">Click a target shape to connect</p>
                 <button
                   onClick={() => setConnectorStart(null)}
-                  className="text-[10px] text-text-tertiary hover:text-text-primary mt-1"
+                  className="text-[10px] text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] mt-1"
                 >
                   Cancel
                 </button>
@@ -879,13 +879,13 @@ export function DiagramsPage() {
               </pattern>
             )}
             {/* Arrow marker */}
-            <marker id="arrowhead" markerWidth={10} markerHeight={7} refX={9} refY={3.5} orient="auto" fill="#94a3b8">
+            <marker id="arrowhead" markerWidth={10} markerHeight={7} refX={9} refY={3.5} orient="auto" fill="rgba(255,255,255,0.40)">
               <polygon points="0 0, 10 3.5, 0 7" />
             </marker>
           </defs>
 
           {/* Background */}
-          <rect width="100%" height="100%" fill="#0a0a14" />
+          <rect width="100%" height="100%" fill="#09090B" />
           {showGrid && <rect width="100%" height="100%" fill="url(#dotgrid)" />}
 
           {/* Canvas group */}
@@ -898,31 +898,31 @@ export function DiagramsPage() {
         </svg>
 
         {/* Right - Properties Panel */}
-        <div className="w-[200px] flex-shrink-0 bg-bg-secondary border-l border-border-primary overflow-y-auto">
-          <div className="p-3 border-b border-border-primary">
-            <h4 className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">Properties</h4>
+        <div className="w-[200px] flex-shrink-0 bg-cx-surface border-l border-white/8 overflow-y-auto">
+          <div className="p-3 border-b border-white/8">
+            <h4 className="text-[11px] font-semibold text-[var(--cx-text-3)] uppercase tracking-wider">Properties</h4>
           </div>
 
           {selectedShape ? (
             <div className="p-3 space-y-4">
               <div>
-                <span className="text-xs text-text-secondary font-medium">{selectedShape.shapeKind}</span>
-                <p className="text-[10px] text-text-tertiary capitalize mt-0.5">{selectedShape.type}</p>
+                <span className="text-xs text-[var(--cx-text-2)] font-medium">{selectedShape.shapeKind}</span>
+                <p className="text-[10px] text-[var(--cx-text-3)] capitalize mt-0.5">{selectedShape.type}</p>
               </div>
 
               {/* Text */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Text</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Text</label>
                 <input
                   type="text" value={selectedShape.text}
                   onChange={(e) => updateShape(selectedShape.id, { text: e.target.value })}
-                  className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                  className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                 />
               </div>
 
               {/* Fill color */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Fill Color</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Fill Color</label>
                 <div className="grid grid-cols-4 gap-1 mb-2">
                   {DEFAULT_COLORS.map((c) => (
                     <button
@@ -936,47 +936,47 @@ export function DiagramsPage() {
                 <input
                   type="color" value={selectedShape.fillColor}
                   onChange={(e) => updateShape(selectedShape.id, { fillColor: e.target.value })}
-                  className="w-full h-6 rounded border border-border-primary cursor-pointer"
+                  className="w-full h-6 rounded border border-white/8 cursor-pointer"
                 />
               </div>
 
               {/* Border */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Border Color</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Border Color</label>
                 <input
                   type="color" value={selectedShape.borderColor}
                   onChange={(e) => updateShape(selectedShape.id, { borderColor: e.target.value })}
-                  className="w-full h-6 rounded border border-border-primary cursor-pointer"
+                  className="w-full h-6 rounded border border-white/8 cursor-pointer"
                 />
               </div>
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Border Width</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Border Width</label>
                 <input
                   type="range" min={0} max={6} value={selectedShape.borderWidth}
                   onChange={(e) => updateShape(selectedShape.id, { borderWidth: Number(e.target.value) })}
-                  className="w-full accent-blue-600"
+                  className="w-full accent-cx-brand"
                 />
-                <span className="text-[10px] text-text-tertiary">{selectedShape.borderWidth}px</span>
+                <span className="text-[10px] text-[var(--cx-text-3)]">{selectedShape.borderWidth}px</span>
               </div>
 
               {/* Size */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Size</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Size</label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-[10px] text-text-tertiary">W</span>
+                    <span className="text-[10px] text-[var(--cx-text-3)]">W</span>
                     <input
                       type="number" value={Math.round(selectedShape.width)}
                       onChange={(e) => updateShape(selectedShape.id, { width: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-text-tertiary">H</span>
+                    <span className="text-[10px] text-[var(--cx-text-3)]">H</span>
                     <input
                       type="number" value={Math.round(selectedShape.height)}
                       onChange={(e) => updateShape(selectedShape.id, { height: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                 </div>
@@ -984,22 +984,22 @@ export function DiagramsPage() {
 
               {/* Position */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Position</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Position</label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-[10px] text-text-tertiary">X</span>
+                    <span className="text-[10px] text-[var(--cx-text-3)]">X</span>
                     <input
                       type="number" value={Math.round(selectedShape.x)}
                       onChange={(e) => updateShape(selectedShape.id, { x: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-text-tertiary">Y</span>
+                    <span className="text-[10px] text-[var(--cx-text-3)]">Y</span>
                     <input
                       type="number" value={Math.round(selectedShape.y)}
                       onChange={(e) => updateShape(selectedShape.id, { y: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                 </div>
@@ -1007,19 +1007,19 @@ export function DiagramsPage() {
 
               {/* Font size */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Font Size</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Font Size</label>
                 <input
                   type="number" min={8} max={48} value={selectedShape.fontSize}
                   onChange={(e) => updateShape(selectedShape.id, { fontSize: Number(e.target.value) })}
-                  className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                  className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                 />
               </div>
 
               {/* Delete */}
-              <div className="pt-2 border-t border-border-primary">
+              <div className="pt-2 border-t border-white/8">
                 <button
                   onClick={() => deleteShape(selectedShape.id)}
-                  className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs text-accent-red hover:bg-accent-red/10 transition-colors"
+                  className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs text-cx-danger hover:bg-cx-danger/10 transition-colors"
                 >
                   <Trash2 size={12} />
                   Delete Shape
@@ -1028,11 +1028,11 @@ export function DiagramsPage() {
             </div>
           ) : (
             <div className="p-3">
-              <p className="text-xs text-text-tertiary">Select a shape to edit properties</p>
+              <p className="text-xs text-[var(--cx-text-3)]">Select a shape to edit properties</p>
               <div className="mt-4 space-y-1.5">
-                <p className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">Diagram Info</p>
-                <p className="text-xs text-text-secondary">{shapes.length} shapes</p>
-                <p className="text-xs text-text-secondary">{connectors.length} connectors</p>
+                <p className="text-[11px] text-[var(--cx-text-3)] font-semibold uppercase tracking-wider">Diagram Info</p>
+                <p className="text-xs text-[var(--cx-text-2)]">{shapes.length} shapes</p>
+                <p className="text-xs text-[var(--cx-text-2)]">{connectors.length} connectors</p>
               </div>
             </div>
           )}

@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,7 @@ import {
   Users,
   Tag,
   CheckCircle2,
+  Check,
 } from 'lucide-react';
 
 // -----------------------------------------------
@@ -85,12 +87,12 @@ const TASK_TYPE_ICON_MAP: Record<string, React.ElementType> = {
   flag: Flag,
 };
 
-const PRIORITY_COLORS: Record<string, string> = {
-  urgent: 'text-accent-red bg-accent-red/10',
-  high: 'text-orange-400 bg-orange-400/10',
-  medium: 'text-yellow-400 bg-yellow-400/10',
-  low: 'text-blue-400 bg-blue-400/10',
-  none: 'text-text-tertiary bg-bg-tertiary',
+const PRIORITY_DOT_COLORS: Record<string, string> = {
+  urgent: '#EF4444',
+  high: '#F97316',
+  medium: '#EAB308',
+  low: '#3B82F6',
+  none: 'rgba(255,255,255,0.20)',
 };
 
 const PRIORITY_LABELS: Record<string, string> = {
@@ -112,12 +114,21 @@ const PRIORITY_ORDER: Record<string, number> = {
 const STATUS_PRESETS = ['BACKLOG', 'TODO', 'IN_PROGRESS', 'REVIEW', 'DONE'];
 const PRIORITY_OPTIONS = ['urgent', 'high', 'medium', 'low', 'none'];
 
+// Status pill colors
+const STATUS_PILL_STYLES: Record<string, { bg: string; color: string }> = {
+  BACKLOG: { bg: 'rgba(161,161,170,0.10)', color: '#A1A1AA' },
+  TODO: { bg: 'rgba(161,161,170,0.10)', color: '#A1A1AA' },
+  IN_PROGRESS: { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA' },
+  REVIEW: { bg: 'rgba(139,92,246,0.12)', color: '#8B5CF6' },
+  DONE: { bg: 'rgba(34,197,94,0.12)', color: '#22C55E' },
+};
+
 // -----------------------------------------------
 // Helpers
 // -----------------------------------------------
 
-function formatDate(dateStr: string | undefined): { label: string; className: string } {
-  if (!dateStr) return { label: '', className: '' };
+function formatDate(dateStr: string | undefined): { label: string; color: string } {
+  if (!dateStr) return { label: '', color: '' };
   try {
     const d = new Date(dateStr);
     const now = new Date();
@@ -126,12 +137,12 @@ function formatDate(dateStr: string | undefined): { label: string; className: st
     const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    if (diffDays < 0) return { label, className: 'text-accent-red' };
-    if (diffDays === 0) return { label: 'Today', className: 'text-orange-400' };
-    if (diffDays === 1) return { label: 'Tomorrow', className: 'text-yellow-400' };
-    return { label, className: 'text-text-secondary' };
+    if (diffDays < 0) return { label, color: '#EF4444' };
+    if (diffDays === 0) return { label: 'Today', color: '#F59E0B' };
+    if (diffDays === 1) return { label: 'Tomorrow', color: '#F59E0B' };
+    return { label, color: 'rgba(255,255,255,0.40)' };
   } catch {
-    return { label: String(dateStr), className: 'text-text-secondary' };
+    return { label: String(dateStr), color: 'rgba(255,255,255,0.40)' };
   }
 }
 
@@ -178,27 +189,32 @@ function ColumnHeader({
   currentSort,
   currentDir,
   onSort,
-  className,
-  icon: Icon,
+  width,
+  flex,
 }: {
   label: string;
   sortKey: SortKey;
   currentSort: SortKey;
   currentDir: SortDir;
   onSort: (key: SortKey) => void;
-  className?: string;
-  icon?: React.ElementType;
+  width?: number | string;
+  flex?: string;
 }) {
   const active = currentSort === sortKey;
   return (
     <button
       onClick={() => onSort(sortKey)}
-      className={cn(
-        'flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider text-text-tertiary hover:text-text-secondary transition-colors select-none',
-        className,
-      )}
+      className="flex items-center gap-1 select-none transition-colors"
+      style={{
+        fontSize: 11,
+        fontWeight: 500,
+        textTransform: 'uppercase' as const,
+        letterSpacing: '0.05em',
+        color: 'rgba(255,255,255,0.20)',
+        width: width,
+        flex: flex,
+      }}
     >
-      {Icon && <Icon size={12} />}
       {label}
       {active ? (
         currentDir === 'asc' ? <ArrowUp size={10} /> : <ArrowDown size={10} />
@@ -218,31 +234,52 @@ function StatusPill({
   color?: string;
   onClick?: () => void;
 }) {
+  const presetStyle = STATUS_PILL_STYLES[status];
+  const bgColor = presetStyle?.bg ?? (color ? `${color}18` : 'rgba(161,161,170,0.10)');
+  const textColor = presetStyle?.color ?? color ?? '#A1A1AA';
+
   return (
     <button
       onClick={(e) => {
         e.stopPropagation();
         onClick?.();
       }}
-      className="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-full border border-border-secondary hover:border-border-primary transition-colors cursor-pointer whitespace-nowrap"
-      style={{ color: color || undefined, borderColor: color ? `${color}40` : undefined, backgroundColor: color ? `${color}10` : undefined }}
+      className="inline-flex items-center whitespace-nowrap cursor-pointer transition-colors"
+      style={{
+        height: 20,
+        borderRadius: 9999,
+        padding: '0 8px',
+        fontSize: 11,
+        fontWeight: 500,
+        color: textColor,
+        background: bgColor,
+      }}
     >
-      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: color || 'currentColor' }} />
-      {status}
+      {status.replace('_', ' ')}
     </button>
   );
 }
 
 function AvatarStack({ assignees }: { assignees: Task['assignees'] }) {
   if (!assignees || assignees.length === 0) {
-    return <span className="text-text-tertiary text-[11px]">--</span>;
+    return <span style={{ color: 'rgba(255,255,255,0.20)', fontSize: 11 }}>--</span>;
   }
   return (
     <div className="flex items-center -space-x-1.5">
       {assignees.slice(0, 3).map((a) => (
         <div
           key={a.id}
-          className="w-6 h-6 rounded-full bg-accent-blue/20 border-2 border-bg-primary flex items-center justify-center text-[9px] font-medium text-accent-blue"
+          className="flex items-center justify-center flex-shrink-0"
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            background: 'rgba(37,99,235,0.20)',
+            border: '2px solid #09090B',
+            fontSize: 9,
+            fontWeight: 500,
+            color: '#60A5FA',
+          }}
           title={a.displayName}
         >
           {a.avatarUrl ? (
@@ -253,7 +290,18 @@ function AvatarStack({ assignees }: { assignees: Task['assignees'] }) {
         </div>
       ))}
       {assignees.length > 3 && (
-        <div className="w-6 h-6 rounded-full bg-bg-tertiary border-2 border-bg-primary flex items-center justify-center text-[9px] text-text-tertiary">
+        <div
+          className="flex items-center justify-center flex-shrink-0"
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.06)',
+            border: '2px solid #09090B',
+            fontSize: 9,
+            color: 'rgba(255,255,255,0.40)',
+          }}
+        >
           +{assignees.length - 3}
         </div>
       )}
@@ -261,41 +309,55 @@ function AvatarStack({ assignees }: { assignees: Task['assignees'] }) {
   );
 }
 
-function PriorityBadge({ priority, onClick }: { priority: string; onClick?: () => void }) {
+function PriorityDot({ priority, onClick }: { priority: string; onClick?: () => void }) {
   const p = (priority ?? 'none').toLowerCase();
-  if (p === 'none') return <span className="text-text-tertiary text-[11px]">--</span>;
+  const dotColor = PRIORITY_DOT_COLORS[p] ?? 'rgba(255,255,255,0.20)';
+  if (p === 'none') {
+    return (
+      <span
+        style={{ width: 8, height: 8, borderRadius: '50%', background: dotColor, display: 'inline-block' }}
+      />
+    );
+  }
   return (
     <button
       onClick={(e) => {
         e.stopPropagation();
         onClick?.();
       }}
-      className={cn(
-        'inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded cursor-pointer transition-colors',
-        PRIORITY_COLORS[p] ?? 'text-text-tertiary bg-bg-tertiary',
-      )}
+      className="cursor-pointer flex-shrink-0"
+      title={PRIORITY_LABELS[p] ?? p}
+      style={{ lineHeight: 0 }}
     >
-      <Flag size={10} />
-      {PRIORITY_LABELS[p] ?? p}
+      <span
+        style={{ width: 8, height: 8, borderRadius: '50%', background: dotColor, display: 'inline-block' }}
+      />
     </button>
   );
 }
 
 function TagChips({ tags }: { tags: Task['tags'] }) {
-  if (!tags || tags.length === 0) return <span className="text-text-tertiary text-[11px]">--</span>;
+  if (!tags || tags.length === 0) return <span style={{ color: 'rgba(255,255,255,0.20)', fontSize: 11 }}>--</span>;
   return (
     <div className="flex items-center gap-1 overflow-hidden">
       {tags.slice(0, 2).map((tag) => (
         <span
           key={tag.id}
-          className="text-[9px] px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap"
-          style={{ backgroundColor: tag.color + '20', color: tag.color }}
+          className="whitespace-nowrap"
+          style={{
+            fontSize: 9,
+            padding: '1px 6px',
+            borderRadius: 9999,
+            fontWeight: 500,
+            backgroundColor: tag.color + '20',
+            color: tag.color,
+          }}
         >
           {tag.name}
         </span>
       ))}
       {tags.length > 2 && (
-        <span className="text-[9px] text-text-tertiary whitespace-nowrap">+{tags.length - 2}</span>
+        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.40)' }}>+{tags.length - 2}</span>
       )}
     </div>
   );
@@ -322,7 +384,21 @@ function InlineDropdown({
   }, [onClose]);
 
   return (
-    <div ref={ref} className="absolute z-50 top-full mt-1 left-0 min-w-[140px] bg-bg-secondary border border-border-secondary rounded-lg shadow-xl py-1">
+    <motion.div
+      ref={ref}
+      className="absolute z-50 top-full mt-1 left-0 min-w-[140px] py-1"
+      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
+      style={{
+        transformOrigin: 'top left',
+        background: '#18181B',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 8,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+      }}
+    >
       {options.map((opt) => (
         <button
           key={opt.value}
@@ -330,13 +406,22 @@ function InlineDropdown({
             e.stopPropagation();
             onSelect(opt.value);
           }}
-          className="w-full text-left px-3 py-1.5 text-xs hover:bg-bg-hover flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
+          className="w-full text-left px-3 py-1.5 text-xs flex items-center gap-2 transition-colors"
+          style={{ color: 'rgba(255,255,255,0.65)' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+            e.currentTarget.style.color = '#ffffff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+          }}
         >
           {opt.color && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: opt.color }} />}
           {opt.label}
         </button>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
@@ -362,12 +447,26 @@ function InlineDatePicker({
   }, [onClose]);
 
   return (
-    <div ref={ref} className="absolute z-50 top-full mt-1 left-0 bg-bg-secondary border border-border-secondary rounded-lg shadow-xl p-3 flex flex-col gap-2">
+    <div
+      ref={ref}
+      className="absolute z-50 top-full mt-1 left-0 flex flex-col gap-2 p-3"
+      style={{
+        background: '#18181B',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 8,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+      }}
+    >
       <input
         type="date"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="text-xs px-2 py-1.5 rounded bg-bg-tertiary border border-border-secondary text-text-primary"
+        className="text-xs px-2 py-1.5 rounded border outline-none"
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          borderColor: 'rgba(255,255,255,0.08)',
+          color: '#ffffff',
+        }}
         onClick={(e) => e.stopPropagation()}
       />
       <div className="flex gap-2">
@@ -377,7 +476,8 @@ function InlineDatePicker({
             if (value) onSelect(new Date(value).toISOString());
           }}
           disabled={!value}
-          className="flex-1 text-xs px-2 py-1 rounded bg-accent-blue text-white hover:bg-accent-blue/80 disabled:opacity-40 transition-colors"
+          className="flex-1 text-xs px-2 py-1 rounded disabled:opacity-40 transition-colors"
+          style={{ background: '#2563EB', color: '#ffffff' }}
         >
           Set
         </button>
@@ -386,12 +486,39 @@ function InlineDatePicker({
             e.stopPropagation();
             onSelect(null);
           }}
-          className="text-xs px-2 py-1 rounded bg-bg-tertiary text-text-tertiary hover:text-text-primary transition-colors"
+          className="text-xs px-2 py-1 rounded transition-colors"
+          style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.40)' }}
         >
           Clear
         </button>
       </div>
     </div>
+  );
+}
+
+// Custom checkbox component
+function TaskCheckbox({ checked, onChange, indeterminate }: { checked: boolean; onChange: () => void; indeterminate?: boolean }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onChange();
+      }}
+      className="flex items-center justify-center flex-shrink-0 transition-all duration-100"
+      style={{
+        width: 14,
+        height: 14,
+        borderRadius: 3,
+        border: checked ? 'none' : '1px solid rgba(255,255,255,0.20)',
+        background: checked ? '#2563EB' : 'transparent',
+        cursor: 'pointer',
+      }}
+    >
+      {checked && <Check size={10} style={{ color: '#ffffff' }} strokeWidth={3} />}
+      {indeterminate && !checked && (
+        <span style={{ width: 8, height: 2, background: 'rgba(255,255,255,0.40)', borderRadius: 1, display: 'block' }} />
+      )}
+    </button>
   );
 }
 
@@ -440,7 +567,14 @@ function QuickAddRow({
           setIsAdding(true);
           setTimeout(() => inputRef.current?.focus(), 50);
         }}
-        className="flex items-center gap-2 w-full px-3 py-2 text-xs text-text-tertiary hover:text-text-secondary hover:bg-bg-hover/50 rounded-lg transition-colors"
+        className="flex items-center gap-2 w-full transition-colors"
+        style={{
+          padding: '8px 12px',
+          fontSize: 13,
+          color: 'rgba(255,255,255,0.40)',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.40)'; }}
       >
         <Plus size={14} />
         Add task
@@ -449,8 +583,8 @@ function QuickAddRow({
   }
 
   return (
-    <div className="flex items-center gap-3 px-3 py-1.5">
-      <div className="w-4" /> {/* checkbox spacer */}
+    <div className="flex items-center gap-3" style={{ padding: '4px 12px', height: 36 }}>
+      <div style={{ width: 32 }} /> {/* checkbox spacer */}
       <input
         ref={inputRef}
         type="text"
@@ -469,7 +603,14 @@ function QuickAddRow({
           }
         }}
         placeholder="Task name... press Enter to create"
-        className="flex-1 text-sm bg-transparent border-b border-border-secondary focus:border-accent-blue outline-none text-text-primary placeholder:text-text-tertiary py-1"
+        className="flex-1 bg-transparent outline-none"
+        style={{
+          fontSize: 14,
+          fontFamily: 'Inter, sans-serif',
+          color: '#ffffff',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          paddingBottom: 4,
+        }}
         disabled={createMutation.isPending}
       />
     </div>
@@ -644,41 +785,45 @@ export function ListView({
   const allSelected = allTasks.length > 0 && selectedIds.size === allTasks.length;
   const someSelected = selectedIds.size > 0 && !allSelected;
 
-  // Render a task row
+  // Render a task row - 36px height exactly
   const renderTaskRow = (task: Task, index: number, flatList: Task[], indent: number = 0) => {
     const isSelected = selectedIds.has(task.id);
     const hasSubtasks = (task.subtaskCount ?? 0) > 0 || (task.subtasks && task.subtasks.length > 0);
     const isExpanded = expandedTasks.has(task.id);
-    const hasRelationships =
-      task.relationships &&
-      ((task.relationships.blocking?.length ?? 0) > 0 ||
-        (task.relationships.waitingOn?.length ?? 0) > 0 ||
-        (task.relationships.linkedTo?.length ?? 0) > 0);
     const dateInfo = formatDate(task.dueDate);
 
     return (
       <div key={task.id}>
         <div
-          className={cn(
-            'grid grid-cols-[auto_1fr_120px_80px_100px_90px_120px] items-center gap-2 px-3 py-1.5 rounded-lg transition-colors group/row cursor-pointer',
-            indent > 0 && 'opacity-80',
-            isSelected ? 'bg-accent-blue/5 ring-1 ring-accent-blue/20' : 'hover:bg-bg-hover',
-          )}
-          style={{ paddingLeft: indent > 0 ? `${12 + indent * 24}px` : undefined }}
+          className="flex items-center cursor-pointer transition-colors duration-100"
+          style={{
+            height: 36,
+            borderBottom: '1px solid rgba(255,255,255,0.04)',
+            paddingLeft: indent > 0 ? `${12 + indent * 24}px` : 0,
+            background: isSelected ? 'rgba(37,99,235,0.06)' : 'transparent',
+          }}
+          onMouseEnter={(e) => {
+            if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+          }}
+          onMouseLeave={(e) => {
+            if (!isSelected) e.currentTarget.style.background = 'transparent';
+          }}
           onClick={() => onTaskClick(task.id)}
         >
-          {/* Checkbox */}
-          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-            <input
-              type="checkbox"
+          {/* Checkbox - 32px */}
+          <div
+            className="flex items-center justify-center flex-shrink-0"
+            style={{ width: 32 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <TaskCheckbox
               checked={isSelected}
-              onChange={(e) => toggleSelect(task.id, index, (e.nativeEvent as MouseEvent).shiftKey, flatList)}
-              className="w-3.5 h-3.5 rounded border-border-secondary accent-accent-blue cursor-pointer"
+              onChange={() => toggleSelect(task.id, index, false, flatList)}
             />
           </div>
 
-          {/* Task Name cell */}
-          <div className="flex items-center gap-2 min-w-0">
+          {/* Task Name - flex */}
+          <div className="flex items-center gap-2 min-w-0 flex-1 pr-2">
             {/* Subtask expand toggle */}
             {hasSubtasks ? (
               <button
@@ -686,63 +831,72 @@ export function ListView({
                   e.stopPropagation();
                   toggleSubtasks(task.id);
                 }}
-                className="text-text-tertiary hover:text-text-primary transition-colors flex-shrink-0"
+                className="flex-shrink-0 transition-colors"
+                style={{ color: 'rgba(255,255,255,0.40)' }}
               >
                 {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               </button>
             ) : (
-              <span className="w-[14px] flex-shrink-0" />
+              <span className="flex-shrink-0" style={{ width: 14 }} />
             )}
-
-            {/* Task type icon */}
-            {(() => {
-              const iconKey = (task as any).taskTypeIcon;
-              const IconComp = iconKey ? TASK_TYPE_ICON_MAP[iconKey] : null;
-              if (IconComp) {
-                return <IconComp size={14} style={{ color: (task as any).taskTypeColor || undefined }} className="flex-shrink-0" />;
-              }
-              return <Circle size={14} className="text-text-tertiary flex-shrink-0" />;
-            })()}
 
             {/* Custom task ID */}
             {task.customTaskId && (
-              <span className="text-[10px] font-mono text-text-tertiary bg-bg-tertiary px-1.5 py-0.5 rounded flex-shrink-0">
+              <span
+                className="flex-shrink-0"
+                style={{
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                  color: 'rgba(255,255,255,0.40)',
+                }}
+              >
                 {task.customTaskId}
               </span>
             )}
 
             {/* Title */}
-            <span className="text-sm text-text-primary truncate">{task.title}</span>
+            <span
+              className="truncate"
+              style={{
+                fontSize: 14,
+                fontFamily: 'Inter, sans-serif',
+                color: '#ffffff',
+              }}
+            >
+              {task.title}
+            </span>
 
             {/* Subtask count badge */}
             {hasSubtasks && (
-              <span className="text-[9px] text-text-tertiary bg-bg-tertiary px-1.5 py-0.5 rounded flex-shrink-0">
-                {task.subtaskCount ?? task.subtasks?.length ?? 0} subtask{(task.subtaskCount ?? task.subtasks?.length ?? 0) !== 1 ? 's' : ''}
+              <span
+                className="flex-shrink-0"
+                style={{
+                  fontSize: 9,
+                  color: 'rgba(255,255,255,0.40)',
+                  background: 'rgba(255,255,255,0.04)',
+                  padding: '1px 6px',
+                  borderRadius: 9999,
+                }}
+              >
+                {task.subtaskCount ?? task.subtasks?.length ?? 0}
               </span>
             )}
 
             {/* Dependency icon */}
-            {hasRelationships && (
-              <Link2 size={12} className="text-accent-blue flex-shrink-0" />
+            {task.relationships &&
+              ((task.relationships.blocking?.length ?? 0) > 0 ||
+                (task.relationships.waitingOn?.length ?? 0) > 0 ||
+                (task.relationships.linkedTo?.length ?? 0) > 0) && (
+              <Link2 size={12} className="flex-shrink-0" style={{ color: '#3B82F6' }} />
             )}
-
-            {/* Hover actions */}
-            <div className="hidden group-hover/row:flex items-center gap-1 ml-auto flex-shrink-0">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTaskClick(task.id);
-                }}
-                className="p-1 rounded hover:bg-bg-tertiary text-text-tertiary hover:text-text-primary transition-colors"
-                title="Open task"
-              >
-                <ExternalLink size={12} />
-              </button>
-            </div>
           </div>
 
-          {/* Status */}
-          <div className="relative flex justify-center" onClick={(e) => e.stopPropagation()}>
+          {/* Status - 100px */}
+          <div
+            className="relative flex items-center justify-center flex-shrink-0"
+            style={{ width: 100 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <StatusPill
               status={task.status}
               color={task.statusColor}
@@ -757,16 +911,25 @@ export function ListView({
             )}
           </div>
 
-          {/* Assignee */}
-          <div className="flex justify-center">
+          {/* Assignee - 80px */}
+          <div className="flex items-center justify-center flex-shrink-0" style={{ width: 80 }}>
             <AvatarStack assignees={task.assignees} />
           </div>
 
-          {/* Due Date */}
-          <div className="relative flex justify-center" onClick={(e) => e.stopPropagation()}>
+          {/* Due Date - 100px */}
+          <div
+            className="relative flex items-center justify-center flex-shrink-0"
+            style={{ width: 100 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setEditingCell({ taskId: task.id, field: 'dueDate' })}
-              className={cn('text-[11px] cursor-pointer hover:underline', dateInfo.className || 'text-text-tertiary')}
+              className="cursor-pointer"
+              style={{
+                fontFamily: 'monospace',
+                fontSize: 12,
+                color: dateInfo.color || 'rgba(255,255,255,0.40)',
+              }}
             >
               {dateInfo.label || '--'}
             </button>
@@ -779,9 +942,13 @@ export function ListView({
             )}
           </div>
 
-          {/* Priority */}
-          <div className="relative flex justify-center" onClick={(e) => e.stopPropagation()}>
-            <PriorityBadge
+          {/* Priority - 40px */}
+          <div
+            className="relative flex items-center justify-center flex-shrink-0"
+            style={{ width: 40 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PriorityDot
               priority={task.priority}
               onClick={() => setEditingCell({ taskId: task.id, field: 'priority' })}
             />
@@ -790,17 +957,12 @@ export function ListView({
                 options={PRIORITY_OPTIONS.map((p) => ({
                   value: p.toUpperCase(),
                   label: PRIORITY_LABELS[p] ?? p,
-                  color: PRIORITY_COLORS[p]?.includes('red') ? '#ef4444' : PRIORITY_COLORS[p]?.includes('orange') ? '#fb923c' : PRIORITY_COLORS[p]?.includes('yellow') ? '#facc15' : PRIORITY_COLORS[p]?.includes('blue') ? '#60a5fa' : undefined,
+                  color: PRIORITY_DOT_COLORS[p],
                 }))}
                 onSelect={(val) => handleInlineUpdate(task.id, 'priority', val)}
                 onClose={() => setEditingCell(null)}
               />
             )}
-          </div>
-
-          {/* Tags */}
-          <div className="flex justify-start">
-            <TagChips tags={task.tags} />
           </div>
         </div>
 
@@ -817,10 +979,10 @@ export function ListView({
   // ---- Loading State ----
   if (isLoading) {
     return (
-      <div className="flex-1 overflow-auto p-4">
-        <div className="space-y-1">
+      <div className="flex-1 overflow-auto" style={{ padding: 16 }}>
+        <div className="space-y-px">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-9 bg-bg-tertiary rounded-lg animate-pulse" />
+            <div key={i} style={{ height: 36, background: 'rgba(255,255,255,0.02)', borderRadius: 0 }} className="animate-pulse" />
           ))}
         </div>
       </div>
@@ -830,10 +992,10 @@ export function ListView({
   // ---- Empty State ----
   if (allTasks.length === 0 && (!sortedGroups || sortedGroups.every((g) => g.tasks.length === 0))) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center py-20 text-text-tertiary">
+      <div className="flex-1 flex flex-col items-center justify-center py-20" style={{ color: 'rgba(255,255,255,0.40)' }}>
         <Layers size={40} className="mb-4 opacity-30" />
-        <p className="text-sm font-medium text-text-secondary">No tasks</p>
-        <p className="text-xs mt-1 opacity-70">Create a task to get started</p>
+        <p style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.65)' }}>No tasks</p>
+        <p style={{ fontSize: 12, marginTop: 4, color: 'rgba(255,255,255,0.30)' }}>Create a task to get started</p>
         <div className="mt-4">
           <QuickAddRow listId={listId} onCreated={onRefresh} />
         </div>
@@ -841,27 +1003,29 @@ export function ListView({
     );
   }
 
-  // ---- Header Row ----
+  // ---- Column Header Row (sticky, 28px) ----
   const headerRow = (
-    <div className="grid grid-cols-[auto_1fr_120px_80px_100px_90px_120px] items-center gap-2 px-3 py-2 border-b border-border-secondary sticky top-0 bg-bg-primary z-10 group/header">
-      {/* Select all */}
-      <div>
-        <input
-          type="checkbox"
+    <div
+      className="flex items-center sticky top-0 z-10 group/header"
+      style={{
+        height: 28,
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
+        background: '#09090B',
+      }}
+    >
+      {/* Checkbox col */}
+      <div className="flex items-center justify-center flex-shrink-0" style={{ width: 32 }}>
+        <TaskCheckbox
           checked={allSelected}
-          ref={(el) => {
-            if (el) el.indeterminate = someSelected;
-          }}
+          indeterminate={someSelected}
           onChange={() => toggleSelectAll(allTasks)}
-          className="w-3.5 h-3.5 rounded border-border-secondary accent-accent-blue cursor-pointer"
         />
       </div>
-      <ColumnHeader label="Task" sortKey="title" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="pl-8" />
-      <ColumnHeader label="Status" sortKey="status" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-center" icon={CheckCircle2} />
-      <ColumnHeader label="Assignee" sortKey="assignee" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-center" icon={Users} />
-      <ColumnHeader label="Due" sortKey="dueDate" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-center" icon={Calendar} />
-      <ColumnHeader label="Priority" sortKey="priority" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} className="justify-center" icon={Flag} />
-      <ColumnHeader label="Tags" sortKey="tags" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} icon={Tag} />
+      <ColumnHeader label="Task" sortKey="title" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} flex="1" />
+      <ColumnHeader label="Status" sortKey="status" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} width={100} />
+      <ColumnHeader label="Assignee" sortKey="assignee" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} width={80} />
+      <ColumnHeader label="Due" sortKey="dueDate" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} width={100} />
+      <ColumnHeader label="Priority" sortKey="priority" currentSort={sortKey} currentDir={sortDir} onSort={handleSort} width={40} />
     </div>
   );
 
@@ -870,43 +1034,65 @@ export function ListView({
     return (
       <div className="flex-1 overflow-y-auto">
         {headerRow}
-        <div className="divide-y divide-border-secondary/50">
+        <div>
           {sortedGroups.map((group) => {
             const isCollapsed = collapsedGroups.has(group.value);
             return (
               <div key={group.value}>
-                {/* Group header */}
-                <div className="flex items-center gap-2 px-3 py-2 bg-bg-secondary/50 sticky top-[41px] z-[5]">
+                {/* Group header - 32px */}
+                <div
+                  className="flex items-center gap-2 sticky z-[5]"
+                  style={{
+                    height: 32,
+                    top: 28,
+                    background: 'rgba(255,255,255,0.02)',
+                    borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    padding: '0 8px',
+                  }}
+                >
+                  {/* Left colored bar */}
+                  <div
+                    className="flex-shrink-0"
+                    style={{
+                      width: 3,
+                      height: 16,
+                      borderRadius: 2,
+                      background: group.color || '#3B82F6',
+                    }}
+                  />
+
                   <button
                     onClick={() => toggleGroup(group.value)}
-                    className="text-text-tertiary hover:text-text-primary transition-colors"
+                    className="transition-colors flex-shrink-0"
+                    style={{ color: 'rgba(255,255,255,0.40)' }}
                   >
-                    {isCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+                    {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
                   </button>
-                  {group.color && (
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: group.color }} />
-                  )}
-                  <span className="text-sm font-medium text-text-primary">{group.name}</span>
-                  <span className="text-[10px] text-text-tertiary bg-bg-tertiary px-1.5 py-0.5 rounded-full">
+
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#ffffff' }}>
+                    {group.name}
+                  </span>
+
+                  {/* Spacer */}
+                  <div className="flex-1" />
+
+                  {/* Count */}
+                  <span
+                    style={{
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                      color: 'rgba(255,255,255,0.40)',
+                    }}
+                  >
                     {group.count}
                   </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Focus the quick-add for this group (handled by QuickAddRow below)
-                    }}
-                    className="ml-auto p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors"
-                    title="Add task to this group"
-                  >
-                    <Plus size={14} />
-                  </button>
                 </div>
 
                 {/* Group tasks */}
                 {!isCollapsed && (
                   <div>
                     {group.tasks.length === 0 ? (
-                      <div className="px-6 py-4 text-xs text-text-tertiary">No tasks in this group</div>
+                      <div style={{ padding: '16px 24px', fontSize: 12, color: 'rgba(255,255,255,0.30)' }}>No tasks in this group</div>
                     ) : (
                       group.tasks.map((task, idx) => renderTaskRow(task as Task, idx, group.tasks as Task[]))
                     )}
@@ -933,7 +1119,7 @@ export function ListView({
   return (
     <div className="flex-1 overflow-y-auto">
       {headerRow}
-      <div className="py-1">
+      <div>
         {allTasks.map((task, idx) => renderTaskRow(task, idx, allTasks))}
         <QuickAddRow listId={listId} onCreated={onRefresh} />
       </div>

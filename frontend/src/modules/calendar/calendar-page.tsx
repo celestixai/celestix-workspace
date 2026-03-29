@@ -17,7 +17,9 @@ import {
   MapPin,
   AlignLeft,
   Check,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
 import {
   format,
   startOfWeek,
@@ -76,14 +78,14 @@ const DAY_NAMES_SHORT = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const EVENT_COLORS = [
-  { label: 'Blue', value: '#4F8EF7' },
+  { label: 'Blue', value: '#3B82F6' },
   { label: 'Purple', value: '#8B5CF6' },
   { label: 'Green', value: '#10B981' },
   { label: 'Amber', value: '#F59E0B' },
   { label: 'Red', value: '#EF4444' },
-  { label: 'Cyan', value: '#06B6D4' },
-  { label: 'Pink', value: '#EC4899' },
-  { label: 'Indigo', value: '#6366F1' },
+  { label: 'Teal', value: '#14B8A6' },
+  { label: 'Orange', value: '#F97316' },
+  { label: 'Violet', value: '#8B5CF6' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -453,6 +455,16 @@ export function CalendarPage() {
         {/* Calendar grid */}
         {eventsLoading ? (
           <CalendarSkeleton viewMode={viewMode} />
+        ) : !eventsLoading && events.length === 0 ? (
+          <div className="flex-1 flex flex-col">
+            <EmptyState
+              icon={CalendarIcon}
+              title="No events"
+              description="Schedule your first event"
+              actionLabel="+ New Event"
+              onAction={() => setShowCreateModal(true)}
+            />
+          </div>
         ) : viewMode === 'month' ? (
           <MonthView
             weeks={monthViewWeeks}

@@ -77,7 +77,7 @@ export function MessengerPage() {
   }, [setUserStatus, bulkSetOnline, setTyping]);
 
   return (
-    <div className="flex h-full bg-bg-primary overflow-hidden">
+    <div className="flex h-full bg-[#09090B] overflow-hidden">
       {/* Left panel -- Chat list */}
       <ChatList
         selectedChatId={selectedChatId}
@@ -86,7 +86,7 @@ export function MessengerPage() {
       />
 
       {/* Right panel -- Chat view */}
-      <ChatView chatId={selectedChatId} />
+      <ChatView chatId={selectedChatId} onCreateChat={() => setShowCreateModal(true)} />
 
       {/* Create chat modal */}
       <CreateChatModal

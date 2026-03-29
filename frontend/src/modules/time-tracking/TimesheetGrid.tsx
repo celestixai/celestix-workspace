@@ -104,7 +104,7 @@ function EditableCell({
             // let tab navigation work naturally
           }
         }}
-        className="w-full h-full bg-bg-tertiary text-text-primary text-center text-xs px-1 py-1 rounded border border-accent-blue/50 outline-none"
+        className="w-full h-full bg-cx-raised text-[var(--cx-text-1)] text-center text-xs px-1 py-1 rounded border border-cx-brand/50 outline-none"
       />
     );
   }
@@ -115,7 +115,7 @@ function EditableCell({
         setText(value > 0 ? formatMinutes(value) : '');
         setEditing(true);
       }}
-      className="w-full h-full text-center text-xs py-1 px-1 rounded hover:bg-bg-hover transition-colors text-text-secondary"
+      className="w-full h-full text-center text-xs py-1 px-1 rounded hover:bg-cx-raised transition-colors text-[var(--cx-text-2)]"
       title="Click to edit"
     >
       {formatMinutes(value)}
@@ -161,23 +161,23 @@ export function TimesheetGrid({ days, weekTotal, onRefresh }: Props) {
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-border-primary">
-            <th className="text-left py-2 px-3 text-text-tertiary font-medium w-48">Task</th>
+          <tr className="border-b border-white/8">
+            <th className="text-left py-2 px-3 text-[var(--cx-text-3)] font-medium w-48">Task</th>
             {days.map((day) => (
-              <th key={day.date} className="text-center py-2 px-2 text-text-tertiary font-medium min-w-[80px]">
+              <th key={day.date} className="text-center py-2 px-2 text-[var(--cx-text-3)] font-medium min-w-[80px]">
                 <div>{day.dayName}</div>
-                <div className="text-[10px] text-text-tertiary/60">
+                <div className="text-[10px] text-[var(--cx-text-3)]/60">
                   {new Date(day.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </div>
               </th>
             ))}
-            <th className="text-center py-2 px-2 text-text-tertiary font-medium min-w-[80px]">Total</th>
+            <th className="text-center py-2 px-2 text-[var(--cx-text-3)] font-medium min-w-[80px]">Total</th>
           </tr>
         </thead>
         <tbody>
           {tasks.map((task) => (
-            <tr key={task.id} className="border-b border-border-primary/50 hover:bg-bg-hover/30">
-              <td className="py-1.5 px-3 text-text-primary truncate max-w-[200px]" title={task.title}>
+            <tr key={task.id} className="border-b border-white/8/50 hover:bg-cx-raised/30">
+              <td className="py-1.5 px-3 text-[var(--cx-text-1)] truncate max-w-[200px]" title={task.title}>
                 {task.title}
               </td>
               {days.map((day, dayIdx) => {
@@ -194,7 +194,7 @@ export function TimesheetGrid({ days, weekTotal, onRefresh }: Props) {
                   </td>
                 );
               })}
-              <td className="py-1.5 px-2 text-center text-text-secondary font-medium text-xs">
+              <td className="py-1.5 px-2 text-center text-[var(--cx-text-2)] font-medium text-xs">
                 {formatMinutes(getTaskTotal(task.id))}
               </td>
             </tr>
@@ -202,21 +202,21 @@ export function TimesheetGrid({ days, weekTotal, onRefresh }: Props) {
 
           {/* Add task row */}
           {addingTask ? (
-            <tr className="border-b border-border-primary/50">
+            <tr className="border-b border-white/8/50">
               <td colSpan={9} className="py-2 px-3">
                 <div className="flex items-center gap-2">
                   <input
                     value={newTaskId}
                     onChange={(e) => setNewTaskId(e.target.value)}
                     placeholder="Enter Task ID..."
-                    className="flex-1 bg-bg-tertiary text-text-primary text-xs px-3 py-1.5 rounded border border-border-secondary outline-none focus:border-accent-blue"
+                    className="flex-1 bg-cx-raised text-[var(--cx-text-1)] text-xs px-3 py-1.5 rounded border border-white/12 outline-none focus:border-cx-brand"
                     onKeyDown={(e) => {
                       if (e.key === 'Escape') setAddingTask(false);
                     }}
                   />
                   <button
                     onClick={() => setAddingTask(false)}
-                    className="text-xs text-text-tertiary hover:text-text-primary"
+                    className="text-xs text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)]"
                   >
                     Cancel
                   </button>
@@ -228,7 +228,7 @@ export function TimesheetGrid({ days, weekTotal, onRefresh }: Props) {
               <td colSpan={9} className="py-2 px-3">
                 <button
                   onClick={() => setAddingTask(true)}
-                  className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-accent-blue transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-[var(--cx-text-3)] hover:text-cx-brand transition-colors"
                 >
                   <Plus size={14} />
                   Add Task
@@ -238,14 +238,14 @@ export function TimesheetGrid({ days, weekTotal, onRefresh }: Props) {
           )}
 
           {/* Daily totals */}
-          <tr className="border-t-2 border-border-primary bg-bg-secondary/30">
-            <td className="py-2 px-3 text-text-secondary font-medium text-xs">Daily Total</td>
+          <tr className="border-t-2 border-white/8 bg-cx-surface/30">
+            <td className="py-2 px-3 text-[var(--cx-text-2)] font-medium text-xs">Daily Total</td>
             {days.map((day) => (
-              <td key={day.date} className="py-2 px-2 text-center text-text-primary font-medium text-xs">
+              <td key={day.date} className="py-2 px-2 text-center text-[var(--cx-text-1)] font-medium text-xs">
                 {formatMinutes(day.totalMinutes)}
               </td>
             ))}
-            <td className="py-2 px-2 text-center text-accent-blue font-semibold text-xs">
+            <td className="py-2 px-2 text-center text-cx-brand font-semibold text-xs">
               {formatMinutes(weekTotal)}
             </td>
           </tr>

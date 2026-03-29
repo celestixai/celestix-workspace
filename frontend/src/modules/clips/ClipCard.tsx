@@ -34,17 +34,17 @@ export function ClipCard({ clip, onClick }: ClipCardProps) {
     <button
       onClick={() => onClick(clip)}
       className={cn(
-        'group relative flex flex-col rounded-xl border border-border/50 bg-bg-secondary',
+        'group relative flex flex-col rounded-xl border border-[var(--cx-border-1)] bg-cx-surface',
         'hover:border-accent-blue/40 hover:shadow-lg transition-all duration-200 text-left overflow-hidden',
       )}
     >
       {/* Thumbnail / Icon area */}
-      <div className="relative aspect-video bg-bg-tertiary flex items-center justify-center">
+      <div className="relative aspect-video bg-cx-raised flex items-center justify-center">
         {isVideo ? (
-          <Film className="w-10 h-10 text-text-tertiary" />
+          <Film className="w-10 h-10 text-[var(--cx-text-3)]" />
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <Mic className="w-10 h-10 text-text-tertiary" />
+            <Mic className="w-10 h-10 text-[var(--cx-text-3)]" />
             <div className="flex gap-0.5">
               {Array.from({ length: 20 }).map((_, i) => (
                 <div
@@ -60,7 +60,7 @@ export function ClipCard({ clip, onClick }: ClipCardProps) {
         {/* Play overlay */}
         <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors">
           <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-            <Play className="w-5 h-5 text-gray-900 ml-0.5" fill="currentColor" />
+            <Play className="w-5 h-5 text-cx-bg ml-0.5" fill="currentColor" />
           </div>
         </div>
 
@@ -76,7 +76,7 @@ export function ClipCard({ clip, onClick }: ClipCardProps) {
           className={cn(
             'absolute top-2 left-2 px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full',
             isVideo
-              ? 'bg-blue-500/20 text-blue-400'
+              ? 'bg-cx-brand/20 text-cx-brand'
               : 'bg-purple-500/20 text-purple-400',
           )}
         >
@@ -86,17 +86,17 @@ export function ClipCard({ clip, onClick }: ClipCardProps) {
 
       {/* Info */}
       <div className="p-3 flex-1 flex flex-col gap-2">
-        <h3 className="text-sm font-medium text-text-primary line-clamp-2">{clip.title}</h3>
+        <h3 className="text-sm font-medium text-[var(--cx-text-1)] line-clamp-2">{clip.title}</h3>
         <div className="flex items-center gap-2 mt-auto">
           <Avatar
             src={clip.createdBy.avatarUrl}
             name={clip.createdBy.displayName}
             size="xs"
           />
-          <span className="text-xs text-text-tertiary truncate">
+          <span className="text-xs text-[var(--cx-text-3)] truncate">
             {clip.createdBy.displayName}
           </span>
-          <span className="text-xs text-text-tertiary ml-auto flex items-center gap-1">
+          <span className="text-xs text-[var(--cx-text-3)] ml-auto flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {timeAgo(clip.createdAt)}
           </span>

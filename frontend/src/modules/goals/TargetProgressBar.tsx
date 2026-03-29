@@ -16,16 +16,16 @@ export function TargetProgressBar({ current, target, color, showLabel = true }: 
 
   const barColor = useMemo(() => {
     if (color) return color;
-    if (percentage <= 33) return 'var(--accent-red)';
-    if (percentage <= 66) return 'var(--accent-amber)';
-    return 'var(--accent-emerald)';
+    if (percentage >= 90) return '#22c55e';   // green
+    if (percentage >= 60) return '#3b82f6';   // blue
+    return '#eab308';                         // yellow
   }, [percentage, color]);
 
   return (
     <div className="w-full">
       <div className="relative h-2 bg-bg-tertiary rounded-full overflow-hidden">
         <div
-          className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out"
+          className="absolute inset-y-0 left-0 rounded-full cx-progress-fill"
           style={{ width: `${percentage}%`, backgroundColor: barColor }}
         />
       </div>

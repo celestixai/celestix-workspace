@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useUIStore } from '@/stores/ui.store';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { EmptyState } from '@/components/shared/EmptyState';
 import {
   FileText,
   Plus,
@@ -51,6 +52,7 @@ interface Collaborator {
   id: string;
   name: string;
   email: string;
+  username?: string;
   avatar?: string;
 }
 
@@ -78,7 +80,8 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function countWords(text: string): number {
+function countWords(text: string | null | undefined): number {
+  if (!text) return 0;
   const stripped = text.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ');
   const words = stripped.trim().split(/\s+/).filter(Boolean);
   return words.length;
@@ -416,12 +419,12 @@ function CollaboratorsPanel({
                 </div>
                 <div>
                   <p className="text-sm text-text-primary">{c.name}</p>
-                  <p className="text-xs text-text-secondary">{c.email}</p>
+                  <p className="text-xs text-text-secondary">{c.username ? `@${c.username}` : c.email}</p>
                 </div>
               </div>
               <button
                 onClick={() => onRemove(c.id)}
-                className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-red-400"
+                className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-cx-danger"
               >
                 <X size={14} />
               </button>
@@ -534,7 +537,7 @@ function DocumentCard({
             e.stopPropagation();
             onDelete();
           }}
-          className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-red-400 transition-opacity"
+          className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-cx-danger transition-opacity"
         >
           <Trash2 size={14} />
         </button>
@@ -571,7 +574,17 @@ export function DocumentsPage() {
   useEffect(() => {
     api.get('/documents').then((res) => {
       const data = res.data?.data ?? res.data;
-      if (Array.isArray(data)) setDocuments(data);
+      if (Array.isArray(data)) {
+        // Ensure every document has safe defaults for content and sub-arrays
+        const safeDocs = data.map((d: any) => ({
+          ...d,
+          content: d.content ?? '',
+          versions: d.versions ?? [],
+          collaborators: d.collaborators ?? [],
+          comments: d.comments ?? [],
+        }));
+        setDocuments(safeDocs);
+      }
     }).catch(() => {});
   }, []);
 
@@ -688,7 +701,7 @@ export function DocumentsPage() {
       )
     );
     if (editorRef.current) {
-      editorRef.current.innerHTML = version.content;
+      editorRef.current.innerHTML = version.content || '';
     }
   };
 
@@ -767,7 +780,7 @@ export function DocumentsPage() {
       <div className="flex flex-col h-full bg-bg-primary text-text-primary">
         {/* Header */}
         <header className="px-6 pt-6 pb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Documents</h1>
+          <h1 className="text-2xl font-display text-text-primary">Documents</h1>
           <button
             onClick={createDocument}
             className="flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg text-sm font-medium hover:bg-accent-blue/90 transition-colors"
@@ -793,14 +806,13 @@ export function DocumentsPage() {
         {/* Document grid */}
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           {filteredDocs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-48 text-text-secondary">
-              <FileText size={48} className="mb-3 opacity-30" />
-              <p className="text-sm">
-                {documents.length === 0
-                  ? 'No documents yet. Create one to get started.'
-                  : 'No documents match your search.'}
-              </p>
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="No documents"
+              description={documents.length === 0 ? 'Start writing your first document' : 'No documents match your search.'}
+              actionLabel={documents.length === 0 ? '+ New Document' : undefined}
+              onAction={documents.length === 0 ? createDocument : undefined}
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredDocs.map((doc) => (
@@ -849,8 +861,8 @@ export function DocumentsPage() {
             <span
               className={cn(
                 'text-xs px-2 py-1 rounded',
-                saveStatus === 'saved' && 'text-green-400',
-                saveStatus === 'saving' && 'text-yellow-400',
+                saveStatus === 'saved' && 'text-cx-success',
+                saveStatus === 'saving' && 'text-cx-warning',
                 saveStatus === 'unsaved' && 'text-text-secondary'
               )}
             >
@@ -937,7 +949,7 @@ export function DocumentsPage() {
                 const content = (e.target as HTMLDivElement).innerHTML;
                 triggerAutoSave(activeDoc.id, content);
               }}
-              dangerouslySetInnerHTML={{ __html: activeDoc.content }}
+              dangerouslySetInnerHTML={{ __html: activeDoc.content || '' }}
               className="min-h-[60vh] outline-none text-text-primary prose prose-invert max-w-none"
               style={{ fontSize: `${fontSize}px` }}
             />

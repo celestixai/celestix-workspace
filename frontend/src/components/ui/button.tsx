@@ -3,27 +3,30 @@ import { cn } from '@/lib/utils';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
-  size?: 'sm' | 'md' | 'lg' | 'icon';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'icon' | 'icon-sm' | 'icon-xs';
   loading?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading, disabled, children, ...props }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center font-medium whitespace-nowrap transition-all duration-150 ease-out rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-blue disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseStyles = 'inline-flex items-center justify-center gap-2 font-medium rounded-[8px] text-[13px] leading-5 px-4 py-2 border border-transparent cursor-pointer whitespace-nowrap outline-none transition-[background,border-color,color,box-shadow,opacity,transform] duration-100 ease-out select-none active:scale-[0.97]';
 
     const variants = {
-      primary: 'bg-accent-blue text-white hover:brightness-90 active:brightness-80',
-      secondary: 'bg-bg-tertiary text-text-primary hover:bg-bg-active border border-border-secondary',
-      ghost: 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
-      danger: 'bg-accent-red text-white hover:brightness-90 active:brightness-80',
-      outline: 'border border-border-secondary text-text-primary hover:bg-bg-hover',
+      primary: 'bg-[#2563EB] hover:bg-[#3B82F6] text-white border-[#2563EB] hover:border-[#3B82F6] active:bg-[#1D4ED8] disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none focus-visible:shadow-[0_0_0_2px_#2563EB,var(--shadow-glow)]',
+      secondary: 'bg-transparent border-[rgba(255,255,255,0.12)] text-[rgba(255,255,255,0.65)] hover:border-[rgba(255,255,255,0.20)] hover:text-[rgba(255,255,255,0.95)] active:bg-[rgba(255,255,255,0.04)] focus-visible:shadow-[0_0_0_2px_#2563EB]',
+      ghost: 'bg-transparent text-[rgba(255,255,255,0.65)] hover:bg-[rgba(255,255,255,0.05)] hover:text-[rgba(255,255,255,0.95)] active:bg-[rgba(255,255,255,0.08)] focus-visible:shadow-[0_0_0_2px_#2563EB]',
+      danger: 'bg-transparent border-[#EF4444] text-[#EF4444] hover:bg-[#EF4444] hover:text-white focus-visible:shadow-[0_0_0_2px_#EF4444]',
+      outline: 'bg-transparent border-[rgba(255,255,255,0.12)] text-[rgba(255,255,255,0.65)] hover:border-[rgba(255,255,255,0.20)] hover:text-[rgba(255,255,255,0.95)] active:bg-[rgba(255,255,255,0.04)] focus-visible:shadow-[0_0_0_2px_#2563EB]',
     };
 
     const sizes = {
-      sm: 'h-7 px-3 text-xs gap-1.5',
-      md: 'h-9 px-4 text-sm gap-2',
-      lg: 'h-11 px-6 text-base gap-2',
-      icon: 'h-9 w-9 p-0 rounded-lg',
+      xs: 'text-[11px] py-1 px-1.5 gap-1 rounded-[6px]',
+      sm: 'text-xs py-1 px-3 rounded-[6px]',
+      md: '',
+      lg: 'text-sm py-2.5 px-5',
+      icon: 'w-8 h-8 p-0 rounded-[6px] border-transparent bg-transparent text-[rgba(255,255,255,0.40)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.95)]',
+      'icon-sm': 'w-7 h-7 p-0 rounded-[6px] border-transparent bg-transparent text-[rgba(255,255,255,0.40)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.95)]',
+      'icon-xs': 'w-6 h-6 p-0 rounded-[6px] border-transparent bg-transparent text-[rgba(255,255,255,0.40)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[rgba(255,255,255,0.95)]',
     };
 
     return (

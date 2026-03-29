@@ -78,6 +78,16 @@ export function EmailPage() {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
   const [showCompose, setShowCompose] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+
+  /* -- Email accounts -- */
+  const { data: emailAccounts = [] } = useQuery({
+    queryKey: ['email-accounts'],
+    queryFn: async () => {
+      const { data } = await api.get('/email/accounts');
+      return data.data as Array<{ id: string; email: string; displayName?: string; provider?: string; isDefault?: boolean }>;
+    },
+  });
 
   /* -- Queries -- */
 
@@ -232,12 +242,26 @@ export function EmailPage() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* ===== Folder Sidebar ===== */}
-      <aside className="w-[200px] flex-shrink-0 bg-bg-secondary border-r border-border-primary flex flex-col">
-        <div className="p-3 flex-shrink-0">
+      <aside className="w-[200px] flex-shrink-0 bg-[#0C0C0E] border-r border-[rgba(255,255,255,0.08)] flex flex-col">
+        <div className="p-3 flex-shrink-0 space-y-2">
           <Button className="w-full" onClick={() => setShowCompose(true)}>
             <Plus size={16} />
             Compose
           </Button>
+
+          {/* Account switcher */}
+          {emailAccounts.length > 0 && (
+            <select
+              value={selectedAccountId || ''}
+              onChange={(e) => setSelectedAccountId(e.target.value || null)}
+              className="w-full px-2 py-1.5 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-xs text-[rgba(255,255,255,0.65)] focus:outline-none focus:border-[#2563EB] truncate"
+            >
+              <option value="">All Accounts</option>
+              {emailAccounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>{acc.email}</option>
+              ))}
+            </select>
+          )}
         </div>
 
         <nav className="flex-1 px-2 space-y-0.5 overflow-y-auto">
@@ -249,29 +273,30 @@ export function EmailPage() {
                 setSelectedEmailId(null);
               }}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                'w-full flex items-center gap-3 rounded-md text-sm transition-colors',
+                'px-[12px] py-[9px]',
                 activeFolder === folder.id
-                  ? 'bg-bg-active text-text-primary font-medium'
-                  : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                  ? 'bg-[rgba(255,255,255,0.08)] text-white font-medium'
+                  : 'text-[rgba(255,255,255,0.40)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[rgba(255,255,255,0.65)]'
               )}
             >
               {folder.icon}
               <span className="flex-1 text-left">{folder.label}</span>
               {folder.count != null && folder.count > 0 && (
-                <span className="text-xs font-medium text-text-tertiary">{folder.count}</span>
+                <span className="text-[12px] font-mono font-medium text-[rgba(255,255,255,0.40)]">{folder.count}</span>
               )}
             </button>
           ))}
         </nav>
 
         {/* Labels section */}
-        <div className="px-4 py-3 border-t border-border-primary flex-shrink-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-text-tertiary mb-2">Labels</p>
+        <div className="px-4 py-3 border-t border-[rgba(255,255,255,0.08)] flex-shrink-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[rgba(255,255,255,0.40)] mb-2">Labels</p>
           <div className="space-y-1">
             {['Work', 'Personal', 'Important'].map((label) => (
               <button
                 key={label}
-                className="w-full flex items-center gap-2 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+                className="w-full flex items-center gap-2 px-2 py-1 rounded-md text-xs text-[rgba(255,255,255,0.40)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[rgba(255,255,255,0.65)] transition-colors"
               >
                 <Tag size={12} />
                 {label}
@@ -282,23 +307,23 @@ export function EmailPage() {
       </aside>
 
       {/* ===== Email List ===== */}
-      <div className="w-[350px] flex-shrink-0 border-r border-border-primary flex flex-col bg-bg-primary">
+      <div className="w-[350px] flex-shrink-0 border-r border-[rgba(255,255,255,0.08)] flex flex-col bg-[#09090B]">
         {/* List header */}
-        <div className="h-12 flex items-center gap-2 px-3 border-b border-border-primary flex-shrink-0">
+        <div className="h-12 flex items-center gap-2 px-3 border-b border-[var(--cx-border-1)] flex-shrink-0">
           <div className="relative flex-1">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--cx-text-3)]" />
             <input
               type="text"
               placeholder="Search emails..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-8 pl-8 pr-3 rounded-lg bg-bg-tertiary border border-border-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue"
+              className="w-full h-8 pl-8 pr-3 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:border-accent-blue"
             />
           </div>
           <button
             onClick={() => queryClient.invalidateQueries({ queryKey: ['emails'] })}
             aria-label="Refresh emails"
-            className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue flex-shrink-0"
+            className="p-2 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue flex-shrink-0"
           >
             <RefreshCw size={14} />
           </button>
@@ -334,7 +359,7 @@ export function EmailPage() {
       </div>
 
       {/* ===== Reading Pane ===== */}
-      <main className="flex-1 flex flex-col min-w-0 bg-bg-primary">
+      <main className="flex-1 flex flex-col min-w-0 bg-[#09090B]">
         {selectedEmail ? (
           <ReadingPane
             email={selectedEmail}
@@ -360,6 +385,7 @@ export function EmailPage() {
         onSend={(payload) => sendEmail.mutate(payload)}
         loading={sendEmail.isPending}
         replyTo={selectedEmail}
+        accounts={emailAccounts}
       />
     </div>
   );
@@ -384,9 +410,9 @@ function EmailListItem({
     <div
       onClick={onClick}
       className={cn(
-        'group flex gap-3 px-3 py-3 cursor-pointer transition-colors',
-        active ? 'bg-bg-active' : 'hover:bg-bg-hover',
-        !email.isRead && 'bg-bg-tertiary/30'
+        'group flex gap-3 px-3 h-[64px] items-center cursor-pointer transition-colors',
+        active ? 'bg-[rgba(255,255,255,0.06)]' : 'hover:bg-[rgba(255,255,255,0.02)]',
+        !email.isRead && 'bg-[rgba(255,255,255,0.03)]'
       )}
     >
       <div className="flex-shrink-0 pt-0.5">
@@ -397,19 +423,19 @@ function EmailListItem({
           <span
             className={cn(
               'text-sm truncate flex-1',
-              !email.isRead ? 'font-semibold text-text-primary' : 'text-text-secondary'
+              !email.isRead ? 'font-bold text-white' : 'text-[rgba(255,255,255,0.65)]'
             )}
           >
             {email.from.name}
           </span>
-          <span className="text-[11px] text-text-tertiary flex-shrink-0">
+          <span className="text-[11px] text-[rgba(255,255,255,0.40)] flex-shrink-0">
             {formatMessageTime(email.receivedAt)}
           </span>
         </div>
-        <p className={cn('text-sm truncate', !email.isRead ? 'font-medium text-text-primary' : 'text-text-secondary')}>
+        <p className={cn('text-[14px] truncate', !email.isRead ? 'font-medium text-white' : 'text-[rgba(255,255,255,0.65)]')}>
           {email.subject}
         </p>
-        <p className="text-xs text-text-tertiary truncate mt-0.5">{email.preview}</p>
+        <p className="text-[12px] text-[rgba(255,255,255,0.40)] truncate mt-0.5">{email.preview}</p>
       </div>
       <div className="flex flex-col items-center gap-1 flex-shrink-0 pt-0.5">
         <button
@@ -419,12 +445,12 @@ function EmailListItem({
           }}
           className={cn(
             'p-0.5 rounded transition-colors',
-            email.isStarred ? 'text-accent-amber' : 'text-text-tertiary hover:text-accent-amber opacity-0 group-hover:opacity-100'
+            email.isStarred ? 'text-accent-amber' : 'text-[var(--cx-text-3)] hover:text-accent-amber opacity-0 group-hover:opacity-100'
           )}
         >
           <Star size={14} fill={email.isStarred ? 'currentColor' : 'none'} />
         </button>
-        {email.hasAttachments && <Paperclip size={12} className="text-text-tertiary" />}
+        {email.hasAttachments && <Paperclip size={12} className="text-[var(--cx-text-3)]" />}
         {!email.isRead && (
           <span className="h-2 w-2 rounded-full bg-accent-blue" />
         )}
@@ -449,11 +475,11 @@ function ReadingPane({
   return (
     <>
       {/* Toolbar */}
-      <div className="h-12 flex items-center gap-1 px-4 border-b border-border-primary flex-shrink-0">
+      <div className="h-12 flex items-center gap-1 px-4 border-b border-[rgba(255,255,255,0.08)] flex-shrink-0">
         <button
           onClick={onBack}
           aria-label="Back"
-          className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors lg:hidden focus-visible:outline-2 focus-visible:outline-accent-blue"
+          className="p-2 rounded-lg text-[rgba(255,255,255,0.40)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-colors lg:hidden focus-visible:outline-2 focus-visible:outline-[#2563EB]"
         >
           <ArrowLeft size={16} />
         </button>
@@ -461,68 +487,68 @@ function ReadingPane({
         <button
           onClick={onReply}
           aria-label="Reply"
-          className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
+          className="p-2 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
         >
           <Reply size={16} />
         </button>
-        <button aria-label="Reply all" className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue">
+        <button aria-label="Reply all" className="p-2 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue">
           <ReplyAll size={16} />
         </button>
-        <button aria-label="Forward" className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue">
+        <button aria-label="Forward" className="p-2 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue">
           <Forward size={16} />
         </button>
         <div className="w-px h-5 bg-border-primary mx-1" />
         <button
           onClick={onArchive}
           aria-label="Archive"
-          className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
+          className="p-2 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
         >
           <Archive size={16} />
         </button>
         <button
           onClick={onDelete}
           aria-label="Delete"
-          className="p-2 rounded-lg text-text-tertiary hover:text-accent-red hover:bg-bg-hover transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
+          className="p-2 rounded-lg text-[var(--cx-text-3)] hover:text-accent-red hover:bg-[rgba(255,255,255,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue"
         >
           <Trash2 size={16} />
         </button>
-        <button aria-label="More options" className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue">
+        <button aria-label="More options" className="p-2 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue">
           <MoreHorizontal size={16} />
         </button>
       </div>
 
       {/* Email content */}
       <div className="flex-1 overflow-y-auto p-6">
-        <h1 className="text-xl font-semibold text-text-primary mb-4">{email.subject}</h1>
+        <h1 className="text-[18px] font-semibold text-white mb-4">{email.subject}</h1>
 
         <div className="flex items-start gap-3 mb-6">
           <Avatar src={email.from.avatarUrl} name={email.from.name} size="md" />
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-sm font-semibold text-text-primary">{email.from.name}</span>
-              <span className="text-xs text-text-tertiary">&lt;{email.from.email}&gt;</span>
+              <span className="text-[13px] font-semibold text-white">{email.from.name}</span>
+              <span className="text-xs text-[rgba(255,255,255,0.40)]">&lt;{email.from.email}&gt;</span>
             </div>
-            <div className="text-xs text-text-tertiary mt-0.5">
+            <div className="text-[13px] text-[rgba(255,255,255,0.65)] mt-0.5">
               To: {email.to.map((r) => r.name || r.email).join(', ')}
               {email.cc && email.cc.length > 0 && (
                 <> | CC: {email.cc.map((r) => r.name || r.email).join(', ')}</>
               )}
             </div>
-            <div className="text-xs text-text-tertiary">{formatFullDate(email.receivedAt)}</div>
+            <div className="text-xs text-[var(--cx-text-3)]">{formatFullDate(email.receivedAt)}</div>
           </div>
         </div>
 
         {/* Attachments */}
         {email.attachments && email.attachments.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6 p-3 bg-bg-secondary rounded-lg border border-border-primary">
+          <div className="flex flex-wrap gap-2 mb-6 p-3 bg-cx-surface rounded-lg border border-[var(--cx-border-1)]">
             {email.attachments.map((att) => (
               <div
                 key={att.id}
-                className="flex items-center gap-2 px-3 py-2 bg-bg-tertiary rounded-lg border border-border-primary hover:border-accent-blue cursor-pointer transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-cx-raised rounded-lg border border-[var(--cx-border-1)] hover:border-accent-blue cursor-pointer transition-colors"
               >
-                <Paperclip size={14} className="text-text-tertiary" />
-                <span className="text-sm text-text-primary">{att.name}</span>
-                <span className="text-xs text-text-tertiary">
+                <Paperclip size={14} className="text-[var(--cx-text-3)]" />
+                <span className="text-sm text-[var(--cx-text-1)]">{att.name}</span>
+                <span className="text-xs text-[var(--cx-text-3)]">
                   ({Math.round(att.size / 1024)}KB)
                 </span>
               </div>
@@ -532,7 +558,7 @@ function ReadingPane({
 
         {/* Body */}
         <div
-          className="prose prose-sm max-w-none text-text-primary [&_a]:text-accent-blue overflow-x-auto [&_img]:max-w-full [&_table]:max-w-full"
+          className="prose prose-sm max-w-none text-[14px] text-[rgba(255,255,255,0.95)] [&_a]:text-[#2563EB] overflow-x-auto [&_img]:max-w-full [&_table]:max-w-full"
           dangerouslySetInnerHTML={{ __html: email.body }}
         />
       </div>
@@ -541,7 +567,7 @@ function ReadingPane({
       <div className="px-6 pb-4 flex-shrink-0">
         <button
           onClick={onReply}
-          className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-bg-tertiary border border-border-secondary text-sm text-text-tertiary hover:border-accent-blue hover:text-text-secondary transition-colors"
+          className="w-full flex items-center gap-2 px-4 py-3 rounded-xl bg-cx-raised border border-[var(--cx-border-2)] text-sm text-[var(--cx-text-3)] hover:border-accent-blue hover:text-[var(--cx-text-2)] transition-colors"
         >
           <Reply size={16} />
           Click to reply...
@@ -557,13 +583,16 @@ function ComposeModal({
   onSend,
   loading,
   replyTo,
+  accounts = [],
 }: {
   open: boolean;
   onClose: () => void;
-  onSend: (payload: { to: string[]; cc?: string[]; bcc?: string[]; subject: string; body: string }) => void;
+  onSend: (payload: { to: string[]; cc?: string[]; bcc?: string[]; subject: string; body: string; accountId?: string }) => void;
   loading: boolean;
   replyTo?: Email | null;
+  accounts?: Array<{ id: string; email: string }>;
 }) {
+  const [fromAccountId, setFromAccountId] = useState('');
   const [to, setTo] = useState('');
   const [cc, setCc] = useState('');
   const [bcc, setBcc] = useState('');
@@ -582,12 +611,35 @@ function ComposeModal({
       bcc: bcc ? bcc.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
       subject,
       body,
+      accountId: fromAccountId || undefined,
     });
   };
 
   return (
     <Modal open={open} onClose={onClose} title="New Message" size="lg">
       <div className="space-y-3">
+        {/* From selector */}
+        {accounts.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-medium uppercase tracking-[0.05em] text-[rgba(255,255,255,0.40)]">From</label>
+            <select
+              value={fromAccountId}
+              onChange={(e) => setFromAccountId(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-sm text-white focus:outline-none focus:border-[#2563EB]"
+            >
+              <option value="">Default account</option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>{acc.email}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        {accounts.length === 0 && (
+          <p className="text-xs text-accent-amber bg-accent-amber/10 px-3 py-2 rounded-lg">
+            No email account connected. Go to Settings → Email Accounts to add one.
+          </p>
+        )}
+
         <div className="flex items-center gap-2">
           <div className="flex-1">
             <Input
@@ -632,19 +684,19 @@ function ComposeModal({
         />
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-text-secondary">Body</label>
+          <label className="text-sm font-medium text-[var(--cx-text-2)]">Body</label>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Write your email..."
             rows={10}
-            className="w-full px-3 py-2 rounded-lg bg-bg-tertiary border border-border-secondary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue resize-y"
+            className="w-full px-3 py-2 rounded-lg bg-cx-raised border border-[var(--cx-border-2)] text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:border-accent-blue resize-y"
           />
         </div>
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-1">
-            <button aria-label="Attach file" className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue">
+            <button aria-label="Attach file" className="p-2 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-accent-blue">
               <Paperclip size={16} />
             </button>
           </div>

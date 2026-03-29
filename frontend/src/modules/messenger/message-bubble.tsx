@@ -198,11 +198,11 @@ export function MessageBubble({
         {/* Bubble */}
         <div
           className={cn(
-            'max-w-[min(520px,75vw)] min-w-[80px] rounded-lg px-3 py-1.5 relative',
+            'max-w-[min(520px,75vw)] min-w-[80px] px-3 py-1.5 relative',
             'transition-colors duration-150 ease-out',
             isOwn
-              ? 'bg-accent-blue/90 text-white'
-              : 'bg-bg-tertiary text-text-primary',
+              ? 'bg-[#2563EB] text-white rounded-[12px] rounded-br-none'
+              : 'bg-[#111113] text-[rgba(255,255,255,0.95)] rounded-[12px] rounded-bl-none',
           )}
           onContextMenu={handleContextMenu}
         >
@@ -247,11 +247,11 @@ export function MessageBubble({
             )}
           >
             {message.isEdited && (
-              <span className={cn('text-[10px]', isOwn ? 'text-white/50' : 'text-text-tertiary')}>
+              <span className={cn('text-[11px]', isOwn ? 'text-white/50' : 'text-[rgba(255,255,255,0.20)]')}>
                 edited
               </span>
             )}
-            <span className={cn('text-[10px]', isOwn ? 'text-white/60' : 'text-text-tertiary')}>
+            <span className={cn('text-[11px]', isOwn ? 'text-white/60' : 'text-[rgba(255,255,255,0.20)]')}>
               {formatMessageTime(message.createdAt)}
             </span>
             {renderReceipt()}

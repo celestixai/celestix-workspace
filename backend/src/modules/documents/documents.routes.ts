@@ -155,4 +155,42 @@ router.post('/:documentId/export', authenticate, validate(exportDocumentSchema),
   res.json({ success: true, data: result });
 });
 
+// ==========================================
+// DOCUMENT CONVERSION (LibreOffice)
+// ==========================================
+
+import multer from 'multer';
+const convUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
+
+// POST /api/v1/documents/convert — Convert file to another format
+router.post('/convert', authenticate, convUpload.single('file'), async (req: Request, res: Response) => {
+  if (!req.file) {
+    res.status(400).json({ success: false, error: 'No file uploaded' });
+    return;
+  }
+  const { format } = req.body; // e.g., 'pdf', 'docx', 'xlsx'
+  if (!format) {
+    res.status(400).json({ success: false, error: 'Target format is required' });
+    return;
+  }
+
+  try {
+    const { convertFile } = await import('../../services/libreoffice');
+    const result = await convertFile(req.file.buffer, req.file.originalname, format);
+    const mimeTypes: Record<string, string> = {
+      pdf: 'application/pdf',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    };
+    const baseName = req.file.originalname.replace(/\.[^.]+$/, '');
+    res.setHeader('Content-Type', mimeTypes[format] || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${baseName}.${format}"`);
+    res.send(result);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Conversion failed';
+    res.status(500).json({ success: false, error: msg });
+  }
+});
+
 export default router;

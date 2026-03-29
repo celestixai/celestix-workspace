@@ -34,10 +34,10 @@ import { useSpaces } from '@/hooks/useSpaces';
 type Tab = 'board' | 'burndown' | 'velocity' | 'report';
 
 const statusBadge: Record<SprintStatus, { label: string; className: string }> = {
-  PLANNING: { label: 'Planning', className: 'bg-gray-500/10 text-gray-400' },
-  ACTIVE: { label: 'Active', className: 'bg-green-500/10 text-green-400' },
-  COMPLETE: { label: 'Complete', className: 'bg-blue-500/10 text-blue-400' },
-  CLOSED: { label: 'Closed', className: 'bg-gray-500/10 text-gray-500' },
+  PLANNING: { label: 'Planning', className: 'bg-[var(--cx-text-3)]/10 text-[var(--cx-text-2)]' },
+  ACTIVE: { label: 'Active', className: 'bg-cx-success/10 text-cx-success' },
+  COMPLETE: { label: 'Complete', className: 'bg-cx-brand/10 text-cx-brand' },
+  CLOSED: { label: 'Closed', className: 'bg-[var(--cx-text-3)]/10 text-[var(--cx-text-3)]' },
 };
 
 export function SprintsPage() {
@@ -140,9 +140,9 @@ export function SprintsPage() {
   return (
     <div className="flex h-full">
       {/* Left sidebar */}
-      <div className="w-64 border-r border-border flex flex-col bg-bg-secondary">
+      <div className="w-64 border-r border-[rgba(255,255,255,0.08)]flex flex-col bg-cx-surface">
         {/* Space selector */}
-        <div className="p-3 border-b border-border">
+        <div className="p-3 border-b border-[rgba(255,255,255,0.08)]">
           <select
             value={spaceId || ''}
             onChange={(e) => {
@@ -150,8 +150,11 @@ export function SprintsPage() {
               setActiveFolderId(null);
               setSelectedSprintId(null);
             }}
-            className="w-full px-2 py-1.5 text-sm bg-bg-primary border border-border rounded-lg text-text-primary"
+            className="w-full px-2 py-1.5 text-sm bg-cx-bg border border-[rgba(255,255,255,0.08)]rounded-lg text-[var(--cx-text-1)]"
           >
+            {(!spaces || spaces.length === 0) && (
+              <option value="" disabled>Select space</option>
+            )}
             {spaces?.map((s: any) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
@@ -161,10 +164,10 @@ export function SprintsPage() {
         {/* Folders */}
         <div className="flex-1 overflow-y-auto p-2">
           <div className="flex items-center justify-between mb-2 px-1">
-            <span className="text-xs font-medium text-text-secondary uppercase tracking-wide">Sprint Folders</span>
+            <span className="text-xs font-medium text-[var(--cx-text-2)] uppercase tracking-wide">Sprint Folders</span>
             <button
               onClick={() => setShowCreateFolder(true)}
-              className="p-1 rounded hover:bg-bg-tertiary text-text-secondary"
+              className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-2)]"
             >
               <Plus size={14} />
             </button>
@@ -177,7 +180,7 @@ export function SprintsPage() {
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
                 placeholder="Folder name"
-                className="w-full px-2 py-1 text-sm bg-bg-primary border border-border rounded text-text-primary placeholder:text-text-tertiary mb-1"
+                className="w-full px-2 py-1 text-sm bg-cx-bg border border-[rgba(255,255,255,0.08)]rounded text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] mb-1"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleCreateFolder();
                   if (e.key === 'Escape') { setShowCreateFolder(false); setNewFolderName(''); }
@@ -187,7 +190,7 @@ export function SprintsPage() {
                 <button onClick={handleCreateFolder} className="text-xs px-2 py-0.5 bg-accent-blue text-white rounded">
                   Create
                 </button>
-                <button onClick={() => { setShowCreateFolder(false); setNewFolderName(''); }} className="text-xs px-2 py-0.5 text-text-secondary hover:bg-bg-tertiary rounded">
+                <button onClick={() => { setShowCreateFolder(false); setNewFolderName(''); }} className="text-xs px-2 py-0.5 text-[var(--cx-text-2)] hover:bg-cx-raised rounded">
                   Cancel
                 </button>
               </div>
@@ -215,7 +218,7 @@ export function SprintsPage() {
           ))}
 
           {(!folders || folders.length === 0) && (
-            <div className="text-xs text-text-tertiary text-center py-4">
+            <div className="text-xs text-[var(--cx-text-3)] text-center py-4">
               No sprint folders yet.
               <br />Create one to get started.
             </div>
@@ -228,10 +231,10 @@ export function SprintsPage() {
         {sprintDetail ? (
           <>
             {/* Sprint header */}
-            <div className="border-b border-border p-4">
+            <div className="border-b border-[rgba(255,255,255,0.08)]p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-semibold text-text-primary">{sprintDetail.name}</h2>
+                  <h2 className="text-lg font-semibold text-[var(--cx-text-1)]">{sprintDetail.name}</h2>
                   <span className={cn('px-2 py-0.5 text-xs font-medium rounded-full', statusBadge[sprintDetail.status].className)}>
                     {statusBadge[sprintDetail.status].label}
                   </span>
@@ -240,7 +243,7 @@ export function SprintsPage() {
                   {sprintDetail.status === 'PLANNING' && (
                     <button
                       onClick={handleStartSprint}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-cx-success text-white rounded-lg hover:bg-cx-success/90"
                     >
                       <Play size={14} />
                       Start Sprint
@@ -249,7 +252,7 @@ export function SprintsPage() {
                   {sprintDetail.status === 'ACTIVE' && (
                     <button
                       onClick={handleCompleteSprint}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-cx-brand text-white rounded-lg hover:bg-[var(--cx-brand-hover)]"
                     >
                       <CheckCircle2 size={14} />
                       Complete Sprint
@@ -257,7 +260,7 @@ export function SprintsPage() {
                   )}
                   <button
                     onClick={() => setShowReport(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-text-secondary hover:bg-bg-secondary rounded-lg border border-border"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--cx-text-2)] hover:bg-cx-surface rounded-lg border border-[rgba(255,255,255,0.08)]"
                   >
                     <FileText size={14} />
                     Report
@@ -266,7 +269,7 @@ export function SprintsPage() {
               </div>
 
               {/* Meta row */}
-              <div className="flex items-center gap-4 text-xs text-text-secondary mb-2">
+              <div className="flex items-center gap-4 text-xs text-[var(--cx-text-2)] mb-2">
                 <span className="flex items-center gap-1">
                   <Clock size={12} />
                   {new Date(sprintDetail.startDate).toLocaleDateString()} - {new Date(sprintDetail.endDate).toLocaleDateString()}
@@ -280,22 +283,22 @@ export function SprintsPage() {
 
               {/* Progress bar */}
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-2 bg-bg-tertiary rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-cx-raised rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-green-500 rounded-full transition-all"
+                    className="h-full bg-cx-success rounded-full transition-all"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
-                <span className="text-xs font-medium text-text-primary">{progressPercent}%</span>
+                <span className="text-xs font-medium text-[var(--cx-text-1)]">{progressPercent}%</span>
               </div>
 
               {sprintDetail.goal && (
-                <div className="text-xs text-text-tertiary mt-1.5">Goal: {sprintDetail.goal}</div>
+                <div className="text-xs text-[var(--cx-text-3)] mt-1.5">Goal: {sprintDetail.goal}</div>
               )}
             </div>
 
             {/* Tabs */}
-            <div className="border-b border-border px-4 flex gap-1">
+            <div className="border-b border-[rgba(255,255,255,0.08)]px-4 flex gap-1">
               {([
                 { key: 'board', label: 'Board', icon: Repeat },
                 { key: 'burndown', label: 'Burndown', icon: BarChart3 },
@@ -308,7 +311,7 @@ export function SprintsPage() {
                     'flex items-center gap-1.5 px-3 py-2 text-sm border-b-2 -mb-px transition-colors',
                     activeTab === tab.key
                       ? 'border-accent-blue text-accent-blue'
-                      : 'border-transparent text-text-secondary hover:text-text-primary'
+                      : 'border-transparent text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]'
                   )}
                 >
                   <tab.icon size={14} />
@@ -327,8 +330,8 @@ export function SprintsPage() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-text-secondary">
-            <Repeat size={48} strokeWidth={1} className="mb-3 text-text-tertiary" />
+          <div className="flex-1 flex flex-col items-center justify-center text-[var(--cx-text-2)]">
+            <Repeat size={48} strokeWidth={1} className="mb-3 text-[var(--cx-text-3)]" />
             <p className="text-sm mb-4">Select a sprint or create one to get started</p>
             {(activeFolderId || folders?.[0]?.id) && (
               <button
@@ -346,31 +349,31 @@ export function SprintsPage() {
       {/* Create sprint modal */}
       {showCreateSprint && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowCreateSprint(false)}>
-          <div className="bg-bg-primary rounded-xl shadow-xl w-full max-w-md p-5 border border-border" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-base font-semibold text-text-primary mb-4">New Sprint</h3>
+          <div className="bg-cx-bg rounded-xl shadow-xl w-full max-w-md p-5 border border-[rgba(255,255,255,0.08)]" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-base font-semibold text-[var(--cx-text-1)] mb-4">New Sprint</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Name</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Name</label>
                 <input
                   autoFocus
                   value={newSprintName}
                   onChange={(e) => setNewSprintName(e.target.value)}
                   placeholder="Sprint 1"
-                  className="w-full px-3 py-1.5 text-sm bg-bg-secondary border border-border rounded-lg text-text-primary"
+                  className="w-full px-3 py-1.5 text-sm bg-cx-surface border border-[rgba(255,255,255,0.08)]rounded-lg text-[var(--cx-text-1)]"
                 />
               </div>
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Goal (optional)</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Goal (optional)</label>
                 <input
                   value={newSprintGoal}
                   onChange={(e) => setNewSprintGoal(e.target.value)}
                   placeholder="What should this sprint achieve?"
-                  className="w-full px-3 py-1.5 text-sm bg-bg-secondary border border-border rounded-lg text-text-primary"
+                  className="w-full px-3 py-1.5 text-sm bg-cx-surface border border-[rgba(255,255,255,0.08)]rounded-lg text-[var(--cx-text-1)]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-text-secondary mb-1">Start Date</label>
+                  <label className="block text-xs text-[var(--cx-text-2)] mb-1">Start Date</label>
                   <input
                     type="date"
                     value={newSprintStart}
@@ -382,16 +385,16 @@ export function SprintsPage() {
                         setNewSprintEnd(d.toISOString().split('T')[0]);
                       }
                     }}
-                    className="w-full px-3 py-1.5 text-sm bg-bg-secondary border border-border rounded-lg text-text-primary"
+                    className="w-full px-3 py-1.5 text-sm bg-cx-surface border border-[rgba(255,255,255,0.08)]rounded-lg text-[var(--cx-text-1)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-text-secondary mb-1">End Date</label>
+                  <label className="block text-xs text-[var(--cx-text-2)] mb-1">End Date</label>
                   <input
                     type="date"
                     value={newSprintEnd}
                     onChange={(e) => setNewSprintEnd(e.target.value)}
-                    className="w-full px-3 py-1.5 text-sm bg-bg-secondary border border-border rounded-lg text-text-primary"
+                    className="w-full px-3 py-1.5 text-sm bg-cx-surface border border-[rgba(255,255,255,0.08)]rounded-lg text-[var(--cx-text-1)]"
                   />
                 </div>
               </div>
@@ -399,7 +402,7 @@ export function SprintsPage() {
             <div className="flex justify-end gap-2 mt-5">
               <button
                 onClick={() => setShowCreateSprint(false)}
-                className="px-3 py-1.5 text-sm text-text-secondary hover:bg-bg-secondary rounded-lg"
+                className="px-3 py-1.5 text-sm text-[var(--cx-text-2)] hover:bg-cx-surface rounded-lg"
               >
                 Cancel
               </button>
@@ -451,7 +454,7 @@ function FolderItem({
       <div
         className={cn(
           'flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer group text-sm',
-          isActive ? 'bg-bg-tertiary text-text-primary' : 'text-text-secondary hover:bg-bg-tertiary/50'
+          isActive ? 'bg-cx-raised text-[var(--cx-text-1)]' : 'text-[var(--cx-text-2)] hover:bg-cx-raised/50'
         )}
         onClick={() => {
           onClick();
@@ -465,10 +468,10 @@ function FolderItem({
         />
         <Folder size={14} className="flex-shrink-0" />
         <span className="truncate flex-1">{folder.name}</span>
-        <span className="text-[10px] text-text-tertiary">{folder._count.sprints}</span>
+        <span className="text-[10px] text-[var(--cx-text-3)]">{folder._count.sprints}</span>
         <button
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          className="p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-bg-primary text-text-tertiary"
+          className="p-0.5 rounded opacity-0 group-hover:opacity-100 hover:bg-cx-bg text-[var(--cx-text-3)]"
         >
           <Trash2 size={12} />
         </button>
@@ -484,14 +487,14 @@ function FolderItem({
                 'flex items-center gap-2 px-2 py-1 rounded cursor-pointer text-xs',
                 selectedSprintId === sprint.id
                   ? 'bg-accent-blue/10 text-accent-blue'
-                  : 'text-text-secondary hover:bg-bg-tertiary/50'
+                  : 'text-[var(--cx-text-2)] hover:bg-cx-raised/50'
               )}
             >
               <div className={cn(
                 'w-1.5 h-1.5 rounded-full flex-shrink-0',
-                sprint.status === 'ACTIVE' ? 'bg-green-400' :
-                sprint.status === 'COMPLETE' ? 'bg-blue-400' :
-                sprint.status === 'CLOSED' ? 'bg-gray-400' : 'bg-gray-300'
+                sprint.status === 'ACTIVE' ? 'bg-cx-success' :
+                sprint.status === 'COMPLETE' ? 'bg-cx-brand' :
+                sprint.status === 'CLOSED' ? 'bg-[var(--cx-text-2)]' : 'bg-[var(--cx-text-1)]'
               )} />
               <span className="truncate">{sprint.name}</span>
             </div>

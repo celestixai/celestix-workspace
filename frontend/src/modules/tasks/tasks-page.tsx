@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
 import { cn, formatRelativeTime } from '@/lib/utils';
@@ -7,7 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { Skeleton, CardSkeleton } from '@/components/ui/skeleton';
-import { EmptyState } from '@/components/shared/empty-state';
+import { EmptyState as LegacyEmptyState } from '@/components/shared/empty-state';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { TasksIllustration } from '@/components/shared/EmptyIllustrations';
 import { Avatar } from '@/components/shared/avatar';
 import { Badge } from '@/components/shared/badge';
 import { toast } from '@/components/ui/toast';
@@ -304,7 +307,7 @@ export function TasksPage() {
               ))}
             </div>
           ) : projects.length === 0 ? (
-            <EmptyState
+            <LegacyEmptyState
               icon={<CheckSquare size={28} />}
               title="No projects"
               description="Create your first project"
@@ -512,31 +515,26 @@ export function TasksPage() {
         {tasksLoading ? (
           <TasksSkeleton viewMode={viewMode} />
         ) : !activeProjectId ? (
-          <EmptyState
-            icon={<CheckSquare size={48} />}
-            title="No project selected"
-            description="Create a project to start managing tasks"
-            action={
-              <Button onClick={() => setShowCreateProject(true)}>
-                <Plus size={14} />
-                Create Project
-              </Button>
-            }
-            className="flex-1"
-          />
+          <div className="flex-1 flex items-center justify-center">
+            <EmptyState
+              icon={CheckSquare}
+              title="No project selected"
+              description="Create a project to start managing tasks"
+              actionLabel="+ Create Project"
+              onAction={() => setShowCreateProject(true)}
+            />
+          </div>
         ) : filteredTasks.length === 0 && !searchQuery && !activeFilterCount ? (
-          <EmptyState
-            icon={<CheckSquare size={48} />}
-            title="No tasks yet"
-            description="Create your first task to get started"
-            action={
-              <Button onClick={() => handleCreateInColumn('TODO')}>
-                <Plus size={14} />
-                Create Task
-              </Button>
-            }
-            className="flex-1"
-          />
+          <div className="flex-1 flex items-center justify-center">
+            <EmptyState
+              icon={CheckSquare}
+              title="No tasks yet"
+              description="Tasks help you track and manage work"
+              illustration={<TasksIllustration />}
+              actionLabel="+ New Task"
+              onAction={() => handleCreateInColumn('TODO')}
+            />
+          </div>
         ) : viewMode === 'board' ? (
           <BoardView
             tasksByStatus={tasksByStatus}
@@ -638,22 +636,32 @@ function BoardView({
               </div>
 
               {/* Task cards */}
-              <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
+              <motion.div
+                className="flex-1 overflow-y-auto px-2 pb-2 space-y-2"
+                initial="hidden"
+                animate="visible"
+                variants={{ visible: { transition: { staggerChildren: 0.03 } } }}
+              >
                 {statusTasks.length === 0 ? (
                   <div className="flex items-center justify-center h-20 text-xs text-text-tertiary">
                     No tasks
                   </div>
                 ) : (
                   statusTasks.map((task) => (
-                    <TaskCard
+                    <motion.div
                       key={task.id}
-                      task={task}
-                      onClick={() => onTaskClick(task)}
-                      onDragStart={() => onDragStart(task.id)}
-                    />
+                      variants={{ hidden: { opacity: 0, y: 6 }, visible: { opacity: 1, y: 0 } }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                    >
+                      <TaskCard
+                        task={task}
+                        onClick={() => onTaskClick(task)}
+                        onDragStart={() => onDragStart(task.id)}
+                      />
+                    </motion.div>
                   ))
                 )}
-              </div>
+              </motion.div>
             </div>
           );
         })}
@@ -763,7 +771,7 @@ function ListView({
 }) {
   if (tasks.length === 0) {
     return (
-      <EmptyState
+      <LegacyEmptyState
         icon={<CheckSquare size={40} />}
         title="No tasks match"
         description="Adjust your search or filters"
@@ -783,13 +791,20 @@ function ListView({
         <span>Due Date</span>
       </div>
 
-      <div className="divide-y divide-border-primary">
+      <motion.div
+        className="divide-y divide-border-primary"
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.03 } } }}
+      >
         {tasks.map((task) => {
           const statusConf = STATUS_CONFIG[task.status];
           const priorityConf = PRIORITY_CONFIG[task.priority];
           return (
-            <div
+            <motion.div
               key={task.id}
+              variants={{ hidden: { opacity: 0, y: 6 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
               onClick={() => onTaskClick(task)}
               className="grid grid-cols-[1fr_120px_100px_100px_120px] gap-3 px-4 py-3 hover:bg-bg-hover cursor-pointer transition-colors items-center"
             >
@@ -840,10 +855,10 @@ function ListView({
                     })
                   : '--'}
               </span>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -1157,23 +1172,23 @@ function CreateProjectModal({
   loading: boolean;
 }) {
   const [name, setName] = useState('');
-  const [color, setColor] = useState('#4F8EF7');
+  const [color, setColor] = useState('#3B82F6');
 
   const PROJECT_COLORS = [
-    '#4F8EF7',
+    '#3B82F6',
     '#8B5CF6',
     '#10B981',
     '#F59E0B',
     '#EF4444',
-    '#EC4899',
-    '#06B6D4',
-    '#6366F1',
+    '#F97316',
+    '#14B8A6',
+    '#60A5FA',
   ];
 
   useEffect(() => {
     if (open) {
       setName('');
-      setColor('#4F8EF7');
+      setColor('#3B82F6');
     }
   }, [open]);
 

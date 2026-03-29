@@ -1116,6 +1116,42 @@ export class EmailService {
     }
   }
 
+  async testImapConnection(input: { imapHost: string; imapPort: number; imapUser: string; imapPass: string; imapSecure: boolean }) {
+    const net = await import('net');
+    const tls = await import('tls');
+
+    return new Promise<{ success: boolean; message: string }>((resolve) => {
+      const timeout = setTimeout(() => {
+        resolve({ success: false, message: 'Connection timed out after 10s' });
+      }, 10000);
+
+      try {
+        const connectOpts = { host: input.imapHost, port: input.imapPort };
+        const socket = input.imapSecure
+          ? tls.connect({ ...connectOpts, rejectUnauthorized: false }, () => {
+              clearTimeout(timeout);
+              socket.destroy();
+              resolve({ success: true, message: 'IMAP connection successful' });
+            })
+          : net.connect(connectOpts, () => {
+              clearTimeout(timeout);
+              socket.destroy();
+              resolve({ success: true, message: 'IMAP connection successful' });
+            });
+
+        socket.on('error', (err: Error) => {
+          clearTimeout(timeout);
+          socket.destroy();
+          resolve({ success: false, message: `IMAP connection failed: ${err.message}` });
+        });
+      } catch (err) {
+        clearTimeout(timeout);
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        resolve({ success: false, message: `IMAP connection failed: ${message}` });
+      }
+    });
+  }
+
   // ------------------------------------------
   // SEARCH
   // ------------------------------------------

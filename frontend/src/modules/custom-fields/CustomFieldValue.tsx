@@ -92,7 +92,7 @@ export function CustomFieldValue({ field, value }: CustomFieldValueProps) {
               key={i}
               size={10}
               className={cn(
-                i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-text-tertiary'
+                i < rating ? 'text-cx-warning fill-yellow-400' : 'text-text-tertiary'
               )}
             />
           ))}
@@ -171,9 +171,9 @@ export function CustomFieldValue({ field, value }: CustomFieldValueProps) {
       const sentimentVal = String(value || 'Neutral');
       const isPendingSentiment = !value || value === 'Pending AI';
       const sentColors: Record<string, string> = {
-        Positive: 'bg-green-500/10 text-green-400 border-green-500/20',
-        Neutral: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-        Negative: 'bg-red-500/10 text-red-400 border-red-500/20',
+        Positive: 'bg-cx-success/10 text-cx-success border-cx-success/20',
+        Neutral: 'bg-[var(--cx-text-3)]/10 text-[var(--cx-text-2)] border-[var(--cx-text-3)]/20',
+        Negative: 'bg-cx-danger/10 text-cx-danger border-cx-danger/20',
         Urgent: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
       };
       if (isPendingSentiment) {

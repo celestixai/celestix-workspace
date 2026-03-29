@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -120,7 +121,7 @@ function getInitials(name: string): string {
 }
 
 const AVATAR_COLORS = [
-  'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500',
+  'bg-cx-brand', 'bg-cx-success', 'bg-purple-500', 'bg-orange-500',
   'bg-pink-500', 'bg-teal-500', 'bg-indigo-500', 'bg-rose-500',
 ];
 
@@ -224,22 +225,31 @@ export function ActivityView({
               {filterLabels[activityFilter]}
               <ChevronDown size={12} />
             </button>
-            {showFilterDropdown && (
-              <div className="absolute right-0 top-full mt-1 z-50 bg-bg-primary border border-border rounded-md shadow-lg py-1 min-w-[160px]">
-                {(Object.keys(filterLabels) as ActivityFilter[]).map(key => (
-                  <button
-                    key={key}
-                    onClick={() => { setActivityFilter(key); setShowFilterDropdown(false); }}
-                    className={cn(
-                      'w-full text-left px-3 py-1.5 text-xs hover:bg-bg-secondary transition-colors',
-                      activityFilter === key && 'bg-bg-secondary font-medium',
-                    )}
-                  >
-                    {filterLabels[key]}
-                  </button>
-                ))}
-              </div>
-            )}
+            <AnimatePresence>
+              {showFilterDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                  style={{ transformOrigin: 'top right' }}
+                  className="absolute right-0 top-full mt-1 z-50 bg-bg-primary border border-border rounded-md shadow-lg py-1 min-w-[160px]"
+                >
+                  {(Object.keys(filterLabels) as ActivityFilter[]).map(key => (
+                    <button
+                      key={key}
+                      onClick={() => { setActivityFilter(key); setShowFilterDropdown(false); }}
+                      className={cn(
+                        'w-full text-left px-3 py-1.5 text-xs hover:bg-bg-secondary transition-colors',
+                        activityFilter === key && 'bg-bg-secondary font-medium',
+                      )}
+                    >
+                      {filterLabels[key]}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Date range filter */}
@@ -252,22 +262,31 @@ export function ActivityView({
               {dateLabels[dateRange]}
               <ChevronDown size={12} />
             </button>
-            {showDateDropdown && (
-              <div className="absolute right-0 top-full mt-1 z-50 bg-bg-primary border border-border rounded-md shadow-lg py-1 min-w-[140px]">
-                {(Object.keys(dateLabels) as DateRange[]).map(key => (
-                  <button
-                    key={key}
-                    onClick={() => { setDateRange(key); setShowDateDropdown(false); }}
-                    className={cn(
-                      'w-full text-left px-3 py-1.5 text-xs hover:bg-bg-secondary transition-colors',
-                      dateRange === key && 'bg-bg-secondary font-medium',
-                    )}
-                  >
-                    {dateLabels[key]}
-                  </button>
-                ))}
-              </div>
-            )}
+            <AnimatePresence>
+              {showDateDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                  style={{ transformOrigin: 'top right' }}
+                  className="absolute right-0 top-full mt-1 z-50 bg-bg-primary border border-border rounded-md shadow-lg py-1 min-w-[140px]"
+                >
+                  {(Object.keys(dateLabels) as DateRange[]).map(key => (
+                    <button
+                      key={key}
+                      onClick={() => { setDateRange(key); setShowDateDropdown(false); }}
+                      className={cn(
+                        'w-full text-left px-3 py-1.5 text-xs hover:bg-bg-secondary transition-colors',
+                        dateRange === key && 'bg-bg-secondary font-medium',
+                      )}
+                    >
+                      {dateLabels[key]}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

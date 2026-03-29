@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   Repeat,
   Eye,
+  Check,
 } from 'lucide-react';
 import { TaskFieldValues } from '@/modules/custom-fields/TaskFieldValues';
 import { BulkActionToolbar } from '@/components/shared/BulkActionToolbar';
@@ -59,20 +60,65 @@ const TASK_TYPE_ICON_MAP: Record<string, React.ElementType> = {
   flag: Flag,
 };
 
-const priorityColors: Record<string, string> = {
-  urgent: 'text-accent-red',
-  high: 'text-orange-400',
-  medium: 'text-yellow-400',
-  low: 'text-blue-400',
-  none: 'text-text-tertiary',
+const PRIORITY_DOT_COLORS: Record<string, string> = {
+  urgent: '#EF4444',
+  high: '#F97316',
+  medium: '#EAB308',
+  low: '#3B82F6',
+  none: 'rgba(255,255,255,0.20)',
 };
 
-const priorityIcons: Record<string, number> = {
-  urgent: 4,
-  high: 3,
-  medium: 2,
-  low: 1,
-  none: 0,
+function formatDate(dateStr: string | undefined): { label: string; color: string } {
+  if (!dateStr) return { label: '', color: '' };
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (diffDays < 0) return { label, color: '#EF4444' };
+    if (diffDays === 0) return { label: 'Today', color: '#F59E0B' };
+    if (diffDays === 1) return { label: 'Tomorrow', color: '#F59E0B' };
+    return { label, color: 'rgba(255,255,255,0.40)' };
+  } catch {
+    return { label: String(dateStr), color: 'rgba(255,255,255,0.40)' };
+  }
+}
+
+// Custom checkbox
+function TaskCheckbox({ checked, onChange, indeterminate }: { checked: boolean; onChange: () => void; indeterminate?: boolean }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onChange();
+      }}
+      className="flex items-center justify-center flex-shrink-0 transition-all duration-100"
+      style={{
+        width: 14,
+        height: 14,
+        borderRadius: 3,
+        border: checked ? 'none' : '1px solid rgba(255,255,255,0.20)',
+        background: checked ? '#2563EB' : 'transparent',
+        cursor: 'pointer',
+      }}
+    >
+      {checked && <Check size={10} style={{ color: '#ffffff' }} strokeWidth={3} />}
+      {indeterminate && !checked && (
+        <span style={{ width: 8, height: 2, background: 'rgba(255,255,255,0.40)', borderRadius: 1, display: 'block' }} />
+      )}
+    </button>
+  );
+}
+
+// Status pill (same design as ListView)
+const STATUS_PILL_STYLES: Record<string, { bg: string; color: string }> = {
+  BACKLOG: { bg: 'rgba(161,161,170,0.10)', color: '#A1A1AA' },
+  TODO: { bg: 'rgba(161,161,170,0.10)', color: '#A1A1AA' },
+  IN_PROGRESS: { bg: 'rgba(59,130,246,0.12)', color: '#60A5FA' },
+  REVIEW: { bg: 'rgba(139,92,246,0.12)', color: '#8B5CF6' },
+  DONE: { bg: 'rgba(34,197,94,0.12)', color: '#22C55E' },
 };
 
 export function ListViewPage({ listId, onOpenSettings }: ListViewPageProps) {
@@ -121,7 +167,6 @@ export function ListViewPage({ listId, onOpenSettings }: ListViewPageProps) {
         const next = new Set(prev);
 
         if (shiftKey && lastClickedIndex.current !== null && tasks) {
-          // Range selection
           const start = Math.min(lastClickedIndex.current, index);
           const end = Math.max(lastClickedIndex.current, index);
           for (let i = start; i <= end; i++) {
@@ -164,14 +209,14 @@ export function ListViewPage({ listId, onOpenSettings }: ListViewPageProps) {
   if (loadingList) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-accent-blue/30 border-t-accent-blue rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'rgba(37,99,235,0.3)', borderTopColor: '#2563EB' }} />
       </div>
     );
   }
 
   if (!list) {
     return (
-      <div className="flex-1 flex items-center justify-center text-text-tertiary text-sm">
+      <div className="flex-1 flex items-center justify-center" style={{ color: 'rgba(255,255,255,0.40)', fontSize: 14 }}>
         List not found
       </div>
     );
@@ -181,33 +226,53 @@ export function ListViewPage({ listId, onOpenSettings }: ListViewPageProps) {
   const someSelected = selectedIds.size > 0 && !allSelected;
 
   return (
-    <div className="flex-1 overflow-auto p-6">
+    <div className="flex-1 overflow-auto" style={{ padding: 24 }}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <List size={18} className="text-text-tertiary" />
-        <h2 className="text-xl font-semibold text-text-primary">{list.name}</h2>
+        <List size={18} style={{ color: 'rgba(255,255,255,0.40)' }} />
+        <h2 style={{ fontSize: 20, fontWeight: 600, color: '#ffffff' }}>{list.name}</h2>
         {tasks && (
-          <span className="text-xs text-text-tertiary">{tasks.length} tasks</span>
+          <span style={{ fontSize: 12, fontFamily: 'monospace', color: 'rgba(255,255,255,0.40)' }}>
+            {tasks.length} tasks
+          </span>
         )}
         {customFields && customFields.length > 0 && (
           <button
             onClick={() => setShowFields((prev) => !prev)}
-            className={cn(
-              'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border transition-colors',
-              showFields
-                ? 'text-accent-blue border-accent-blue/30 bg-accent-blue/10'
-                : 'text-text-tertiary border-border-secondary hover:text-text-primary hover:bg-bg-hover'
-            )}
+            className="flex items-center gap-1.5"
+            style={{
+              fontSize: 12,
+              padding: '4px 10px',
+              borderRadius: 8,
+              border: showFields ? '1px solid rgba(37,99,235,0.30)' : '1px solid rgba(255,255,255,0.08)',
+              color: showFields ? '#60A5FA' : 'rgba(255,255,255,0.40)',
+              background: showFields ? 'rgba(37,99,235,0.10)' : 'transparent',
+              transition: 'all 100ms',
+            }}
           >
             <Columns3 size={12} />
             Fields
-            <span className="text-[10px] opacity-70">{customFields.length}</span>
+            <span style={{ fontSize: 10, opacity: 0.7 }}>{customFields.length}</span>
           </button>
         )}
         {onOpenSettings && (
           <button
             onClick={() => onOpenSettings(listId)}
-            className="ml-auto p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
+            className="ml-auto flex items-center justify-center transition-colors"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              color: 'rgba(255,255,255,0.40)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+            }}
             aria-label="List settings"
           >
             <Settings size={16} />
@@ -218,77 +283,139 @@ export function ListViewPage({ listId, onOpenSettings }: ListViewPageProps) {
       {/* Status bar */}
       {statuses && statuses.length > 0 && (
         <div className="flex items-center gap-2 mb-4 flex-wrap">
-          {statuses.map((s) => (
-            <span
-              key={s.id}
-              className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border border-border-secondary"
-              style={{ color: s.color }}
-            >
-              <Circle size={6} style={{ fill: s.color }} />
-              {s.name}
-            </span>
-          ))}
+          {statuses.map((s) => {
+            const presetStyle = STATUS_PILL_STYLES[s.name?.toUpperCase()];
+            return (
+              <span
+                key={s.id}
+                className="inline-flex items-center gap-1"
+                style={{
+                  fontSize: 10,
+                  padding: '1px 8px',
+                  borderRadius: 9999,
+                  color: presetStyle?.color ?? s.color,
+                  background: presetStyle?.bg ?? `${s.color}18`,
+                }}
+              >
+                <Circle size={6} style={{ fill: s.color }} />
+                {s.name}
+              </span>
+            );
+          })}
         </div>
       )}
 
       {/* Tasks list */}
       {loadingTasks ? (
-        <div className="space-y-2">
+        <div className="space-y-px">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-10 bg-bg-tertiary rounded-lg animate-pulse" />
+            <div key={i} className="animate-pulse" style={{ height: 36, background: 'rgba(255,255,255,0.02)' }} />
           ))}
         </div>
       ) : !tasks || tasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-text-tertiary">
-          <CheckCircle2 size={32} className="mb-3 opacity-40" />
-          <p className="text-sm">No tasks in this list</p>
-          <p className="text-xs mt-1 opacity-70">Add tasks to start tracking your work</p>
+        <div className="flex flex-col items-center justify-center py-16">
+          <CheckCircle2 size={32} className="mb-3" style={{ color: 'rgba(255,255,255,0.15)' }} />
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.40)' }}>No tasks in this list</p>
+          <p style={{ fontSize: 12, marginTop: 4, color: 'rgba(255,255,255,0.25)' }}>Add tasks to start tracking your work</p>
         </div>
       ) : (
-        <div className="space-y-1">
-          {/* Select All header row */}
-          <div className="flex items-center gap-3 px-3 py-1.5 text-xs text-text-tertiary border-b border-border-secondary mb-1">
-            <input
-              type="checkbox"
-              checked={allSelected}
-              ref={(el) => {
-                if (el) el.indeterminate = someSelected;
+        <div>
+          {/* Column Header Row */}
+          <div
+            className="flex items-center sticky top-0 z-10"
+            style={{
+              height: 28,
+              borderBottom: '1px solid rgba(255,255,255,0.04)',
+              background: '#09090B',
+              marginBottom: 1,
+            }}
+          >
+            <div className="flex items-center justify-center flex-shrink-0" style={{ width: 32 }}>
+              <TaskCheckbox
+                checked={allSelected}
+                indeterminate={someSelected}
+                onChange={toggleSelectAll}
+              />
+            </div>
+            <span
+              className="flex-1"
+              style={{
+                fontSize: 11,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: 'rgba(255,255,255,0.20)',
               }}
-              onChange={toggleSelectAll}
-              className="w-3.5 h-3.5 rounded border-border-secondary accent-accent-blue cursor-pointer"
-            />
-            <span className="flex-1">Title</span>
-            <span className="w-16 text-center">Priority</span>
-            <span className="w-20 text-center">Status</span>
+            >
+              Title
+            </span>
+            <span
+              className="text-center flex-shrink-0"
+              style={{
+                width: 80,
+                fontSize: 11,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: 'rgba(255,255,255,0.20)',
+              }}
+            >
+              Priority
+            </span>
+            <span
+              className="text-center flex-shrink-0"
+              style={{
+                width: 100,
+                fontSize: 11,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: 'rgba(255,255,255,0.20)',
+              }}
+            >
+              Status
+            </span>
           </div>
+
           {tasks.map((task, index) => {
             const isSelected = selectedIds.has(task.id);
+            const dateInfo = formatDate(task.dueDate);
+
             return (
               <div
                 key={task.id}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-bg-hover transition-colors group',
-                  isSelected && 'bg-accent-blue/5 ring-1 ring-accent-blue/20',
-                )}
+                className="flex items-center transition-colors duration-100 group"
+                style={{
+                  height: 36,
+                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                  background: isSelected ? 'rgba(37,99,235,0.06)' : 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) e.currentTarget.style.background = 'transparent';
+                }}
               >
                 {/* Checkbox */}
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={(e) => {
-                    // The native event has shiftKey
-                    toggleSelect(task.id, index, (e.nativeEvent as MouseEvent).shiftKey);
-                  }}
-                  className="w-3.5 h-3.5 rounded border-border-secondary accent-accent-blue cursor-pointer flex-shrink-0"
-                />
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 32 }}>
+                  <TaskCheckbox
+                    checked={isSelected}
+                    onChange={() => toggleSelect(task.id, index, false)}
+                  />
+                </div>
+
+                {/* Task type icon */}
                 {(() => {
                   const tt = taskTypes?.find((t) => t.id === task.taskTypeId);
                   const IconComp = tt?.icon ? TASK_TYPE_ICON_MAP[tt.icon] : null;
                   if (IconComp) {
-                    return <IconComp size={14} style={{ color: tt?.color || undefined }} className="flex-shrink-0" />;
+                    return <IconComp size={14} style={{ color: tt?.color || undefined }} className="flex-shrink-0 mr-2" />;
                   }
-                  return <Circle size={16} className="text-text-tertiary flex-shrink-0" />;
+                  return <Circle size={14} style={{ color: 'rgba(255,255,255,0.20)' }} className="flex-shrink-0 mr-2" />;
                 })()}
+
+                {/* Custom task ID */}
                 {task.customTaskId && (
                   <button
                     onClick={(e) => {
@@ -299,61 +426,93 @@ export function ListViewPage({ listId, onOpenSettings }: ListViewPageProps) {
                       el.textContent = 'Copied!';
                       setTimeout(() => { el.textContent = original; }, 1200);
                     }}
-                    className="text-[10px] font-mono text-text-tertiary bg-bg-tertiary px-1.5 py-0.5 rounded hover:text-accent-blue hover:bg-accent-blue/10 transition-colors flex-shrink-0"
+                    className="flex-shrink-0 mr-2 transition-colors"
+                    style={{
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                      color: 'rgba(255,255,255,0.40)',
+                      padding: '1px 6px',
+                      borderRadius: 3,
+                      background: 'rgba(255,255,255,0.04)',
+                    }}
                     title="Click to copy"
                   >
                     {task.customTaskId}
                   </button>
                 )}
-                <span className="text-sm text-text-primary flex-1 truncate">{task.title}</span>
+
+                {/* Title */}
+                <span
+                  className="flex-1 truncate"
+                  style={{ fontSize: 14, fontFamily: 'Inter, sans-serif', color: '#ffffff' }}
+                >
+                  {task.title}
+                </span>
+
                 {/* Tag chips */}
                 {task.tags && task.tags.length > 0 && (
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                  <div className="flex items-center gap-1 flex-shrink-0 mr-2">
                     {task.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag.id}
-                        className="text-[9px] px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap"
-                        style={{ backgroundColor: tag.color + '20', color: tag.color }}
+                        className="whitespace-nowrap"
+                        style={{
+                          fontSize: 9,
+                          padding: '1px 6px',
+                          borderRadius: 9999,
+                          fontWeight: 500,
+                          backgroundColor: tag.color + '20',
+                          color: tag.color,
+                        }}
                       >
                         {tag.name}
                       </span>
                     ))}
                     {task.tags.length > 3 && (
-                      <span className="text-[9px] text-text-tertiary">+{task.tags.length - 3}</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.40)' }}>+{task.tags.length - 3}</span>
                     )}
                   </div>
                 )}
+
                 {/* Watching indicator */}
                 {task.isWatching && (
-                  <span title="You are watching this task">
-                    <Eye size={12} className="text-accent-blue flex-shrink-0" />
+                  <span title="You are watching this task" className="flex-shrink-0 mr-1">
+                    <Eye size={12} style={{ color: '#3B82F6' }} />
                   </span>
                 )}
+
                 {/* Recurring indicator */}
                 {task.isRecurring && (
-                  <span title="Recurring task">
-                    <Repeat size={12} className="text-accent-blue flex-shrink-0" />
+                  <span title="Recurring task" className="flex-shrink-0 mr-1">
+                    <Repeat size={12} style={{ color: '#3B82F6' }} />
                   </span>
                 )}
+
                 {/* Relationship indicator */}
                 {task.relationships && (
                   (task.relationships.blocking?.length > 0 ||
                    task.relationships.waitingOn?.length > 0 ||
                    task.relationships.linkedTo?.length > 0) && (
-                    <span title="Has relationships">
-                      <Link2 size={12} className="text-accent-blue flex-shrink-0" />
+                    <span title="Has relationships" className="flex-shrink-0 mr-1">
+                      <Link2 size={12} style={{ color: '#3B82F6' }} />
                     </span>
                   )
                 )}
+
                 {/* Dependency warning indicator */}
                 {task.dependencyWarnings && task.dependencyWarnings.length > 0 && (
-                  <span title={task.dependencyWarnings.map((w) => w.message).join(', ')}>
-                    <AlertTriangle size={12} className="text-orange-400 flex-shrink-0" />
+                  <span title={task.dependencyWarnings.map((w) => w.message).join(', ')} className="flex-shrink-0 mr-1">
+                    <AlertTriangle size={12} style={{ color: '#F97316' }} />
                   </span>
                 )}
+
                 {/* Time estimate indicator */}
                 {(task.timeEstimate || task.estimatedMinutes) && (
-                  <span className="flex items-center gap-1 text-[10px] text-text-tertiary flex-shrink-0" title="Time estimate">
+                  <span
+                    className="flex items-center gap-1 flex-shrink-0 mr-2"
+                    style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(255,255,255,0.40)' }}
+                    title="Time estimate"
+                  >
                     <Clock size={10} />
                     {(() => {
                       const est = task.timeEstimate ?? task.estimatedMinutes ?? 0;
@@ -363,25 +522,61 @@ export function ListViewPage({ listId, onOpenSettings }: ListViewPageProps) {
                       const label = h > 0 ? `${h}h${m > 0 ? ` ${m}m` : ''}` : `${m}m`;
                       if (tracked > 0 && est > 0) {
                         const pct = Math.round((tracked / est) * 100);
-                        return <>{label} <span className={pct >= 100 ? 'text-accent-red' : 'text-accent-green'}>{pct}%</span></>;
+                        return <>{label} <span style={{ color: pct >= 100 ? '#EF4444' : '#22C55E' }}>{pct}%</span></>;
                       }
                       return label;
                     })()}
                   </span>
                 )}
+
                 {showFields && customFields && customFields.length > 0 && (
                   <TaskFieldValues taskId={task.id} fields={customFields} />
                 )}
-                {task.priority && task.priority !== 'none' && (
-                  <Flag
-                    size={12}
-                    className={cn('flex-shrink-0', priorityColors[task.priority] || 'text-text-tertiary')}
-                  />
-                )}
+
+                {/* Priority dot */}
+                <div className="flex items-center justify-center flex-shrink-0" style={{ width: 80 }}>
+                  {task.priority && task.priority !== 'none' ? (
+                    <span
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: PRIORITY_DOT_COLORS[task.priority] || 'rgba(255,255,255,0.20)',
+                        display: 'inline-block',
+                      }}
+                      title={task.priority}
+                    />
+                  ) : (
+                    <span style={{ color: 'rgba(255,255,255,0.20)', fontSize: 11 }}>--</span>
+                  )}
+                </div>
+
+                {/* Status pill */}
                 {task.status && (
-                  <span className="text-[10px] text-text-tertiary px-1.5 py-0.5 rounded bg-bg-tertiary">
-                    {task.status}
-                  </span>
+                  <div className="flex items-center justify-center flex-shrink-0" style={{ width: 100 }}>
+                    {(() => {
+                      const key = task.status.toUpperCase().replace(/\s+/g, '_');
+                      const presetStyle = STATUS_PILL_STYLES[key];
+                      return (
+                        <span
+                          style={{
+                            height: 20,
+                            borderRadius: 9999,
+                            padding: '0 8px',
+                            fontSize: 11,
+                            fontWeight: 500,
+                            color: presetStyle?.color ?? '#A1A1AA',
+                            background: presetStyle?.bg ?? 'rgba(161,161,170,0.10)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {task.status.replace('_', ' ')}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 )}
               </div>
             );

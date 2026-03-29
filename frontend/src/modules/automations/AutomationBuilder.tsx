@@ -224,29 +224,36 @@ export function AutomationBuilder({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-2xl max-h-[90vh] bg-bg-secondary rounded-2xl border border-border-primary shadow-2xl flex flex-col overflow-hidden">
+      <div className="w-full max-w-2xl max-h-[90vh] bg-[#111113] rounded-2xl border border-[rgba(255,255,255,0.08)] shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-primary">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
           <div>
             <h2 className="text-lg font-semibold text-text-primary">
               {isEditing ? 'Edit Automation' : 'Create Automation'}
             </h2>
-            <div className="flex items-center gap-2 mt-1">
-              {steps.map((s, i) => (
-                <span
-                  key={s}
-                  className={cn(
-                    'text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full',
-                    i === stepIndex
-                      ? 'bg-accent-blue text-white'
-                      : i < stepIndex
-                        ? 'bg-accent-emerald/20 text-accent-emerald'
-                        : 'bg-bg-tertiary text-text-tertiary'
-                  )}
-                >
-                  {s === 'trigger' ? 'When' : s === 'conditions' ? 'If' : 'Then'}
-                </span>
-              ))}
+            <div className="flex items-center gap-1 mt-1">
+              {steps.map((s, i) => {
+                const stepColors = {
+                  trigger: { active: 'bg-[#2563EB] text-white', done: 'bg-[#2563EB]/20 text-[#2563EB]', pending: 'bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.40)]' },
+                  conditions: { active: 'bg-[#f97316] text-white', done: 'bg-[#f97316]/20 text-[#f97316]', pending: 'bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.40)]' },
+                  actions: { active: 'bg-[#22c55e] text-white', done: 'bg-[#22c55e]/20 text-[#22c55e]', pending: 'bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.40)]' },
+                };
+                const connectorColors = ['bg-[#2563EB]/40', 'bg-[#f97316]/40'];
+                const colors = stepColors[s];
+                return (
+                  <div key={s} className="flex items-center gap-1">
+                    {i > 0 && <span className={cn('w-4 h-[2px] rounded-full', i <= stepIndex ? connectorColors[i - 1] : 'bg-[rgba(255,255,255,0.08)]')} />}
+                    <span
+                      className={cn(
+                        'text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full',
+                        i === stepIndex ? colors.active : i < stepIndex ? colors.done : colors.pending
+                      )}
+                    >
+                      {s === 'trigger' ? 'When' : s === 'conditions' ? 'If' : 'Then'}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-bg-hover text-text-tertiary">
@@ -280,10 +287,10 @@ export function AutomationBuilder({
                       key={opt.type}
                       onClick={() => handleSelectTrigger(opt.type)}
                       className={cn(
-                        'flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center transition-all',
+                        'flex flex-col items-center gap-1.5 p-3 rounded-[12px] border text-center transition-all',
                         selected
-                          ? 'border-accent-blue bg-accent-blue/10 text-accent-blue'
-                          : 'border-border-primary bg-bg-tertiary text-text-secondary hover:border-accent-blue/40'
+                          ? 'border-[#2563EB] bg-[#2563EB]/10 text-[#2563EB]'
+                          : 'border-[rgba(255,255,255,0.08)] bg-[#111113] text-[rgba(255,255,255,0.65)] hover:border-[#2563EB]/40'
                       )}
                     >
                       <Icon size={20} />
@@ -395,7 +402,7 @@ export function AutomationBuilder({
 
               <div className="space-y-2">
                 {conditions.map((cond, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
+                  <div key={idx} className="flex items-center gap-2 p-3 rounded-[12px] border border-[#f97316]/30 bg-[#f97316]/5">
                     <select
                       value={cond.field}
                       onChange={(e) => updateCondition(idx, { field: e.target.value })}
@@ -448,7 +455,7 @@ export function AutomationBuilder({
                   const opt = actionOptions.find((o) => o.type === action.type);
                   const Icon = opt?.icon ?? Settings;
                   return (
-                    <div key={idx} className="flex items-start gap-2 p-3 rounded-lg border border-border-primary bg-bg-tertiary">
+                    <div key={idx} className="flex items-start gap-2 p-3 rounded-[12px] border border-[#22c55e]/30 bg-[#22c55e]/5">
                       <button
                         className="mt-0.5 text-text-tertiary cursor-grab"
                         onMouseDown={(e) => e.preventDefault()}
@@ -571,7 +578,7 @@ export function AutomationBuilder({
                     <button
                       key={opt.type}
                       onClick={() => addAction(opt.type)}
-                      className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border-primary bg-bg-tertiary text-text-secondary hover:border-accent-blue/40 hover:text-accent-blue transition-all text-center"
+                      className="flex flex-col items-center gap-1 p-2 rounded-[12px] border border-[rgba(255,255,255,0.08)] bg-[#111113] text-[rgba(255,255,255,0.65)] hover:border-[#22c55e]/40 hover:text-[#22c55e] transition-all text-center"
                     >
                       <Icon size={14} />
                       <span className="text-[10px] leading-tight">{opt.label}</span>

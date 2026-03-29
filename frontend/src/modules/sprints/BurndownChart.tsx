@@ -21,7 +21,7 @@ export function BurndownChart({ sprintId }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64 text-text-secondary">
+      <div className="flex items-center justify-center h-64 text-[var(--cx-text-2)]">
         Loading burndown data...
       </div>
     );
@@ -29,7 +29,7 @@ export function BurndownChart({ sprintId }: Props) {
 
   if (!data || data.actualLine.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-text-secondary">
+      <div className="flex items-center justify-center h-64 text-[var(--cx-text-2)]">
         No burndown data yet. Start the sprint and record daily snapshots.
       </div>
     );

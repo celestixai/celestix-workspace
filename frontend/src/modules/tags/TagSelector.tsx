@@ -9,9 +9,9 @@ interface TagSelectorProps {
 }
 
 const PRESET_COLORS = [
-  '#4F8EF7', '#6366F1', '#8B5CF6', '#A855F7',
-  '#EC4899', '#EF4444', '#F97316', '#EAB308',
-  '#22C55E', '#14B8A6', '#06B6D4', '#64748B',
+  '#3B82F6', '#2563EB', '#8B5CF6', '#8B5CF6',
+  '#EF4444', '#DC2626', '#F97316', '#eab308',
+  '#22c55e', '#14B8A6', '#10B981', '#60A5FA',
 ];
 
 export function TagSelector({ taskId, workspaceId }: TagSelectorProps) {
@@ -24,7 +24,7 @@ export function TagSelector({ taskId, workspaceId }: TagSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [newTagName, setNewTagName] = useState('');
-  const [newTagColor, setNewTagColor] = useState('#4F8EF7');
+  const [newTagColor, setNewTagColor] = useState('#3B82F6');
   const [showCreate, setShowCreate] = useState(false);
 
   const taskTagIds = useMemo(() => new Set(taskTags.map((t) => t.id)), [taskTags]);

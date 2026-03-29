@@ -62,7 +62,11 @@ router.post('/register', authLimiter, validate(registerSchema), async (req: Requ
 
 // POST /api/v1/auth/login
 router.post('/login', authLimiter, validate(loginSchema), async (req: Request, res: Response) => {
-  const result = await authService.login(req.body);
+  const meta = {
+    deviceInfo: req.headers['user-agent'] || null,
+    ipAddress: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || null,
+  };
+  const result = await authService.login(req.body, meta);
   const maxAge = req.body.rememberMe
     ? 30 * 24 * 60 * 60 * 1000
     : 7 * 24 * 60 * 60 * 1000;
@@ -163,7 +167,8 @@ router.post('/2fa/disable', authenticate, validate(setup2FASchema), async (req: 
 
 // GET /api/v1/auth/sessions
 router.get('/sessions', authenticate, async (req: Request, res: Response) => {
-  const sessions = await authService.getSessions(req.user!.id);
+  const currentToken = req.headers.authorization?.substring(7) || req.cookies?.token;
+  const sessions = await authService.getSessions(req.user!.id, currentToken);
   res.json({ success: true, data: sessions });
 });
 

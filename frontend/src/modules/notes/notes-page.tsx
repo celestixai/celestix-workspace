@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { Skeleton } from '@/components/ui/skeleton';
-import { EmptyState } from '@/components/shared/empty-state';
+import { EmptyState as LegacyEmptyState } from '@/components/shared/empty-state';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { toast } from '@/components/ui/toast';
 import { cn, formatRelativeTime } from '@/lib/utils';
 import {
   FileText,
+  StickyNote,
   Plus,
   Search,
   FolderOpen,
@@ -368,7 +370,7 @@ export function NotesPage() {
               ))}
             </div>
           ) : filteredNotes.length === 0 ? (
-            <EmptyState
+            <LegacyEmptyState
               icon={<FileText size={36} />}
               title="No notes"
               description={searchQuery ? 'Try a different search' : 'Create your first note'}
@@ -504,63 +506,66 @@ export function NotesPage() {
             </div>
 
             {/* Editor content */}
-            <div className="flex-1 overflow-y-auto px-8 py-6 max-w-3xl mx-auto w-full">
-              {/* Title */}
-              <input
-                value={editorTitle}
-                onChange={(e) => setEditorTitle(e.target.value)}
-                onBlur={handleSave}
-                placeholder="Untitled"
-                className="w-full text-3xl font-bold text-text-primary bg-transparent focus:outline-none mb-1 placeholder:text-text-tertiary/40"
-              />
-
-              {/* Tags */}
-              <div className="flex items-center gap-1.5 mb-4">
-                {(selectedNote.tags || []).map((tag) => (
-                  <span
-                    key={typeof tag === 'string' ? tag : (tag as any)?.tag?.name || ''}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-bg-tertiary text-xs text-text-secondary"
-                  >
-                    <Hash size={10} />
-                    {typeof tag === 'string' ? tag : (tag as any)?.tag?.name || ''}
-                  </span>
-                ))}
-                <button className="flex items-center gap-1 px-2 py-0.5 rounded-full border border-dashed border-border-secondary text-xs text-text-tertiary hover:text-text-secondary hover:border-border-primary transition-colors">
-                  <Tag size={10} />
-                  Add tag
-                </button>
-              </div>
-
-              {/* Meta */}
-              <div className="text-xs text-text-tertiary mb-6">
-                Last edited {formatRelativeTime(selectedNote.updatedAt)}
-                {selectedNote.wordCount > 0 && <> &middot; {selectedNote.wordCount} words</>}
-              </div>
-
-              {/* Rich text area (TipTap placeholder) */}
-              <div className="ProseMirror">
-                <textarea
-                  value={editorContent}
-                  onChange={(e) => setEditorContent(e.target.value)}
+            <div className="flex-1 overflow-y-auto py-8 px-4">
+              <div className="max-w-2xl mx-auto bg-[#111113] border border-[rgba(255,255,255,0.08)] rounded-[12px] p-8 min-h-[600px]">
+                {/* Title */}
+                <input
+                  value={editorTitle}
+                  onChange={(e) => setEditorTitle(e.target.value)}
                   onBlur={handleSave}
-                  placeholder="Start writing..."
-                  className="w-full min-h-[400px] bg-transparent text-text-primary text-sm leading-relaxed focus:outline-none resize-none placeholder:text-text-tertiary/40"
+                  placeholder="Untitled"
+                  className="w-full text-2xl font-display text-text-primary bg-transparent focus:outline-none border-none outline-none mb-1 placeholder:text-text-tertiary/40"
                 />
+
+                {/* Tags */}
+                <div className="flex items-center gap-1.5 mb-4">
+                  {(selectedNote.tags || []).map((tag) => (
+                    <span
+                      key={typeof tag === 'string' ? tag : (tag as any)?.tag?.name || ''}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-bg-tertiary text-xs text-text-secondary"
+                    >
+                      <Hash size={10} />
+                      {typeof tag === 'string' ? tag : (tag as any)?.tag?.name || ''}
+                    </span>
+                  ))}
+                  <button className="flex items-center gap-1 px-2 py-0.5 rounded-full border border-dashed border-border-secondary text-xs text-text-tertiary hover:text-text-secondary hover:border-border-primary transition-colors">
+                    <Tag size={10} />
+                    Add tag
+                  </button>
+                </div>
+
+                {/* Meta */}
+                <div className="text-xs text-text-tertiary mb-4">
+                  Last edited {formatRelativeTime(selectedNote.updatedAt)}
+                  {selectedNote.wordCount > 0 && <> &middot; {selectedNote.wordCount} words</>}
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-[rgba(255,255,255,0.06)] mb-5" />
+
+                {/* Rich text area (TipTap placeholder) */}
+                <div className="ProseMirror">
+                  <textarea
+                    value={editorContent}
+                    onChange={(e) => setEditorContent(e.target.value)}
+                    onBlur={handleSave}
+                    placeholder="Start writing..."
+                    className="w-full min-h-[400px] bg-transparent text-text-primary text-sm leading-relaxed focus:outline-none resize-none placeholder:text-text-tertiary/40"
+                  />
+                </div>
               </div>
             </div>
           </>
         ) : (
-          <EmptyState
-            icon={<FileText size={48} />}
-            title="Select a note"
-            description="Choose a note from the list or create a new one"
-            action={
-              <Button onClick={() => createNote.mutate()}>
-                <Plus size={14} /> New Note
-              </Button>
-            }
-            className="flex-1"
-          />
+          <div className="flex-1 flex items-center justify-center">
+            <EmptyState
+              icon={StickyNote}
+              title="No notes yet"
+              description="Capture your thoughts and ideas"
+              actionLabel="+ New Note"
+              onAction={() => createNote.mutate()}
+            />
+          </div>
         )}
       </main>
 

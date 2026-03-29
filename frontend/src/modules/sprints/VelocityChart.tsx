@@ -19,7 +19,7 @@ export function VelocityChart({ folderId }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64 text-text-secondary">
+      <div className="flex items-center justify-center h-64 text-[var(--cx-text-2)]">
         Loading velocity data...
       </div>
     );
@@ -27,7 +27,7 @@ export function VelocityChart({ folderId }: Props) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-text-secondary">
+      <div className="flex items-center justify-center h-64 text-[var(--cx-text-2)]">
         No completed sprints yet. Velocity data will appear after completing sprints.
       </div>
     );
@@ -44,8 +44,8 @@ export function VelocityChart({ folderId }: Props) {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-3 text-sm text-text-secondary">
-        <span>Average velocity: <span className="font-semibold text-text-primary">{Math.round(avgVelocity * 10) / 10}</span> pts/sprint</span>
+      <div className="flex items-center gap-4 mb-3 text-sm text-[var(--cx-text-2)]">
+        <span>Average velocity: <span className="font-semibold text-[var(--cx-text-1)]">{Math.round(avgVelocity * 10) / 10}</span> pts/sprint</span>
       </div>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">

@@ -19,9 +19,9 @@ interface FollowUpsListProps {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  PENDING: { label: 'Pending', icon: <Circle size={14} />, color: 'text-yellow-400' },
-  IN_PROGRESS: { label: 'In Progress', icon: <Clock size={14} />, color: 'text-blue-400' },
-  DONE: { label: 'Done', icon: <CheckCircle size={14} />, color: 'text-green-400' },
+  PENDING: { label: 'Pending', icon: <Circle size={14} />, color: 'text-cx-warning' },
+  IN_PROGRESS: { label: 'In Progress', icon: <Clock size={14} />, color: 'text-cx-brand' },
+  DONE: { label: 'Done', icon: <CheckCircle size={14} />, color: 'text-cx-success' },
 };
 
 export function FollowUpsList({ workspaceId }: FollowUpsListProps) {
@@ -142,7 +142,7 @@ function FollowUpCard({ followUp }: { followUp: FollowUp }) {
         followUp.status === 'DONE'
           ? 'border-border-primary bg-bg-secondary opacity-70'
           : 'border-border-primary bg-bg-secondary hover:bg-bg-tertiary',
-        isOverdue && 'border-red-500/30',
+        isOverdue && 'border-cx-danger/30',
       )}
     >
       {/* Top row: status + channel + due date */}
@@ -159,7 +159,7 @@ function FollowUpCard({ followUp }: { followUp: FollowUp }) {
           <span
             className={cn(
               'text-xs ml-auto',
-              isOverdue ? 'text-red-400 font-medium' : 'text-text-tertiary',
+              isOverdue ? 'text-cx-danger font-medium' : 'text-text-tertiary',
             )}
           >
             {isOverdue ? 'Overdue: ' : 'Due: '}
@@ -195,7 +195,7 @@ function FollowUpCard({ followUp }: { followUp: FollowUp }) {
               onClick={() => handleStatusChange('DONE')}
               title="Mark done"
             >
-              <CheckCircle size={14} className="text-green-400" />
+              <CheckCircle size={14} className="text-cx-success" />
             </Button>
           )}
           {followUp.status === 'PENDING' && (
@@ -205,7 +205,7 @@ function FollowUpCard({ followUp }: { followUp: FollowUp }) {
               onClick={() => handleStatusChange('IN_PROGRESS')}
               title="Start"
             >
-              <Clock size={14} className="text-blue-400" />
+              <Clock size={14} className="text-cx-brand" />
             </Button>
           )}
           {followUp.status === 'DONE' && (
@@ -215,7 +215,7 @@ function FollowUpCard({ followUp }: { followUp: FollowUp }) {
               onClick={() => handleStatusChange('PENDING')}
               title="Reopen"
             >
-              <Circle size={14} className="text-yellow-400" />
+              <Circle size={14} className="text-cx-warning" />
             </Button>
           )}
           <Button
@@ -224,7 +224,7 @@ function FollowUpCard({ followUp }: { followUp: FollowUp }) {
             onClick={handleDelete}
             title="Delete follow-up"
           >
-            <Trash2 size={14} className="text-text-tertiary hover:text-red-400" />
+            <Trash2 size={14} className="text-text-tertiary hover:text-cx-danger" />
           </Button>
         </div>
       </div>

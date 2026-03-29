@@ -18,6 +18,7 @@ interface UserResult {
   id: string;
   displayName: string;
   email: string;
+  username?: string;
   avatarUrl?: string | null;
 }
 
@@ -70,11 +71,28 @@ export function CreateChatModal({ open, onClose, onChatCreated }: CreateChatModa
   /* ---- Create chat mutation ---- */
   const createMutation = useMutation({
     mutationFn: async () => {
+      // Auto-detect type: 1 person = DIRECT, multiple = GROUP
+      const effectiveType: ChatTypeOption =
+        chatType === 'DIRECT' || (chatType === 'GROUP' && selectedUsers.length === 1)
+          ? 'DIRECT'
+          : chatType;
+
+      // For DMs, check if a conversation already exists with this person
+      if (effectiveType === 'DIRECT' && selectedUsers.length === 1) {
+        const existingChats = queryClient.getQueryData<any[]>(['messenger', 'chats']);
+        const existingDM = existingChats?.find(
+          (c) => (c.type === 'DM' || c.type === 'DIRECT') && c.dmUserId === selectedUsers[0].id,
+        );
+        if (existingDM) {
+          return existingDM; // Return existing chat instead of creating a new one
+        }
+      }
+
       const payload: Record<string, unknown> = {
-        type: chatType,
+        type: effectiveType,
         memberIds: selectedUsers.map((u) => u.id),
       };
-      if (chatType !== 'DIRECT') {
+      if (effectiveType !== 'DIRECT') {
         payload.name = groupName || (selectedUsers.length > 0
           ? selectedUsers.map((u) => u.displayName.split(' ')[0]).join(', ')
           : 'Unnamed');
@@ -254,7 +272,7 @@ export function CreateChatModal({ open, onClose, onChatCreated }: CreateChatModa
                     <p className="text-sm font-medium text-text-primary truncate">
                       {user.displayName}
                     </p>
-                    <p className="text-xs text-text-secondary truncate">{user.email}</p>
+                    <p className="text-xs text-text-secondary truncate">{user.username ? `@${user.username}` : user.email}</p>
                   </div>
                   {isSelected && (
                     <div className="h-5 w-5 rounded-full bg-accent-blue flex items-center justify-center flex-shrink-0">

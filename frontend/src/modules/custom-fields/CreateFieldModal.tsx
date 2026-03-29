@@ -23,8 +23,8 @@ interface CreateFieldModalProps {
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'BRL'];
 
 const DEFAULT_COLORS = [
-  '#3b82f6', '#ef4444', '#22c55e', '#eab308', '#a855f7',
-  '#ec4899', '#f97316', '#14b8a6', '#6366f1', '#64748b',
+  '#3B82F6', '#EF4444', '#22c55e', '#eab308', '#8B5CF6',
+  '#F97316', '#f97316', '#14B8A6', '#2563EB', '#60A5FA',
 ];
 
 function generateId() {

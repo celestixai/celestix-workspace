@@ -162,9 +162,9 @@ export function RecurrenceModal({ taskId, onClose }: RecurrenceModalProps) {
             {hasSchedule && (
               <div className={cn(
                 'flex items-center justify-between px-3 py-2 rounded-lg text-xs',
-                existing.status === 'ACTIVE' ? 'bg-green-500/10 text-green-400' :
-                existing.status === 'PAUSED' ? 'bg-yellow-500/10 text-yellow-400' :
-                'bg-gray-500/10 text-gray-400'
+                existing.status === 'ACTIVE' ? 'bg-cx-success/10 text-cx-success' :
+                existing.status === 'PAUSED' ? 'bg-cx-warning/10 text-cx-warning' :
+                'bg-[var(--cx-text-3)]/10 text-[var(--cx-text-2)]'
               )}>
                 <span>Status: {existing.status} ({existing.occurrenceCount} occurrences)</span>
                 <div className="flex gap-1">
@@ -350,7 +350,7 @@ export function RecurrenceModal({ taskId, onClose }: RecurrenceModalProps) {
               <button
                 onClick={handleDelete}
                 disabled={deleteMutation.isPending}
-                className="flex items-center gap-1.5 text-xs text-accent-red hover:text-red-400 transition-colors"
+                className="flex items-center gap-1.5 text-xs text-accent-red hover:text-cx-danger transition-colors"
               >
                 <Trash2 size={12} />
                 Remove recurrence

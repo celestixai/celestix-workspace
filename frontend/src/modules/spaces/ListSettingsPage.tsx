@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 
 const PRESET_COLORS = [
-  '#4A90D9', '#E91E63', '#4CAF50', '#F59E0B', '#8B5CF6',
-  '#EF4444', '#10B981', '#06B6D4', '#F97316', '#6366F1',
+  '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+  '#DC2626', '#14B8A6', '#60A5FA', '#F97316', '#22c55e',
 ];
 
 type Tab = 'general' | 'statuses' | 'danger';

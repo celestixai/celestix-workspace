@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { Skeleton } from '@/components/ui/skeleton';
-import { EmptyState } from '@/components/shared/empty-state';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { toast } from '@/components/ui/toast';
 import {
   FolderOpen,
@@ -373,14 +373,7 @@ export function FilesPage() {
         </nav>
 
         {/* Storage indicator */}
-        <div className="p-3 border-t border-border-primary flex-shrink-0">
-          <div className="flex items-center justify-between text-xs text-text-tertiary mb-1.5">
-            <span>Storage</span>
-          </div>
-          <div className="h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
-            <div className="h-full bg-accent-blue rounded-full w-1/3 transition-all" />
-          </div>
-        </div>
+        <StorageUsageBar />
       </aside>
 
       {/* ===== Main Area ===== */}
@@ -491,29 +484,17 @@ export function FilesPage() {
             <FilesSkeleton viewMode={viewMode} />
           ) : sortedFiles.length === 0 ? (
             <EmptyState
-              icon={<FolderOpen size={48} />}
-              title={searchQuery ? 'No results' : 'No files'}
+              icon={FolderOpen}
+              title="No files uploaded"
               description={
                 searchQuery
                   ? 'Try a different search term'
                   : activeSection === 'trash'
                     ? 'Trash is empty'
-                    : 'Upload files or create a folder to get started'
+                    : 'Upload files to share with your team'
               }
-              action={
-                !searchQuery && activeSection === 'my-files' ? (
-                  <div className="flex gap-2">
-                    <Button onClick={() => fileInputRef.current?.click()}>
-                      <Upload size={14} />
-                      Upload
-                    </Button>
-                    <Button variant="secondary" onClick={() => setShowNewFolder(true)}>
-                      <FolderPlus size={14} />
-                      New Folder
-                    </Button>
-                  </div>
-                ) : undefined
-              }
+              actionLabel={!searchQuery && activeSection === 'my-files' ? 'Upload File' : undefined}
+              onAction={!searchQuery && activeSection === 'my-files' ? () => fileInputRef.current?.click() : undefined}
             />
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
@@ -903,6 +884,40 @@ function RenameModal({
 /* ------------------------------------------------------------------ */
 /*  Loading Skeletons                                                  */
 /* ------------------------------------------------------------------ */
+
+function StorageUsageBar() {
+  const { data } = useQuery({
+    queryKey: ['files', 'storage-usage'],
+    queryFn: async () => {
+      const { data } = await api.get('/files/storage-usage');
+      return data.data as { used: number; limit: number };
+    },
+  });
+
+  const used = data?.used || 0;
+  const limit = data?.limit || 5368709120;
+  const pct = Math.min((used / limit) * 100, 100);
+  const formatSize = (bytes: number) => {
+    if (bytes >= 1073741824) return `${(bytes / 1073741824).toFixed(1)} GB`;
+    if (bytes >= 1048576) return `${(bytes / 1048576).toFixed(0)} MB`;
+    return `${(bytes / 1024).toFixed(0)} KB`;
+  };
+
+  return (
+    <div className="p-3 border-t border-border-primary flex-shrink-0">
+      <div className="flex items-center justify-between text-xs text-text-tertiary mb-1.5">
+        <span>Storage</span>
+        <span>{formatSize(used)} of {formatSize(limit)}</span>
+      </div>
+      <div className="h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
+        <div
+          className={cn('h-full rounded-full transition-all', pct > 90 ? 'bg-accent-red' : pct > 70 ? 'bg-accent-amber' : 'bg-accent-blue')}
+          style={{ width: `${Math.max(pct, 1)}%` }}
+        />
+      </div>
+    </div>
+  );
+}
 
 function FilesSkeleton({ viewMode }: { viewMode: 'grid' | 'list' }) {
   if (viewMode === 'grid') {

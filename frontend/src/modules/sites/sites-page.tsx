@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { EmptyState } from '@/components/shared/EmptyState';
 import {
   Plus,
   ArrowLeft,
@@ -94,7 +95,7 @@ const WEB_PART_TYPES: { type: WebPartType; label: string; icon: React.ReactNode 
   { type: 'embed', label: 'Embed', icon: <Code size={18} /> },
 ];
 
-const THEME_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316'];
+const THEME_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6', '#60A5FA', '#F97316'];
 
 function generateId() {
   return Math.random().toString(36).substring(2, 10);
@@ -143,30 +144,30 @@ function WebPartRenderer({ webPart, site, themeColor }: { webPart: WebPart; site
   switch (webPart.type) {
     case 'hero':
       return (
-        <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-accent-blue/20 to-purple-600/20 p-8 min-h-[200px] flex flex-col justify-center">
-          <h2 className="text-2xl font-bold text-text-primary mb-2">{webPart.title}</h2>
-          <p className="text-text-secondary">{webPart.content}</p>
+        <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-cx-brand/20 to-purple-600/20 p-8 min-h-[200px] flex flex-col justify-center">
+          <h2 className="text-2xl font-bold text-[var(--cx-text-1)] mb-2">{webPart.title}</h2>
+          <p className="text-[var(--cx-text-2)]">{webPart.content}</p>
         </div>
       );
     case 'news':
       return (
         <div>
-          <h3 className="text-lg font-semibold text-text-primary mb-3">{webPart.title}</h3>
+          <h3 className="text-lg font-semibold text-[var(--cx-text-1)] mb-3">{webPart.title}</h3>
           <div className="space-y-2">
             {site.news.filter((n) => n.published).slice(0, 3).map((post) => (
-              <div key={post.id} className="flex gap-3 p-3 bg-bg-primary rounded-lg border border-border-primary/50">
-                <div className="w-16 h-16 rounded bg-bg-secondary shrink-0 flex items-center justify-center">
-                  <Newspaper size={16} className="text-text-secondary/30" />
+              <div key={post.id} className="flex gap-3 p-3 bg-cx-bg rounded-lg border border-white/8/50">
+                <div className="w-16 h-16 rounded bg-cx-surface shrink-0 flex items-center justify-center">
+                  <Newspaper size={16} className="text-[var(--cx-text-2)]/30" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-text-primary">{post.title}</h4>
-                  <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">{post.body}</p>
-                  <span className="text-[10px] text-text-secondary">{post.createdAt}</span>
+                  <h4 className="text-sm font-medium text-[var(--cx-text-1)]">{post.title}</h4>
+                  <p className="text-xs text-[var(--cx-text-2)] mt-0.5 line-clamp-2">{post.body}</p>
+                  <span className="text-[10px] text-[var(--cx-text-2)]">{post.createdAt}</span>
                 </div>
               </div>
             ))}
             {site.news.filter((n) => n.published).length === 0 && (
-              <p className="text-sm text-text-secondary py-4 text-center">No published news yet</p>
+              <p className="text-sm text-[var(--cx-text-2)] py-4 text-center">No published news yet</p>
             )}
           </div>
         </div>
@@ -174,20 +175,20 @@ function WebPartRenderer({ webPart, site, themeColor }: { webPart: WebPart; site
     case 'text':
       return (
         <div className="prose prose-invert max-w-none">
-          <p className="text-text-primary text-sm leading-relaxed whitespace-pre-wrap">{webPart.content}</p>
+          <p className="text-[var(--cx-text-1)] text-sm leading-relaxed whitespace-pre-wrap">{webPart.content}</p>
         </div>
       );
     case 'quicklinks':
       return (
         <div>
-          <h3 className="text-lg font-semibold text-text-primary mb-3">{webPart.title}</h3>
+          <h3 className="text-lg font-semibold text-[var(--cx-text-1)] mb-3">{webPart.title}</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {webPart.links?.map((link, i) => (
-              <a key={i} href={link.url} className="flex flex-col items-center gap-2 p-3 bg-bg-primary rounded-lg border border-border-primary/50 hover:border-accent-blue/50 transition-colors">
+              <a key={i} href={link.url} className="flex flex-col items-center gap-2 p-3 bg-cx-bg rounded-lg border border-white/8/50 hover:border-cx-brand/50 transition-colors">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: themeColor + '20' }}>
                   <Link2 size={16} style={{ color: themeColor }} />
                 </div>
-                <span className="text-xs text-text-primary text-center">{link.label}</span>
+                <span className="text-xs text-[var(--cx-text-1)] text-center">{link.label}</span>
               </a>
             ))}
           </div>
@@ -196,15 +197,15 @@ function WebPartRenderer({ webPart, site, themeColor }: { webPart: WebPart; site
     case 'people':
       return (
         <div>
-          <h3 className="text-lg font-semibold text-text-primary mb-3">{webPart.title}</h3>
+          <h3 className="text-lg font-semibold text-[var(--cx-text-1)] mb-3">{webPart.title}</h3>
           <div className="grid grid-cols-3 gap-3">
             {webPart.people?.map((person, i) => (
-              <div key={i} className="flex flex-col items-center p-3 bg-bg-primary rounded-lg border border-border-primary/50">
-                <div className="w-12 h-12 rounded-full bg-bg-secondary flex items-center justify-center mb-2">
-                  <span className="text-text-secondary text-sm font-medium">{person.name.charAt(0)}</span>
+              <div key={i} className="flex flex-col items-center p-3 bg-cx-bg rounded-lg border border-white/8/50">
+                <div className="w-12 h-12 rounded-full bg-cx-surface flex items-center justify-center mb-2">
+                  <span className="text-[var(--cx-text-2)] text-sm font-medium">{person.name.charAt(0)}</span>
                 </div>
-                <span className="text-sm text-text-primary font-medium text-center">{person.name}</span>
-                <span className="text-xs text-text-secondary">{person.role}</span>
+                <span className="text-sm text-[var(--cx-text-1)] font-medium text-center">{person.name}</span>
+                <span className="text-xs text-[var(--cx-text-2)]">{person.role}</span>
               </div>
             ))}
           </div>
@@ -212,23 +213,23 @@ function WebPartRenderer({ webPart, site, themeColor }: { webPart: WebPart; site
       );
     case 'image':
       return (
-        <div className="aspect-video bg-bg-primary rounded-lg border border-border-primary/50 flex items-center justify-center">
+        <div className="aspect-video bg-cx-bg rounded-lg border border-white/8/50 flex items-center justify-center">
           {webPart.imageUrl ? (
             <img src={webPart.imageUrl} alt="" className="w-full h-full object-cover rounded-lg" />
           ) : (
-            <Image size={32} className="text-text-secondary/20" />
+            <Image size={32} className="text-[var(--cx-text-2)]/20" />
           )}
         </div>
       );
     case 'embed':
       return (
-        <div className="aspect-video bg-bg-primary rounded-lg border border-border-primary/50 flex items-center justify-center">
+        <div className="aspect-video bg-cx-bg rounded-lg border border-white/8/50 flex items-center justify-center">
           {webPart.embedUrl ? (
             <iframe src={webPart.embedUrl} className="w-full h-full rounded-lg" title="Embed" />
           ) : (
             <div className="text-center">
-              <Code size={24} className="text-text-secondary/30 mx-auto mb-1" />
-              <span className="text-xs text-text-secondary">Paste embed URL</span>
+              <Code size={24} className="text-[var(--cx-text-2)]/30 mx-auto mb-1" />
+              <span className="text-xs text-[var(--cx-text-2)]">Paste embed URL</span>
             </div>
           )}
         </div>
@@ -418,52 +419,63 @@ export function SitesPage() {
   // --- Site List View ---
   if (!activeSite) {
     return (
-      <div className="min-h-screen bg-bg-primary p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-2xl font-bold text-text-primary">Sites</h1>
-              <p className="text-text-secondary mt-1">Build intranet portals and team sites</p>
-            </div>
-            <button
-              onClick={handleCreateSite}
-              className="flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90 transition-colors"
-            >
-              <Plus size={16} />
-              New Site
-            </button>
+      <div className="h-full flex flex-col bg-cx-bg">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4">
+          <div>
+            <h1 className="font-display text-xl text-[var(--cx-text-1)]">Sites</h1>
+            <p className="text-sm text-[var(--cx-text-3)] mt-1">Build intranet portals and team sites</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sites.map((site) => (
-              <button
-                key={site.id}
-                onClick={() => { setActiveSite(site); setActivePageId(site.pages[0]?.id || null); }}
-                className="bg-bg-secondary border border-border-primary rounded-xl p-5 text-left hover:border-accent-blue/50 transition-colors group"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: site.themeColor + '20' }}>
-                    <Globe size={20} style={{ color: site.themeColor }} />
+          <button
+            onClick={handleCreateSite}
+            className="flex items-center gap-2 px-4 py-2 bg-cx-brand text-white rounded-lg hover:bg-cx-brand-hover transition-colors"
+          >
+            <Plus size={16} />
+            New Site
+          </button>
+        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-auto px-6">
+          {sites.length === 0 ? (
+            <EmptyState
+              icon={Globe}
+              title="No sites yet"
+              description="Build and publish websites for your team"
+              actionLabel="+ Create Site"
+              onAction={handleCreateSite}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sites.map((site) => (
+                <button
+                  key={site.id}
+                  onClick={() => { setActiveSite(site); setActivePageId(site.pages[0]?.id || null); }}
+                  className="bg-cx-surface border border-white/8 rounded-xl p-5 text-left hover:border-cx-brand/50 transition-colors group"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: site.themeColor + '20' }}>
+                      <Globe size={20} style={{ color: site.themeColor }} />
+                    </div>
+                    <span className={cn(
+                      'text-[10px] font-medium px-2 py-0.5 rounded-full',
+                      site.type === 'Team' ? 'bg-cx-brand/10 text-cx-brand' : 'bg-cx-success/10 text-cx-success'
+                    )}>
+                      {site.type}
+                    </span>
                   </div>
-                  <span className={cn(
-                    'text-[10px] font-medium px-2 py-0.5 rounded-full',
-                    site.type === 'Team' ? 'bg-blue-500/10 text-blue-400' : 'bg-green-500/10 text-green-400'
-                  )}>
-                    {site.type}
-                  </span>
-                </div>
-                <h3 className="text-text-primary font-semibold mb-1 group-hover:text-accent-blue transition-colors">
-                  {site.name}
-                </h3>
-                <p className="text-xs text-text-secondary line-clamp-1">{site.description || 'No description'}</p>
-                <div className="flex items-center gap-2 text-xs text-text-secondary mt-3">
-                  <span>{site.pages.length} pages</span>
-                  <span className="w-1 h-1 rounded-full bg-text-secondary/30" />
-                  <span>{site.news.length} news</span>
-                </div>
-              </button>
-            ))}
-          </div>
+                  <h3 className="text-[var(--cx-text-1)] font-semibold mb-1 group-hover:text-cx-brand transition-colors">
+                    {site.name}
+                  </h3>
+                  <p className="text-xs text-[var(--cx-text-2)] line-clamp-1">{site.description || 'No description'}</p>
+                  <div className="flex items-center gap-2 text-xs text-[var(--cx-text-2)] mt-3">
+                    <span>{site.pages.length} pages</span>
+                    <span className="w-1 h-1 rounded-full bg-text-secondary/30" />
+                    <span>{site.news.length} news</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -473,11 +485,11 @@ export function SitesPage() {
 
   // --- Site Editor View ---
   return (
-    <div className="h-screen bg-bg-primary flex flex-col overflow-hidden">
+    <div className="h-full bg-cx-bg flex flex-col overflow-hidden">
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary border-b border-border-primary shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-cx-surface border-b border-white/8 shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={() => { setActiveSite(null); setActiveTab('pages'); }} className="text-text-secondary hover:text-text-primary">
+          <button onClick={() => { setActiveSite(null); setActiveTab('pages'); }} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
             <ArrowLeft size={18} />
           </button>
           <div className="w-6 h-6 rounded flex items-center justify-center" style={{ backgroundColor: activeSite.themeColor + '20' }}>
@@ -486,17 +498,17 @@ export function SitesPage() {
           <input
             value={activeSite.name}
             onChange={(e) => updateSite((s) => ({ ...s, name: e.target.value }))}
-            className="bg-transparent text-text-primary font-semibold text-lg border-none outline-none focus:ring-1 focus:ring-accent-blue/30 rounded px-1"
+            className="bg-transparent text-[var(--cx-text-1)] font-semibold text-lg border-none outline-none focus:ring-1 focus:ring-cx-brand/30 rounded px-1"
           />
         </div>
-        <div className="flex items-center gap-1 bg-bg-primary rounded-lg p-0.5">
+        <div className="flex items-center gap-1 bg-cx-bg rounded-lg p-0.5">
           {(['pages', 'news', 'settings'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
                 'px-3 py-1 text-xs font-medium rounded-md capitalize transition-colors',
-                activeTab === tab ? 'bg-bg-secondary text-text-primary' : 'text-text-secondary hover:text-text-primary'
+                activeTab === tab ? 'bg-cx-surface text-[var(--cx-text-1)]' : 'text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]'
               )}
             >
               {tab}
@@ -509,10 +521,10 @@ export function SitesPage() {
         {activeTab === 'pages' && (
           <>
             {/* Left: Page Navigation */}
-            <div className="w-52 bg-bg-secondary border-r border-border-primary flex flex-col shrink-0">
-              <div className="p-3 border-b border-border-primary flex items-center justify-between">
-                <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Pages</h3>
-                <button onClick={handleAddPage} className="text-text-secondary hover:text-accent-blue">
+            <div className="w-52 bg-cx-surface border-r border-white/8 flex flex-col shrink-0">
+              <div className="p-3 border-b border-white/8 flex items-center justify-between">
+                <h3 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider">Pages</h3>
+                <button onClick={handleAddPage} className="text-[var(--cx-text-2)] hover:text-cx-brand">
                   <Plus size={14} />
                 </button>
               </div>
@@ -523,8 +535,8 @@ export function SitesPage() {
                     className={cn(
                       'flex items-center gap-2 px-2 py-1.5 rounded text-sm cursor-pointer transition-colors group',
                       activePageId === page.id || (!activePageId && page.id === activeSite.pages[0]?.id)
-                        ? 'bg-accent-blue/10 text-accent-blue'
-                        : 'text-text-primary hover:bg-bg-primary'
+                        ? 'bg-cx-brand/10 text-cx-brand'
+                        : 'text-[var(--cx-text-1)] hover:bg-cx-bg'
                     )}
                   >
                     <FileText size={12} className="shrink-0" />
@@ -534,7 +546,7 @@ export function SitesPage() {
                     {activeSite.pages.length > 1 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeletePage(page.id); }}
-                        className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-red-400 shrink-0"
+                        className="opacity-0 group-hover:opacity-100 text-[var(--cx-text-2)] hover:text-cx-danger shrink-0"
                       >
                         <Trash2 size={10} />
                       </button>
@@ -556,21 +568,21 @@ export function SitesPage() {
                         pages: s.pages.map((p) => (p.id === activePage.id ? { ...p, title: e.target.value } : p)),
                       }));
                     }}
-                    className="text-xl font-bold text-text-primary bg-transparent border-none outline-none mb-6 w-full"
+                    className="text-xl font-bold text-[var(--cx-text-1)] bg-transparent border-none outline-none mb-6 w-full"
                     placeholder="Page Title"
                   />
 
                   {activePage.sections.map((section) => (
-                    <div key={section.id} className="mb-4 border border-border-primary/50 rounded-xl p-4 bg-bg-secondary/30 relative group">
+                    <div key={section.id} className="mb-4 border border-white/8/50 rounded-xl p-4 bg-cx-surface/30 relative group">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] text-text-secondary uppercase tracking-wider flex items-center gap-1">
+                        <span className="text-[10px] text-[var(--cx-text-2)] uppercase tracking-wider flex items-center gap-1">
                           {section.layout === 'full' && <><Layout size={10} /> Full Width</>}
                           {section.layout === '2-col' && <><Columns2 size={10} /> 2 Columns</>}
                           {section.layout === '3-col' && <><Columns3 size={10} /> 3 Columns</>}
                         </span>
                         <button
                           onClick={() => handleDeleteSection(section.id)}
-                          className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-red-400 transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 text-[var(--cx-text-2)] hover:text-cx-danger transition-opacity"
                         >
                           <Trash2 size={12} />
                         </button>
@@ -586,7 +598,7 @@ export function SitesPage() {
                           <div key={wp.id} className="relative group/wp">
                             <button
                               onClick={() => handleDeleteWebPart(section.id, wp.id)}
-                              className="absolute top-1 right-1 opacity-0 group-hover/wp:opacity-100 bg-bg-secondary/80 p-1 rounded text-text-secondary hover:text-red-400 z-10 transition-opacity"
+                              className="absolute top-1 right-1 opacity-0 group-hover/wp:opacity-100 bg-cx-surface/80 p-1 rounded text-[var(--cx-text-2)] hover:text-cx-danger z-10 transition-opacity"
                             >
                               <X size={10} />
                             </button>
@@ -598,21 +610,21 @@ export function SitesPage() {
                         <div className="relative">
                           <button
                             onClick={() => setShowWebPartPicker(showWebPartPicker?.sectionId === section.id ? null : { sectionId: section.id })}
-                            className="w-full py-6 border border-dashed border-border-primary rounded-lg flex items-center justify-center gap-1 text-text-secondary text-xs hover:border-accent-blue/50 hover:text-accent-blue transition-colors"
+                            className="w-full py-6 border border-dashed border-white/8 rounded-lg flex items-center justify-center gap-1 text-[var(--cx-text-2)] text-xs hover:border-cx-brand/50 hover:text-cx-brand transition-colors"
                           >
                             <Plus size={12} /> Add Web Part
                           </button>
                           {showWebPartPicker?.sectionId === section.id && (
-                            <div className="absolute left-0 top-full mt-1 bg-bg-secondary border border-border-primary rounded-xl shadow-2xl p-3 z-20 min-w-[280px]">
+                            <div className="absolute left-0 top-full mt-1 bg-cx-surface border border-white/8 rounded-xl shadow-2xl p-3 z-20 min-w-[280px]">
                               <div className="grid grid-cols-3 gap-2">
                                 {WEB_PART_TYPES.map((wpt) => (
                                   <button
                                     key={wpt.type}
                                     onClick={() => handleAddWebPart(section.id, wpt.type)}
-                                    className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border-primary hover:border-accent-blue hover:bg-accent-blue/5 transition-colors"
+                                    className="flex flex-col items-center gap-1 p-2 rounded-lg border border-white/8 hover:border-cx-brand hover:bg-cx-brand/5 transition-colors"
                                   >
-                                    <span className="text-text-primary">{wpt.icon}</span>
-                                    <span className="text-[10px] text-text-secondary">{wpt.label}</span>
+                                    <span className="text-[var(--cx-text-1)]">{wpt.icon}</span>
+                                    <span className="text-[10px] text-[var(--cx-text-2)]">{wpt.label}</span>
                                   </button>
                                 ))}
                               </div>
@@ -627,12 +639,12 @@ export function SitesPage() {
                   <div className="relative">
                     <button
                       onClick={() => setShowSectionPicker(!showSectionPicker)}
-                      className="w-full py-4 border-2 border-dashed border-border-primary rounded-xl flex items-center justify-center gap-2 text-text-secondary hover:border-accent-blue/50 hover:text-accent-blue transition-colors"
+                      className="w-full py-4 border-2 border-dashed border-white/8 rounded-xl flex items-center justify-center gap-2 text-[var(--cx-text-2)] hover:border-cx-brand/50 hover:text-cx-brand transition-colors"
                     >
                       <Plus size={16} /> Add Section
                     </button>
                     {showSectionPicker && (
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-bg-secondary border border-border-primary rounded-xl shadow-2xl p-3 z-20 flex gap-2">
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-cx-surface border border-white/8 rounded-xl shadow-2xl p-3 z-20 flex gap-2">
                         {([
                           { layout: 'full' as SectionLayout, icon: <Layout size={20} />, label: 'Full Width' },
                           { layout: '2-col' as SectionLayout, icon: <Columns2 size={20} />, label: '2 Columns' },
@@ -641,10 +653,10 @@ export function SitesPage() {
                           <button
                             key={opt.layout}
                             onClick={() => handleAddSection(opt.layout)}
-                            className="flex flex-col items-center gap-1 p-3 rounded-lg border border-border-primary hover:border-accent-blue hover:bg-accent-blue/5 transition-colors min-w-[80px]"
+                            className="flex flex-col items-center gap-1 p-3 rounded-lg border border-white/8 hover:border-cx-brand hover:bg-cx-brand/5 transition-colors min-w-[80px]"
                           >
-                            <span className="text-text-primary">{opt.icon}</span>
-                            <span className="text-[10px] text-text-secondary">{opt.label}</span>
+                            <span className="text-[var(--cx-text-1)]">{opt.icon}</span>
+                            <span className="text-[10px] text-[var(--cx-text-2)]">{opt.label}</span>
                           </button>
                         ))}
                       </div>
@@ -662,34 +674,34 @@ export function SitesPage() {
               {!editingNews ? (
                 <>
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-lg font-semibold text-text-primary">News Posts</h2>
+                    <h2 className="text-lg font-semibold text-[var(--cx-text-1)]">News Posts</h2>
                     <button
                       onClick={handleCreateNews}
-                      className="flex items-center gap-1 px-3 py-1.5 text-sm bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90"
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm bg-cx-brand text-white rounded-lg hover:bg-cx-brand/90"
                     >
                       <Plus size={14} /> New Post
                     </button>
                   </div>
                   <div className="space-y-2">
                     {activeSite.news.map((post) => (
-                      <div key={post.id} className="flex items-center gap-4 p-4 bg-bg-secondary border border-border-primary rounded-xl">
-                        <div className="w-16 h-16 rounded-lg bg-bg-primary flex items-center justify-center shrink-0">
-                          <Newspaper size={20} className="text-text-secondary/30" />
+                      <div key={post.id} className="flex items-center gap-4 p-4 bg-cx-surface border border-white/8 rounded-xl">
+                        <div className="w-16 h-16 rounded-lg bg-cx-bg flex items-center justify-center shrink-0">
+                          <Newspaper size={20} className="text-[var(--cx-text-2)]/30" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-text-primary font-medium">{post.title}</h3>
-                          <p className="text-xs text-text-secondary mt-0.5 truncate">{post.body || 'No content yet'}</p>
+                          <h3 className="text-[var(--cx-text-1)] font-medium">{post.title}</h3>
+                          <p className="text-xs text-[var(--cx-text-2)] mt-0.5 truncate">{post.body || 'No content yet'}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] text-text-secondary">{post.createdAt}</span>
+                            <span className="text-[10px] text-[var(--cx-text-2)]">{post.createdAt}</span>
                             <span className={cn(
                               'text-[10px] font-medium px-1.5 py-0.5 rounded-full',
-                              post.published ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'
+                              post.published ? 'bg-cx-success/10 text-cx-success' : 'bg-cx-warning/10 text-cx-warning'
                             )}>
                               {post.published ? 'Published' : 'Draft'}
                             </span>
                           </div>
                         </div>
-                        <button onClick={() => setEditingNewsId(post.id)} className="text-text-secondary hover:text-text-primary">
+                        <button onClick={() => setEditingNewsId(post.id)} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
                           <Edit3 size={14} />
                         </button>
                       </div>
@@ -700,32 +712,32 @@ export function SitesPage() {
                 <div>
                   <button
                     onClick={() => setEditingNewsId(null)}
-                    className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary mb-4"
+                    className="flex items-center gap-1 text-sm text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] mb-4"
                   >
                     <ArrowLeft size={14} /> Back to posts
                   </button>
                   <input
                     value={editingNews.title}
                     onChange={(e) => handleUpdateNews(editingNews.id, { title: e.target.value })}
-                    className="w-full text-xl font-bold text-text-primary bg-transparent border-none outline-none mb-4"
+                    className="w-full text-xl font-bold text-[var(--cx-text-1)] bg-transparent border-none outline-none mb-4"
                     placeholder="Post Title"
                   />
                   <div className="mb-4">
-                    <label className="block text-xs text-text-secondary mb-1">Cover Image URL</label>
+                    <label className="block text-xs text-[var(--cx-text-2)] mb-1">Cover Image URL</label>
                     <input
                       value={editingNews.coverImage}
                       onChange={(e) => handleUpdateNews(editingNews.id, { coverImage: e.target.value })}
-                      className="w-full bg-bg-secondary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none"
+                      className="w-full bg-cx-surface border border-white/8 rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none"
                       placeholder="https://..."
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-xs text-text-secondary mb-1">Body</label>
+                    <label className="block text-xs text-[var(--cx-text-2)] mb-1">Body</label>
                     <textarea
                       value={editingNews.body}
                       onChange={(e) => handleUpdateNews(editingNews.id, { body: e.target.value })}
                       rows={12}
-                      className="w-full bg-bg-secondary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none resize-none"
+                      className="w-full bg-cx-surface border border-white/8 rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none resize-none"
                       placeholder="Write your news post..."
                     />
                   </div>
@@ -734,8 +746,8 @@ export function SitesPage() {
                     className={cn(
                       'px-4 py-2 rounded-lg text-sm font-medium',
                       editingNews.published
-                        ? 'bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20'
-                        : 'bg-accent-blue text-white hover:bg-accent-blue/90'
+                        ? 'bg-cx-warning/10 text-cx-warning hover:bg-cx-warning/20'
+                        : 'bg-cx-brand text-white hover:bg-cx-brand/90'
                     )}
                   >
                     {editingNews.published ? 'Unpublish' : 'Publish'}
@@ -749,33 +761,33 @@ export function SitesPage() {
         {activeTab === 'settings' && (
           <div className="flex-1 overflow-y-auto p-6">
             <div className="max-w-2xl mx-auto space-y-6">
-              <h2 className="text-lg font-semibold text-text-primary">Site Settings</h2>
+              <h2 className="text-lg font-semibold text-[var(--cx-text-1)]">Site Settings</h2>
 
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Site Name</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Site Name</label>
                 <input
                   value={activeSite.name}
                   onChange={(e) => updateSite((s) => ({ ...s, name: e.target.value }))}
-                  className="w-full bg-bg-secondary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none"
+                  className="w-full bg-cx-surface border border-white/8 rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Description</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Description</label>
                 <textarea
                   value={activeSite.description}
                   onChange={(e) => updateSite((s) => ({ ...s, description: e.target.value }))}
                   rows={3}
-                  className="w-full bg-bg-secondary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none resize-none"
+                  className="w-full bg-cx-surface border border-white/8 rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Site Type</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Site Type</label>
                 <select
                   value={activeSite.type}
                   onChange={(e) => updateSite((s) => ({ ...s, type: e.target.value as SiteType }))}
-                  className="w-full bg-bg-secondary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none"
+                  className="w-full bg-cx-surface border border-white/8 rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none"
                 >
                   <option value="Team">Team</option>
                   <option value="Communication">Communication</option>
@@ -783,7 +795,7 @@ export function SitesPage() {
               </div>
 
               <div>
-                <label className="block text-xs text-text-secondary mb-2">Theme Color</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-2">Theme Color</label>
                 <div className="flex gap-2">
                   {THEME_COLORS.map((c) => (
                     <button
@@ -801,8 +813,8 @@ export function SitesPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs text-text-secondary">Navigation Links</label>
-                  <button onClick={handleAddNavLink} className="text-text-secondary hover:text-accent-blue">
+                  <label className="text-xs text-[var(--cx-text-2)]">Navigation Links</label>
+                  <button onClick={handleAddNavLink} className="text-[var(--cx-text-2)] hover:text-cx-brand">
                     <Plus size={14} />
                   </button>
                 </div>
@@ -817,7 +829,7 @@ export function SitesPage() {
                             navLinks: s.navLinks.map((l) => (l.id === link.id ? { ...l, label: e.target.value } : l)),
                           }))
                         }
-                        className="flex-1 bg-bg-secondary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none"
+                        className="flex-1 bg-cx-surface border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none"
                         placeholder="Label"
                       />
                       <input
@@ -828,12 +840,12 @@ export function SitesPage() {
                             navLinks: s.navLinks.map((l) => (l.id === link.id ? { ...l, url: e.target.value } : l)),
                           }))
                         }
-                        className="flex-1 bg-bg-secondary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none"
+                        className="flex-1 bg-cx-surface border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none"
                         placeholder="URL"
                       />
                       <button
                         onClick={() => updateSite((s) => ({ ...s, navLinks: s.navLinks.filter((l) => l.id !== link.id) }))}
-                        className="text-text-secondary hover:text-red-400"
+                        className="text-[var(--cx-text-2)] hover:text-cx-danger"
                       >
                         <Trash2 size={14} />
                       </button>

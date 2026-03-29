@@ -123,7 +123,7 @@ export function TaskTimeEstimate({ taskId, timeEstimate, timeSummary }: TaskTime
               percentComplete >= 100
                 ? 'bg-accent-red/10 text-accent-red'
                 : percentComplete >= 75
-                  ? 'bg-yellow-500/10 text-yellow-500'
+                  ? 'bg-cx-warning/10 text-cx-warning'
                   : 'bg-accent-green/10 text-accent-green'
             )}>
               {percentComplete}%
@@ -147,7 +147,7 @@ export function TaskTimeEstimate({ taskId, timeEstimate, timeSummary }: TaskTime
               percentComplete >= 100
                 ? 'bg-accent-red'
                 : percentComplete >= 75
-                  ? 'bg-yellow-500'
+                  ? 'bg-cx-warning'
                   : 'bg-accent-green'
             )}
             style={{ width: `${clampedPercent}%` }}

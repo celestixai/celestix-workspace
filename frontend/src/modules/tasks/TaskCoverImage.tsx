@@ -12,8 +12,8 @@ interface TaskCoverImageProps {
 }
 
 const PRESET_COLORS = [
-  '#EF4444', '#F97316', '#EAB308', '#22C55E', '#06B6D4',
-  '#3B82F6', '#8B5CF6', '#EC4899', '#6B7280', '#1E293B',
+  '#EF4444', '#F97316', '#eab308', '#22c55e', '#14B8A6',
+  '#3B82F6', '#8B5CF6', '#F97316', '#1C1C1F', '#111113',
 ];
 
 export function TaskCoverImage({ taskId, coverImageUrl, coverImageColor, onUpdate }: TaskCoverImageProps) {

@@ -63,10 +63,10 @@ export function AutomationCard({ automation, onEdit, onToggle, onDelete, onViewL
   return (
     <div
       className={cn(
-        'group relative rounded-xl border p-4 transition-all cursor-pointer hover:shadow-md',
+        'group relative rounded-[12px] border p-4 transition-all cursor-pointer hover:shadow-md',
         automation.isActive
-          ? 'border-border-primary bg-bg-secondary hover:border-accent-blue/50'
-          : 'border-border-secondary bg-bg-secondary/60 opacity-70 hover:opacity-90'
+          ? 'border-[rgba(255,255,255,0.08)] bg-[#111113] hover:border-[rgba(255,255,255,0.15)]'
+          : 'border-[rgba(255,255,255,0.06)] bg-[#111113]/60 opacity-70 hover:opacity-90'
       )}
       onClick={() => onEdit(automation)}
     >
@@ -74,45 +74,43 @@ export function AutomationCard({ automation, onEdit, onToggle, onDelete, onViewL
       <div className="flex items-start gap-3">
         <div className={cn(
           'flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center',
-          automation.isActive ? 'bg-accent-blue/10 text-accent-blue' : 'bg-bg-tertiary text-text-tertiary'
+          automation.isActive ? 'bg-accent-blue/10 text-accent-blue' : 'bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.40)]'
         )}>
           <TriggerIcon size={18} />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-text-primary truncate">{automation.name}</h3>
-          <p className="text-xs text-text-tertiary mt-0.5">When {triggerLabel}</p>
+          <h3 className="text-[14px] font-semibold text-white truncate">{automation.name}</h3>
+          <p className="text-[13px] text-[rgba(255,255,255,0.65)] mt-0.5">When {triggerLabel}</p>
         </div>
 
-        {/* Toggle */}
-        <button
+        {/* Status pill */}
+        <span
           onClick={(e) => { e.stopPropagation(); onToggle(automation.id); }}
           className={cn(
-            'relative w-9 h-5 rounded-full transition-colors flex-shrink-0',
-            automation.isActive ? 'bg-accent-blue' : 'bg-bg-tertiary'
+            'inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium cursor-pointer transition-colors flex-shrink-0',
+            automation.isActive
+              ? 'bg-[#22c55e]/15 text-[#22c55e]'
+              : 'bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.40)]'
           )}
-          aria-label={automation.isActive ? 'Deactivate' : 'Activate'}
         >
-          <span className={cn(
-            'absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform',
-            automation.isActive ? 'left-[18px]' : 'left-0.5'
-          )} />
-        </button>
+          {automation.isActive ? 'Active' : 'Inactive'}
+        </span>
       </div>
 
       {/* Action count + location badge */}
       <div className="flex items-center gap-2 mt-3">
-        <span className="text-xs text-text-tertiary">
+        <span className="text-[13px] text-[rgba(255,255,255,0.65)]">
           <Play size={10} className="inline mr-1" />
           {automation.actions.length} action{automation.actions.length !== 1 ? 's' : ''}
         </span>
-        <span className="text-xs px-1.5 py-0.5 rounded bg-bg-tertiary text-text-secondary">
+        <span className="text-[12px] px-1.5 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.50)]">
           {automation.locationType}
         </span>
       </div>
 
       {/* Stats row */}
-      <div className="flex items-center gap-4 mt-3 text-[11px] text-text-tertiary">
+      <div className="flex items-center gap-4 mt-3 text-[12px] font-mono text-[rgba(255,255,255,0.40)]">
         <span>
           <History size={10} className="inline mr-1" />
           {automation.executionCount} runs

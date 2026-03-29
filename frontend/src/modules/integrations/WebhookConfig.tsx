@@ -60,21 +60,21 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
       {/* Incoming: show webhook URL */}
       {isIncoming && (
         <div className="space-y-2">
-          <label className="text-xs font-medium text-text-secondary">Webhook URL</label>
+          <label className="text-xs font-medium text-[var(--cx-text-2)]">Webhook URL</label>
           <div className="flex items-center gap-2">
             <input
               readOnly
               value={webhookUrl}
-              className="flex-1 px-3 py-2 rounded-lg bg-bg-tertiary border border-border-primary text-xs text-text-primary font-mono"
+              className="flex-1 px-3 py-2 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-xs text-[var(--cx-text-1)] font-mono"
             />
             <button
               onClick={handleCopy}
-              className="px-3 py-2 rounded-lg bg-bg-tertiary border border-border-primary text-text-secondary hover:text-text-primary transition-colors"
+              className="px-3 py-2 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] transition-colors"
             >
-              {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+              {copied ? <Check size={14} className="text-cx-success" /> : <Copy size={14} />}
             </button>
           </div>
-          <p className="text-[11px] text-text-tertiary">
+          <p className="text-[11px] text-[var(--cx-text-3)]">
             Send POST requests with JSON body: {'{ "event": "...", "data": {...} }'}
           </p>
         </div>
@@ -83,19 +83,19 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
       {/* Outgoing: URL input */}
       {isOutgoing && (
         <div className="space-y-2">
-          <label className="text-xs font-medium text-text-secondary">Destination URL</label>
+          <label className="text-xs font-medium text-[var(--cx-text-2)]">Destination URL</label>
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/webhook"
-            className="w-full px-3 py-2 rounded-lg bg-bg-tertiary border border-border-primary text-xs text-text-primary placeholder:text-text-tertiary"
+            className="w-full px-3 py-2 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-xs text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)]"
           />
         </div>
       )}
 
       {/* Event checkboxes */}
       <div className="space-y-2">
-        <label className="text-xs font-medium text-text-secondary">Events</label>
+        <label className="text-xs font-medium text-[var(--cx-text-2)]">Events</label>
         <div className="grid grid-cols-2 gap-1.5">
           {WEBHOOK_EVENTS.map((event) => (
             <label
@@ -104,7 +104,7 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
                 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-colors',
                 selectedEvents.includes(event)
                   ? 'bg-accent-blue/10 text-accent-blue'
-                  : 'bg-bg-tertiary text-text-secondary hover:text-text-primary',
+                  : 'bg-cx-raised text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]',
               )}
             >
               <input
@@ -117,7 +117,7 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
                 'w-3.5 h-3.5 rounded border flex items-center justify-center',
                 selectedEvents.includes(event)
                   ? 'bg-accent-blue border-accent-blue'
-                  : 'border-border-primary',
+                  : 'border-[var(--cx-border-1)]',
               )}>
                 {selectedEvents.includes(event) && <Check size={10} className="text-white" />}
               </div>
@@ -130,12 +130,12 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
       {/* Outgoing: secret */}
       {isOutgoing && (
         <div className="space-y-2">
-          <label className="text-xs font-medium text-text-secondary">Signing Secret (optional)</label>
+          <label className="text-xs font-medium text-[var(--cx-text-2)]">Signing Secret (optional)</label>
           <input
             value={secret}
             onChange={(e) => setSecret(e.target.value)}
             placeholder="Auto-generated if empty"
-            className="w-full px-3 py-2 rounded-lg bg-bg-tertiary border border-border-primary text-xs text-text-primary placeholder:text-text-tertiary font-mono"
+            className="w-full px-3 py-2 rounded-lg bg-cx-raised border border-[var(--cx-border-1)] text-xs text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] font-mono"
           />
         </div>
       )}
@@ -152,7 +152,7 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
           <button
             onClick={() => testMutation.mutate()}
             disabled={testMutation.isPending}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium bg-bg-tertiary text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium bg-cx-raised text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] transition-colors disabled:opacity-50"
           >
             {testMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
             Test
@@ -164,7 +164,7 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
       {testMutation.data && (
         <div className={cn(
           'px-3 py-2 rounded-lg text-xs',
-          testMutation.data.success ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400',
+          testMutation.data.success ? 'bg-cx-success/10 text-cx-success' : 'bg-cx-danger/10 text-cx-danger',
         )}>
           {testMutation.data.message}
         </div>
@@ -173,11 +173,11 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
       {/* Delivery logs */}
       {logs && logs.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-text-secondary">Recent Deliveries</h4>
-          <div className="rounded-lg border border-border-primary overflow-hidden">
+          <h4 className="text-xs font-medium text-[var(--cx-text-2)]">Recent Deliveries</h4>
+          <div className="rounded-lg border border-[var(--cx-border-1)] overflow-hidden">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-bg-tertiary text-text-tertiary">
+                <tr className="bg-cx-raised text-[var(--cx-text-3)]">
                   <th className="px-3 py-2 text-left font-medium">Event</th>
                   <th className="px-3 py-2 text-left font-medium">Status</th>
                   <th className="px-3 py-2 text-left font-medium">Attempts</th>
@@ -186,20 +186,20 @@ export function WebhookConfig({ integration, onUpdate }: WebhookConfigProps) {
               </thead>
               <tbody>
                 {logs.slice(0, 10).map((log) => (
-                  <tr key={log.id} className="border-t border-border-primary">
-                    <td className="px-3 py-2 text-text-primary font-mono">{log.event}</td>
+                  <tr key={log.id} className="border-t border-[var(--cx-border-1)]">
+                    <td className="px-3 py-2 text-[var(--cx-text-1)] font-mono">{log.event}</td>
                     <td className="px-3 py-2">
                       <span className={cn(
                         'px-1.5 py-0.5 rounded text-[10px] font-medium',
                         log.status && log.status >= 200 && log.status < 300
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400',
+                          ? 'bg-cx-success/20 text-cx-success'
+                          : 'bg-cx-danger/20 text-cx-danger',
                       )}>
                         {log.status || 'Failed'}
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-text-tertiary">{log.attempts}</td>
-                    <td className="px-3 py-2 text-text-tertiary">
+                    <td className="px-3 py-2 text-[var(--cx-text-3)]">{log.attempts}</td>
+                    <td className="px-3 py-2 text-[var(--cx-text-3)]">
                       {new Date(log.createdAt).toLocaleTimeString()}
                     </td>
                   </tr>

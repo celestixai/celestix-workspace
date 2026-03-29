@@ -40,7 +40,7 @@ export function SpaceOverviewPage({ spaceId, onSelectFolder, onSelectList, onOpe
       <div className="flex items-center gap-3 mb-6">
         <Circle
           size={16}
-          style={{ color: space.color || '#4F8EF7', fill: space.color || '#4F8EF7' }}
+          style={{ color: space.color || '#3B82F6', fill: space.color || '#3B82F6' }}
         />
         <h2 className="text-xl font-semibold text-text-primary">{space.name}</h2>
         {space.memberCount != null && space.memberCount > 0 && (

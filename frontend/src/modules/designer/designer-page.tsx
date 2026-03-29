@@ -87,7 +87,7 @@ const TEMPLATES: Template[] = [
 ];
 
 const FONTS = ['Inter', 'Arial', 'Georgia', 'Courier New', 'Verdana', 'Impact', 'Comic Sans MS', 'Times New Roman'];
-const COLORS = ['#FFFFFF', '#000000', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316'];
+const COLORS = ['#FFFFFF', '#000000', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6', '#60A5FA', '#F97316'];
 
 function generateId() {
   return Math.random().toString(36).substring(2, 10);
@@ -277,7 +277,7 @@ export function DesignerPage() {
         style={style}
         onMouseDown={(e) => handleCanvasMouseDown(e, el)}
         onDoubleClick={() => { if (el.type === 'text') setEditingTextId(el.id); }}
-        className={cn('group', isSelected && 'ring-2 ring-accent-blue ring-offset-0')}
+        className={cn('group', isSelected && 'ring-2 ring-cx-brand ring-offset-0')}
       >
         {el.type === 'text' && (
           editingTextId === el.id ? (
@@ -332,11 +332,11 @@ export function DesignerPage() {
           </svg>
         )}
         {el.type === 'image' && (
-          <div className="w-full h-full bg-bg-secondary/50 border border-dashed border-border-primary flex items-center justify-center rounded">
+          <div className="w-full h-full bg-cx-surface/50 border border-dashed border-white/8 flex items-center justify-center rounded">
             {el.imageUrl ? (
               <img src={el.imageUrl} alt="" className="w-full h-full object-cover rounded" />
             ) : (
-              <Image size={24 * zoom} className="text-text-secondary/30" />
+              <Image size={24 * zoom} className="text-[var(--cx-text-2)]/30" />
             )}
           </div>
         )}
@@ -344,7 +344,7 @@ export function DesignerPage() {
         {isSelected && !el.locked && (
           <div
             onMouseDown={(e) => handleResizeMouseDown(e, el)}
-            className="absolute -right-1.5 -bottom-1.5 w-3 h-3 bg-accent-blue rounded-sm cursor-se-resize z-50"
+            className="absolute -right-1.5 -bottom-1.5 w-3 h-3 bg-cx-brand rounded-sm cursor-se-resize z-50"
           />
         )}
       </div>
@@ -366,29 +366,32 @@ export function DesignerPage() {
   // --- Design List View ---
   if (!activeDesign) {
     return (
-      <div className="min-h-screen bg-bg-primary p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-2xl font-bold text-text-primary">Designer</h1>
-              <p className="text-text-secondary mt-1">Create stunning visual designs</p>
-            </div>
-            <button
-              onClick={() => setShowTemplatePicker(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90 transition-colors"
-            >
-              <Plus size={16} />
-              New Design
-            </button>
+      <div className="h-full flex flex-col bg-cx-bg">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4">
+          <div>
+            <h1 className="font-display text-xl text-[var(--cx-text-1)]">Designer</h1>
+            <p className="text-sm text-[var(--cx-text-3)] mt-1">Create stunning visual designs</p>
           </div>
+          <button
+            onClick={() => setShowTemplatePicker(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-cx-brand text-white rounded-lg hover:bg-cx-brand-hover transition-colors"
+          >
+            <Plus size={16} />
+            New Design
+          </button>
+        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-auto px-6">
+        <div className="max-w-6xl mx-auto">
 
           {/* Template Picker Modal */}
           {showTemplatePicker && (
             <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-              <div className="bg-bg-secondary border border-border-primary rounded-2xl p-6 max-w-xl w-full mx-4">
+              <div className="bg-cx-surface border border-white/8 rounded-2xl p-6 max-w-xl w-full mx-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-text-primary">Choose a Size</h2>
-                  <button onClick={() => setShowTemplatePicker(false)} className="text-text-secondary hover:text-text-primary">
+                  <h2 className="text-lg font-semibold text-[var(--cx-text-1)]">Choose a Size</h2>
+                  <button onClick={() => setShowTemplatePicker(false)} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
                     <X size={18} />
                   </button>
                 </div>
@@ -397,34 +400,34 @@ export function DesignerPage() {
                     <button
                       key={t.name}
                       onClick={() => handleCreateDesign(t)}
-                      className="bg-bg-primary border border-border-primary rounded-lg p-3 text-left hover:border-accent-blue transition-colors"
+                      className="bg-cx-bg border border-white/8 rounded-lg p-3 text-left hover:border-cx-brand transition-colors"
                     >
-                      <p className="text-text-primary text-sm font-medium">{t.name}</p>
-                      <p className="text-text-secondary text-xs mt-0.5">{t.width} x {t.height}</p>
+                      <p className="text-[var(--cx-text-1)] text-sm font-medium">{t.name}</p>
+                      <p className="text-[var(--cx-text-2)] text-xs mt-0.5">{t.width} x {t.height}</p>
                     </button>
                   ))}
                 </div>
-                <div className="border-t border-border-primary pt-4">
-                  <p className="text-text-secondary text-xs mb-2">Custom Size</p>
+                <div className="border-t border-white/8 pt-4">
+                  <p className="text-[var(--cx-text-2)] text-xs mb-2">Custom Size</p>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
                       value={customWidth}
                       onChange={(e) => setCustomWidth(Number(e.target.value))}
-                      className="w-24 bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none"
+                      className="w-24 bg-cx-bg border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none"
                       placeholder="Width"
                     />
-                    <X size={12} className="text-text-secondary" />
+                    <X size={12} className="text-[var(--cx-text-2)]" />
                     <input
                       type="number"
                       value={customHeight}
                       onChange={(e) => setCustomHeight(Number(e.target.value))}
-                      className="w-24 bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none"
+                      className="w-24 bg-cx-bg border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none"
                       placeholder="Height"
                     />
                     <button
                       onClick={() => handleCreateDesign(null)}
-                      className="px-4 py-1.5 bg-accent-blue text-white rounded-lg text-sm hover:bg-accent-blue/90"
+                      className="px-4 py-1.5 bg-cx-brand text-white rounded-lg text-sm hover:bg-cx-brand/90"
                     >
                       Create
                     </button>
@@ -439,22 +442,23 @@ export function DesignerPage() {
               <button
                 key={design.id}
                 onClick={() => setActiveDesign(design)}
-                className="bg-bg-secondary border border-border-primary rounded-xl overflow-hidden text-left hover:border-accent-blue/50 transition-colors group"
+                className="bg-cx-surface border border-white/8 rounded-xl overflow-hidden text-left hover:border-cx-brand/50 transition-colors group"
               >
                 <div className="aspect-video flex items-center justify-center" style={{ backgroundColor: design.backgroundColor }}>
                   <Palette size={32} className="text-white/20" />
                 </div>
                 <div className="p-4">
-                  <h3 className="text-text-primary font-semibold group-hover:text-accent-blue transition-colors">
+                  <h3 className="text-[var(--cx-text-1)] font-semibold group-hover:text-cx-brand transition-colors">
                     {design.title}
                   </h3>
-                  <p className="text-xs text-text-secondary mt-1">
+                  <p className="text-xs text-[var(--cx-text-2)] mt-1">
                     {design.width} x {design.height} -- {design.elements.length} elements
                   </p>
                 </div>
               </button>
             ))}
           </div>
+        </div>
         </div>
       </div>
     );
@@ -464,23 +468,23 @@ export function DesignerPage() {
   const sortedElements = [...activeDesign.elements].sort((a, b) => a.zIndex - b.zIndex);
 
   return (
-    <div className="h-screen bg-bg-primary flex flex-col overflow-hidden">
+    <div className="h-full bg-cx-bg flex flex-col overflow-hidden">
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary border-b border-border-primary shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-cx-surface border-b border-white/8 shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={() => { setActiveDesign(null); setSelectedElement(null); }} className="text-text-secondary hover:text-text-primary">
+          <button onClick={() => { setActiveDesign(null); setSelectedElement(null); }} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
             <ArrowLeft size={18} />
           </button>
           <input
             value={activeDesign.title}
             onChange={(e) => updateDesign((d) => ({ ...d, title: e.target.value }))}
-            className="bg-transparent text-text-primary font-semibold text-lg border-none outline-none focus:ring-1 focus:ring-accent-blue/30 rounded px-1"
+            className="bg-transparent text-[var(--cx-text-1)] font-semibold text-lg border-none outline-none focus:ring-1 focus:ring-cx-brand/30 rounded px-1"
           />
-          <span className="text-xs text-text-secondary">{activeDesign.width} x {activeDesign.height}</span>
+          <span className="text-xs text-[var(--cx-text-2)]">{activeDesign.width} x {activeDesign.height}</span>
         </div>
         <div className="flex items-center gap-2">
           {/* Alignment tools */}
-          <div className="flex items-center gap-0.5 border-r border-border-primary pr-2 mr-1">
+          <div className="flex items-center gap-0.5 border-r border-white/8 pr-2 mr-1">
             {[
               { icon: <AlignLeft size={14} />, label: 'Left' },
               { icon: <AlignCenter size={14} />, label: 'Center H' },
@@ -503,28 +507,28 @@ export function DesignerPage() {
                   if (btn.label === 'Bottom') updates.y = activeDesign.height - selectedElement.height;
                   updateElement(selectedElement.id, updates);
                 }}
-                className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-bg-primary rounded transition-colors"
+                className="p-1.5 text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg rounded transition-colors"
               >
                 {btn.icon}
               </button>
             ))}
           </div>
           {/* Zoom */}
-          <button onClick={() => setZoom(Math.max(0.1, zoom - 0.1))} className="text-text-secondary hover:text-text-primary p-1">
+          <button onClick={() => setZoom(Math.max(0.1, zoom - 0.1))} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] p-1">
             <ZoomOut size={14} />
           </button>
-          <span className="text-xs text-text-secondary min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
-          <button onClick={() => setZoom(Math.min(3, zoom + 0.1))} className="text-text-secondary hover:text-text-primary p-1">
+          <span className="text-xs text-[var(--cx-text-2)] min-w-[40px] text-center">{Math.round(zoom * 100)}%</span>
+          <button onClick={() => setZoom(Math.min(3, zoom + 0.1))} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] p-1">
             <ZoomIn size={14} />
           </button>
           <div className="h-4 w-px bg-border-primary mx-1" />
-          <button onClick={handleExportPNG} className="flex items-center gap-1 px-2 py-1 text-xs text-text-primary border border-border-primary rounded hover:bg-bg-primary">
+          <button onClick={handleExportPNG} className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--cx-text-1)] border border-white/8 rounded hover:bg-cx-bg">
             <Download size={12} /> PNG
           </button>
-          <button onClick={handleExportJPG} className="flex items-center gap-1 px-2 py-1 text-xs text-text-primary border border-border-primary rounded hover:bg-bg-primary">
+          <button onClick={handleExportJPG} className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--cx-text-1)] border border-white/8 rounded hover:bg-cx-bg">
             <Download size={12} /> JPG
           </button>
-          <button onClick={handleCopyClipboard} className="flex items-center gap-1 px-2 py-1 text-xs text-text-primary border border-border-primary rounded hover:bg-bg-primary">
+          <button onClick={handleCopyClipboard} className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--cx-text-1)] border border-white/8 rounded hover:bg-cx-bg">
             <Copy size={12} /> Copy
           </button>
         </div>
@@ -532,9 +536,9 @@ export function DesignerPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel: Elements + Layers */}
-        <div className="w-56 bg-bg-secondary border-r border-border-primary flex flex-col shrink-0">
-          <div className="p-3 border-b border-border-primary">
-            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Add Elements</h3>
+        <div className="w-56 bg-cx-surface border-r border-white/8 flex flex-col shrink-0">
+          <div className="p-3 border-b border-white/8">
+            <h3 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider mb-2">Add Elements</h3>
             <div className="grid grid-cols-3 gap-1.5">
               {[
                 { type: 'text' as ElementType, icon: <Type size={16} />, label: 'Text' },
@@ -547,10 +551,10 @@ export function DesignerPage() {
                 <button
                   key={item.type}
                   onClick={() => addElement(item.type)}
-                  className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border-primary hover:border-accent-blue hover:bg-accent-blue/5 transition-colors"
+                  className="flex flex-col items-center gap-1 p-2 rounded-lg border border-white/8 hover:border-cx-brand hover:bg-cx-brand/5 transition-colors"
                 >
-                  <span className="text-text-primary">{item.icon}</span>
-                  <span className="text-[10px] text-text-secondary">{item.label}</span>
+                  <span className="text-[var(--cx-text-1)]">{item.icon}</span>
+                  <span className="text-[10px] text-[var(--cx-text-2)]">{item.label}</span>
                 </button>
               ))}
             </div>
@@ -558,7 +562,7 @@ export function DesignerPage() {
 
           {/* Layer Panel */}
           <div className="flex-1 overflow-y-auto p-3">
-            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2 flex items-center gap-1">
+            <h3 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider mb-2 flex items-center gap-1">
               <Layers size={12} /> Layers
             </h3>
             <div className="space-y-0.5">
@@ -582,20 +586,20 @@ export function DesignerPage() {
                   onClick={() => setSelectedElement(el)}
                   className={cn(
                     'flex items-center gap-1.5 px-2 py-1.5 rounded text-xs cursor-pointer transition-colors',
-                    selectedElement?.id === el.id ? 'bg-accent-blue/10 text-accent-blue' : 'text-text-primary hover:bg-bg-primary'
+                    selectedElement?.id === el.id ? 'bg-cx-brand/10 text-cx-brand' : 'text-[var(--cx-text-1)] hover:bg-cx-bg'
                   )}
                 >
-                  <GripVertical size={10} className="text-text-secondary/50 cursor-grab shrink-0" />
+                  <GripVertical size={10} className="text-[var(--cx-text-2)]/50 cursor-grab shrink-0" />
                   <span className="flex-1 truncate">{el.type === 'text' ? (el.text || 'Text').substring(0, 16) : el.type}</span>
                   <button
                     onClick={(e) => { e.stopPropagation(); updateElement(el.id, { visible: !el.visible }); }}
-                    className="text-text-secondary hover:text-text-primary shrink-0"
+                    className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] shrink-0"
                   >
                     {el.visible ? <Eye size={10} /> : <EyeOff size={10} />}
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); updateElement(el.id, { locked: !el.locked }); }}
-                    className="text-text-secondary hover:text-text-primary shrink-0"
+                    className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] shrink-0"
                   >
                     {el.locked ? <Lock size={10} /> : <Unlock size={10} />}
                   </button>
@@ -607,7 +611,7 @@ export function DesignerPage() {
 
         {/* Center: Canvas */}
         <div
-          className="flex-1 overflow-auto flex items-center justify-center bg-bg-primary/50 p-8"
+          className="flex-1 overflow-auto flex items-center justify-center bg-cx-bg/50 p-8"
           onClick={() => { setSelectedElement(null); setEditingTextId(null); }}
           onMouseMove={handleCanvasMouseMove}
           onMouseUp={handleCanvasMouseUp}
@@ -627,36 +631,36 @@ export function DesignerPage() {
         </div>
 
         {/* Right Panel: Properties */}
-        <div className="w-64 bg-bg-secondary border-l border-border-primary p-4 overflow-y-auto shrink-0">
+        <div className="w-64 bg-cx-surface border-l border-white/8 p-4 overflow-y-auto shrink-0">
           {selectedElement ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-text-primary capitalize">{selectedElement.type} Properties</h3>
-                <button onClick={() => deleteElement(selectedElement.id)} className="text-text-secondary hover:text-red-400">
+                <h3 className="text-sm font-semibold text-[var(--cx-text-1)] capitalize">{selectedElement.type} Properties</h3>
+                <button onClick={() => deleteElement(selectedElement.id)} className="text-[var(--cx-text-2)] hover:text-cx-danger">
                   <Trash2 size={14} />
                 </button>
               </div>
 
               {/* Position */}
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Position</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Position</label>
                 <div className="flex gap-2">
                   <div>
-                    <span className="text-[10px] text-text-secondary">X</span>
+                    <span className="text-[10px] text-[var(--cx-text-2)]">X</span>
                     <input
                       type="number"
                       value={selectedElement.x}
                       onChange={(e) => updateElement(selectedElement.id, { x: Number(e.target.value) })}
-                      className="w-full bg-bg-primary border border-border-primary rounded px-2 py-1 text-xs text-text-primary outline-none"
+                      className="w-full bg-cx-bg border border-white/8 rounded px-2 py-1 text-xs text-[var(--cx-text-1)] outline-none"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-text-secondary">Y</span>
+                    <span className="text-[10px] text-[var(--cx-text-2)]">Y</span>
                     <input
                       type="number"
                       value={selectedElement.y}
                       onChange={(e) => updateElement(selectedElement.id, { y: Number(e.target.value) })}
-                      className="w-full bg-bg-primary border border-border-primary rounded px-2 py-1 text-xs text-text-primary outline-none"
+                      className="w-full bg-cx-bg border border-white/8 rounded px-2 py-1 text-xs text-[var(--cx-text-1)] outline-none"
                     />
                   </div>
                 </div>
@@ -664,24 +668,24 @@ export function DesignerPage() {
 
               {/* Size */}
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Size</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Size</label>
                 <div className="flex gap-2">
                   <div>
-                    <span className="text-[10px] text-text-secondary">W</span>
+                    <span className="text-[10px] text-[var(--cx-text-2)]">W</span>
                     <input
                       type="number"
                       value={selectedElement.width}
                       onChange={(e) => updateElement(selectedElement.id, { width: Number(e.target.value) })}
-                      className="w-full bg-bg-primary border border-border-primary rounded px-2 py-1 text-xs text-text-primary outline-none"
+                      className="w-full bg-cx-bg border border-white/8 rounded px-2 py-1 text-xs text-[var(--cx-text-1)] outline-none"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-text-secondary">H</span>
+                    <span className="text-[10px] text-[var(--cx-text-2)]">H</span>
                     <input
                       type="number"
                       value={selectedElement.height}
                       onChange={(e) => updateElement(selectedElement.id, { height: Number(e.target.value) })}
-                      className="w-full bg-bg-primary border border-border-primary rounded px-2 py-1 text-xs text-text-primary outline-none"
+                      className="w-full bg-cx-bg border border-white/8 rounded px-2 py-1 text-xs text-[var(--cx-text-1)] outline-none"
                     />
                   </div>
                 </div>
@@ -689,7 +693,7 @@ export function DesignerPage() {
 
               {/* Opacity */}
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Opacity: {Math.round(selectedElement.opacity * 100)}%</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Opacity: {Math.round(selectedElement.opacity * 100)}%</label>
                 <input
                   type="range"
                   min="0"
@@ -704,7 +708,7 @@ export function DesignerPage() {
               {/* Fill Color */}
               {selectedElement.type !== 'text' && (
                 <div>
-                  <label className="block text-xs text-text-secondary mb-1">Fill Color</label>
+                  <label className="block text-xs text-[var(--cx-text-2)] mb-1">Fill Color</label>
                   <div className="flex flex-wrap gap-1.5">
                     {COLORS.map((c) => (
                       <button
@@ -712,7 +716,7 @@ export function DesignerPage() {
                         onClick={() => updateElement(selectedElement.id, { fill: c })}
                         className={cn(
                           'w-6 h-6 rounded-full border-2 transition-colors',
-                          selectedElement.fill === c ? 'border-accent-blue' : 'border-transparent hover:border-white/30'
+                          selectedElement.fill === c ? 'border-cx-brand' : 'border-transparent hover:border-white/30'
                         )}
                         style={{ backgroundColor: c }}
                       />
@@ -723,14 +727,14 @@ export function DesignerPage() {
 
               {/* Border */}
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Border Width</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Border Width</label>
                 <input
                   type="number"
                   min="0"
                   max="20"
                   value={selectedElement.borderWidth}
                   onChange={(e) => updateElement(selectedElement.id, { borderWidth: Number(e.target.value) })}
-                  className="w-full bg-bg-primary border border-border-primary rounded px-2 py-1 text-xs text-text-primary outline-none"
+                  className="w-full bg-cx-bg border border-white/8 rounded px-2 py-1 text-xs text-[var(--cx-text-1)] outline-none"
                 />
               </div>
 
@@ -738,49 +742,49 @@ export function DesignerPage() {
               {selectedElement.type === 'text' && (
                 <>
                   <div>
-                    <label className="block text-xs text-text-secondary mb-1">Text</label>
+                    <label className="block text-xs text-[var(--cx-text-2)] mb-1">Text</label>
                     <textarea
                       value={selectedElement.text || ''}
                       onChange={(e) => updateElement(selectedElement.id, { text: e.target.value })}
                       rows={2}
-                      className="w-full bg-bg-primary border border-border-primary rounded px-2 py-1 text-xs text-text-primary outline-none resize-none"
+                      className="w-full bg-cx-bg border border-white/8 rounded px-2 py-1 text-xs text-[var(--cx-text-1)] outline-none resize-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-text-secondary mb-1">Font</label>
+                    <label className="block text-xs text-[var(--cx-text-2)] mb-1">Font</label>
                     <select
                       value={selectedElement.fontFamily}
                       onChange={(e) => updateElement(selectedElement.id, { fontFamily: e.target.value })}
-                      className="w-full bg-bg-primary border border-border-primary rounded px-2 py-1 text-xs text-text-primary outline-none"
+                      className="w-full bg-cx-bg border border-white/8 rounded px-2 py-1 text-xs text-[var(--cx-text-1)] outline-none"
                     >
                       {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-text-secondary mb-1">Font Size</label>
+                    <label className="block text-xs text-[var(--cx-text-2)] mb-1">Font Size</label>
                     <input
                       type="number"
                       value={selectedElement.fontSize || 32}
                       onChange={(e) => updateElement(selectedElement.id, { fontSize: Number(e.target.value) })}
-                      className="w-full bg-bg-primary border border-border-primary rounded px-2 py-1 text-xs text-text-primary outline-none"
+                      className="w-full bg-cx-bg border border-white/8 rounded px-2 py-1 text-xs text-[var(--cx-text-1)] outline-none"
                     />
                   </div>
                   <div className="flex gap-1">
                     <button
                       onClick={() => updateElement(selectedElement.id, { fontWeight: selectedElement.fontWeight === 'bold' ? 'normal' : 'bold' })}
-                      className={cn('p-1.5 rounded', selectedElement.fontWeight === 'bold' ? 'bg-accent-blue/10 text-accent-blue' : 'text-text-secondary hover:bg-bg-primary')}
+                      className={cn('p-1.5 rounded', selectedElement.fontWeight === 'bold' ? 'bg-cx-brand/10 text-cx-brand' : 'text-[var(--cx-text-2)] hover:bg-cx-bg')}
                     >
                       <Bold size={14} />
                     </button>
                     <button
                       onClick={() => updateElement(selectedElement.id, { fontStyle: selectedElement.fontStyle === 'italic' ? 'normal' : 'italic' })}
-                      className={cn('p-1.5 rounded', selectedElement.fontStyle === 'italic' ? 'bg-accent-blue/10 text-accent-blue' : 'text-text-secondary hover:bg-bg-primary')}
+                      className={cn('p-1.5 rounded', selectedElement.fontStyle === 'italic' ? 'bg-cx-brand/10 text-cx-brand' : 'text-[var(--cx-text-2)] hover:bg-cx-bg')}
                     >
                       <Italic size={14} />
                     </button>
                   </div>
                   <div>
-                    <label className="block text-xs text-text-secondary mb-1">Text Color</label>
+                    <label className="block text-xs text-[var(--cx-text-2)] mb-1">Text Color</label>
                     <div className="flex flex-wrap gap-1.5">
                       {COLORS.map((c) => (
                         <button
@@ -788,7 +792,7 @@ export function DesignerPage() {
                           onClick={() => updateElement(selectedElement.id, { textColor: c })}
                           className={cn(
                             'w-6 h-6 rounded-full border-2 transition-colors',
-                            selectedElement.textColor === c ? 'border-accent-blue' : 'border-transparent hover:border-white/30'
+                            selectedElement.textColor === c ? 'border-cx-brand' : 'border-transparent hover:border-white/30'
                           )}
                           style={{ backgroundColor: c }}
                         />
@@ -800,9 +804,9 @@ export function DesignerPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-text-primary">Canvas Settings</h3>
+              <h3 className="text-sm font-semibold text-[var(--cx-text-1)]">Canvas Settings</h3>
               <div>
-                <label className="block text-xs text-text-secondary mb-1">Background Color</label>
+                <label className="block text-xs text-[var(--cx-text-2)] mb-1">Background Color</label>
                 <div className="flex flex-wrap gap-1.5">
                   {COLORS.map((c) => (
                     <button
@@ -810,7 +814,7 @@ export function DesignerPage() {
                       onClick={() => updateDesign((d) => ({ ...d, backgroundColor: c }))}
                       className={cn(
                         'w-6 h-6 rounded-full border-2 transition-colors',
-                        activeDesign.backgroundColor === c ? 'border-accent-blue' : 'border-transparent hover:border-white/30'
+                        activeDesign.backgroundColor === c ? 'border-cx-brand' : 'border-transparent hover:border-white/30'
                       )}
                       style={{ backgroundColor: c }}
                     />

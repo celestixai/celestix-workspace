@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { Search, Plus, Hash } from 'lucide-react';
 import { api } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
@@ -162,10 +163,10 @@ export function ChatList({ selectedChatId, onSelectChat, onCreateChat }: ChatLis
   ];
 
   return (
-    <div className="w-[320px] flex flex-col border-r border-border-primary bg-bg-secondary flex-shrink-0 h-full">
+    <div className="w-[320px] flex flex-col border-r border-[rgba(255,255,255,0.08)] bg-[#0C0C0E] flex-shrink-0 h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 h-14 border-b border-border-primary flex-shrink-0">
-        <h1 className="text-lg font-bold text-text-primary">Messenger</h1>
+      <div className="flex items-center justify-between px-4 h-14 border-b border-[rgba(255,255,255,0.08)] flex-shrink-0">
+        <h1 className="text-[16px] font-display text-white">Messages</h1>
         <Button
           variant="ghost"
           size="icon"
@@ -218,7 +219,12 @@ export function ChatList({ selectedChatId, onSelectChat, onCreateChat }: ChatLis
           />
         )}
 
-        <div className="space-y-0.5 p-1.5">
+        <motion.div
+          className="space-y-0.5 p-1.5"
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.03 } } }}
+        >
           {filteredChats.map((chat) => {
             const isSelected = chat.id === selectedChatId;
             const typingUsers = getTypingUsers(chat.id).filter(
@@ -230,27 +236,31 @@ export function ChatList({ selectedChatId, onSelectChat, onCreateChat }: ChatLis
                 : false;
 
             return (
-              <button
+              <motion.div
                 key={chat.id}
+                variants={{ hidden: { opacity: 0, y: 6 }, visible: { opacity: 1, y: 0 } }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+              <button
                 onClick={() => onSelectChat(chat.id)}
                 className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left',
+                  'w-full flex items-center gap-3 px-3 h-[56px] rounded-lg text-left',
                   'transition-all duration-150 ease-out',
                   isSelected
-                    ? 'bg-accent-blue/10 border border-accent-blue/20'
-                    : 'hover:bg-bg-hover border border-transparent',
+                    ? 'bg-[rgba(255,255,255,0.06)]'
+                    : 'hover:bg-[rgba(255,255,255,0.03)]',
                 )}
               >
                 {/* Avatar / Channel icon */}
                 {chat.type === 'CHANNEL' ? (
-                  <div className="h-10 w-10 rounded-full bg-accent-blue/10 flex items-center justify-center flex-shrink-0">
-                    <Hash size={20} className="text-accent-blue" />
+                  <div className="h-9 w-9 rounded-full bg-accent-blue/10 flex items-center justify-center flex-shrink-0">
+                    <Hash size={18} className="text-accent-blue" />
                   </div>
                 ) : (
                   <Avatar
                     src={chat.avatarUrl}
                     name={chat.name}
-                    size="md"
+                    size="sm"
                     userId={chat.dmUserId ?? undefined}
                     showStatus={chat.type === 'DM'}
                   />
@@ -259,29 +269,24 @@ export function ChatList({ selectedChatId, onSelectChat, onCreateChat }: ChatLis
                 {/* Text content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span
-                      className={cn(
-                        'text-sm font-medium truncate',
-                        isSelected ? 'text-accent-blue' : 'text-text-primary',
-                      )}
-                    >
+                    <span className="text-[14px] font-medium truncate text-white">
                       {chat.name}
                     </span>
                     {chat.lastMessage && (
-                      <span className="text-[10px] text-text-tertiary flex-shrink-0">
+                      <span className="text-[11px] text-[rgba(255,255,255,0.40)] flex-shrink-0">
                         {formatMessageTime(chat.lastMessage.createdAt)}
                       </span>
                     )}
                   </div>
 
                   <div className="flex items-center justify-between gap-2 mt-0.5">
-                    <p className="text-xs text-text-secondary truncate">
+                    <p className="text-[12px] text-[rgba(255,255,255,0.40)] truncate">
                       {typingUsers.length > 0 ? (
                         <span className="text-accent-blue animate-pulse">typing...</span>
                       ) : chat.lastMessage ? (
                         <>
                           {chat.type !== 'DM' && (
-                            <span className="text-text-tertiary">
+                            <span className="text-[rgba(255,255,255,0.30)]">
                               {chat.lastMessage.senderId === currentUser?.id
                                 ? 'You'
                                 : chat.lastMessage.senderName.split(' ')[0]}
@@ -291,23 +296,21 @@ export function ChatList({ selectedChatId, onSelectChat, onCreateChat }: ChatLis
                           {truncate(chat.lastMessage.content, 40)}
                         </>
                       ) : (
-                        <span className="text-text-tertiary italic">No messages yet</span>
+                        <span className="text-[rgba(255,255,255,0.30)] italic">No messages yet</span>
                       )}
                     </p>
 
-                    {/* Unread badge */}
+                    {/* Unread dot */}
                     {chat.unreadCount > 0 && (
-                      <Badge
-                        count={chat.unreadCount}
-                        color={chat.isMuted ? 'var(--text-tertiary)' : undefined}
-                      />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB] flex-shrink-0" />
                     )}
                   </div>
                 </div>
               </button>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

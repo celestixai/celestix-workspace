@@ -5,7 +5,9 @@ import { getSocket } from '@/lib/socket';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePresenceStore } from '@/stores/presence.store';
 import { cn } from '@/lib/utils';
-import { EmptyState } from '@/components/shared/empty-state';
+import { EmptyState as LegacyEmptyState } from '@/components/shared/empty-state';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { MessengerIllustration } from '@/components/shared/EmptyIllustrations';
 import { MessageSkeleton } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
 import { MessageCircle, X, Mail, Phone, AtSign, Shield, Users, Hash, Link2, Copy, LogOut, UserPlus, Search } from 'lucide-react';
@@ -26,20 +28,21 @@ interface MessagesPage {
 
 interface ChatViewProps {
   chatId: string | null;
+  onCreateChat?: () => void;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export function ChatView({ chatId }: ChatViewProps) {
+export function ChatView({ chatId, onCreateChat }: ChatViewProps) {
   const queryClient = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
   const setTyping = usePresenceStore((s) => s.setTyping);
 
   const [replyTo, setReplyTo] = useState<MessageData | null>(null);
   const [editingMessage, setEditingMessage] = useState<MessageData | null>(null);
-  const [profilePanel, setProfilePanel] = useState<{ userId: string; name: string; avatar?: string | null } | null>(null);
+  const [profilePanel, setProfilePanel] = useState<{ userId: string; name: string; avatar?: string | null; username?: string } | null>(null);
   const [groupInfoOpen, setGroupInfoOpen] = useState(false);
   const [showAddMembers, setShowAddMembers] = useState(false);
   const [addMemberSearch, setAddMemberSearch] = useState('');
@@ -85,6 +88,7 @@ export function ChatView({ chatId }: ChatViewProps) {
       const members = (raw.members || []).map((m: any) => ({
         id: m.user?.id || m.userId,
         displayName: m.user?.displayName || 'Unknown',
+        username: m.user?.username || undefined,
       }));
       const otherMember = isDM ? raw.members?.find((m: any) => (m.user?.id || m.userId) !== currentUser?.id) : null;
       return {
@@ -343,7 +347,7 @@ export function ChatView({ chatId }: ChatViewProps) {
   });
 
   /* ---- Add members search ---- */
-  const { data: searchUsers } = useQuery<Array<{ id: string; displayName: string; email: string; avatarUrl?: string | null }>>({
+  const { data: searchUsers } = useQuery<Array<{ id: string; displayName: string; email: string; username?: string; avatarUrl?: string | null }>>({
     queryKey: ['messenger', 'users', addMemberSearch],
     queryFn: async () => {
       const { data } = await api.get('/auth/users', { params: { search: addMemberSearch } });
@@ -457,11 +461,14 @@ export function ChatView({ chatId }: ChatViewProps) {
   /* ---- no chat selected ---- */
   if (!chatId) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-bg-primary">
+      <div className="flex-1 flex items-center justify-center bg-[#09090B]">
         <EmptyState
-          icon={<MessageCircle size={48} />}
-          title="Select a conversation"
-          description="Choose a chat from the sidebar or start a new one"
+          icon={MessageCircle}
+          title="No conversations"
+          description="Start a chat with a teammate"
+          illustration={<MessengerIllustration />}
+          actionLabel="+ New Chat"
+          onAction={() => onCreateChat?.()}
         />
       </div>
     );
@@ -470,10 +477,10 @@ export function ChatView({ chatId }: ChatViewProps) {
   return (
     <div className="flex-1 flex min-w-0">
       {/* Main chat column */}
-      <div className="flex-1 flex flex-col bg-bg-primary min-w-0">
+      <div className="flex-1 flex flex-col bg-[#09090B] min-w-0">
       {/* Header */}
       {chatLoading ? (
-        <div className="h-14 border-b border-border-primary bg-bg-secondary" />
+        <div className="h-14 border-b border-[rgba(255,255,255,0.08)] bg-[#0C0C0E]" />
       ) : chat ? (
         <ChatHeader
           chat={chat}
@@ -481,8 +488,14 @@ export function ChatView({ chatId }: ChatViewProps) {
             /* TODO: open search panel */
           }}
           onToggleMute={() => muteMutation.mutate()}
+          onPhoneCall={() => toast('Voice calls coming soon', 'info')}
           onVideoCall={() => toast('Video calls coming soon', 'info')}
           onShowPinned={() => toast('Pinned messages coming soon', 'info')}
+          onDeleteChat={() => {
+            if (window.confirm('Delete this conversation? This cannot be undone.')) {
+              leaveMutation.mutate();
+            }
+          }}
           onClickProfile={() => {
             if (chat.type === 'DM' && chat.dmUserId) {
               setProfilePanel({ userId: chat.dmUserId, name: chat.name, avatar: chat.avatarUrl });
@@ -514,7 +527,7 @@ export function ChatView({ chatId }: ChatViewProps) {
         {/* Empty chat */}
         {!msgsLoading && messages.length === 0 && (
           <div className="flex-1 flex items-center justify-center py-12">
-            <EmptyState
+            <LegacyEmptyState
               icon={<MessageCircle size={40} />}
               title="No messages yet"
               description="Send the first message to start the conversation"
@@ -586,14 +599,7 @@ export function ChatView({ chatId }: ChatViewProps) {
               <AtSign size={16} className="text-text-tertiary flex-shrink-0" />
               <div className="min-w-0">
                 <p className="text-xs text-text-tertiary">Username</p>
-                <p className="text-sm text-text-primary truncate">{profilePanel.name.toLowerCase().replace(/\s+/g, '.')}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-bg-tertiary">
-              <Mail size={16} className="text-text-tertiary flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-xs text-text-tertiary">Email</p>
-                <p className="text-sm text-text-primary truncate">{profilePanel.name.toLowerCase().replace(/\s+/g, '.')}@celestix.com</p>
+                <p className="text-sm text-text-primary truncate">{profilePanel.username ? `@${profilePanel.username}` : profilePanel.name.toLowerCase().replace(/\s+/g, '.')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-bg-tertiary">
@@ -698,7 +704,7 @@ export function ChatView({ chatId }: ChatViewProps) {
                         <Avatar src={user.avatarUrl} name={user.displayName} size="sm" userId={user.id} />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-text-primary truncate">{user.displayName}</p>
-                          <p className="text-xs text-text-tertiary truncate">{user.email}</p>
+                          <p className="text-xs text-text-tertiary truncate">{user.username ? `@${user.username}` : user.email}</p>
                         </div>
                         <UserPlus size={14} className="text-accent-blue flex-shrink-0" />
                       </button>
@@ -727,7 +733,7 @@ export function ChatView({ chatId }: ChatViewProps) {
                     onClick={() => {
                       setGroupInfoOpen(false);
                       setShowAddMembers(false);
-                      setProfilePanel({ userId: member.id, name: member.displayName });
+                      setProfilePanel({ userId: member.id, name: member.displayName, username: member.username });
                     }}
                     className="flex items-center gap-3 flex-1 min-w-0 text-left"
                   >
@@ -735,7 +741,7 @@ export function ChatView({ chatId }: ChatViewProps) {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-text-primary truncate">{member.displayName}</p>
                       <p className="text-xs text-text-tertiary">
-                        {member.id === currentUser?.id ? 'You' : 'Member'}
+                        {member.id === currentUser?.id ? 'You' : member.username ? `@${member.username}` : 'Member'}
                       </p>
                     </div>
                   </button>

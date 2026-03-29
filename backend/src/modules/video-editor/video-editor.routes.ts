@@ -66,4 +66,35 @@ router.get('/projects/:projectId/exports/:jobId', authenticate, async (req: Requ
   res.json({ success: true, data: exportJob });
 });
 
+// ==========================================
+// VIDEO TRIM (ffmpeg)
+// ==========================================
+
+import multer from 'multer';
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 500 * 1024 * 1024 } });
+
+// POST /api/v1/video-editor/trim
+router.post('/trim', authenticate, upload.single('video'), async (req: Request, res: Response) => {
+  if (!req.file) {
+    res.status(400).json({ success: false, error: 'No video file uploaded' });
+    return;
+  }
+  const { startTime, endTime } = req.body;
+  if (!startTime || !endTime) {
+    res.status(400).json({ success: false, error: 'startTime and endTime are required' });
+    return;
+  }
+
+  try {
+    const { trimVideo } = await import('../../services/libreoffice');
+    const result = await trimVideo(req.file.buffer, startTime, endTime);
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Disposition', 'attachment; filename="trimmed.mp4"');
+    res.send(result);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Trim failed';
+    res.status(500).json({ success: false, error: msg });
+  }
+});
+
 export default router;

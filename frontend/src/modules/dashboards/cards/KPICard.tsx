@@ -54,8 +54,8 @@ export function KPICard({
           <div
             className={cn(
               'flex items-center gap-1 mt-2 text-xs font-medium',
-              trend === 'up' && 'text-green-400',
-              trend === 'down' && 'text-red-400',
+              trend === 'up' && 'text-cx-success',
+              trend === 'down' && 'text-cx-danger',
               trend !== 'up' && trend !== 'down' && 'text-text-tertiary'
             )}
           >

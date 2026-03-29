@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils';
 import { useRequestTimeOff, type TimeOffType } from '@/hooks/useSchedules';
 
 const TYPE_OPTIONS: { value: TimeOffType; label: string; color: string }[] = [
-  { value: 'VACATION', label: 'Vacation', color: 'bg-blue-500' },
-  { value: 'SICK', label: 'Sick', color: 'bg-red-500' },
-  { value: 'PERSONAL', label: 'Personal', color: 'bg-green-500' },
+  { value: 'VACATION', label: 'Vacation', color: 'bg-cx-brand' },
+  { value: 'SICK', label: 'Sick', color: 'bg-cx-danger' },
+  { value: 'PERSONAL', label: 'Personal', color: 'bg-cx-success' },
   { value: 'HOLIDAY', label: 'Holiday', color: 'bg-purple-500' },
-  { value: 'OTHER', label: 'Other', color: 'bg-gray-500' },
+  { value: 'OTHER', label: 'Other', color: 'bg-[var(--cx-text-3)]' },
 ];
 
 interface Props {

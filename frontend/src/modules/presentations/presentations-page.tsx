@@ -63,12 +63,12 @@ interface PresentationData {
 }
 
 const THEMES = [
-  { id: 'dark', name: 'Dark', bg: '#0f0f1a', text: '#ffffff', accent: '#3b82f6' },
-  { id: 'light', name: 'Light', bg: '#ffffff', text: '#1a1a2e', accent: '#3b82f6' },
-  { id: 'midnight', name: 'Midnight', bg: '#1a1a2e', text: '#e2e8f0', accent: '#8b5cf6' },
-  { id: 'forest', name: 'Forest', bg: '#0a1a0a', text: '#d4edda', accent: '#22c55e' },
-  { id: 'sunset', name: 'Sunset', bg: '#1a0a0a', text: '#fce4ec', accent: '#ef4444' },
-  { id: 'ocean', name: 'Ocean', bg: '#0a1a2e', text: '#e0f2fe', accent: '#06b6d4' },
+  { id: 'dark', name: 'Dark', bg: '#09090B', text: '#ffffff', accent: '#3B82F6' },
+  { id: 'light', name: 'Light', bg: '#ffffff', text: '#111113', accent: '#3B82F6' },
+  { id: 'midnight', name: 'Midnight', bg: '#111113', text: '#ffffff', accent: '#8B5CF6' },
+  { id: 'forest', name: 'Forest', bg: '#09090B', text: '#ffffff', accent: '#22c55e' },
+  { id: 'sunset', name: 'Sunset', bg: '#09090B', text: '#ffffff', accent: '#EF4444' },
+  { id: 'ocean', name: 'Ocean', bg: '#0C0C0E', text: '#ffffff', accent: '#14B8A6' },
 ];
 
 const SHAPE_TYPES = [
@@ -345,7 +345,7 @@ export function PresentationsPage() {
   const addImage = () => {
     const el: SlideElement = {
       id: uid(), type: 'image', x: 120, y: 100, width: 300, height: 200,
-      content: '', shapeType: undefined, fillColor: '#1a1a2e', borderColor: '#ffffff20',
+      content: '', shapeType: undefined, fillColor: '#111113', borderColor: '#ffffff20',
       fontSize: 14, fontWeight: 'normal', textAlign: 'center',
     };
     updateSlide(currentSlideIdx, { elements: [...(currentSlide?.elements || []), el] });
@@ -417,7 +417,7 @@ export function PresentationsPage() {
       width: el.width,
       height: el.height,
       cursor: interactive ? 'move' : 'default',
-      outline: isSelected ? '2px solid #3b82f6' : 'none',
+      outline: isSelected ? '2px solid #3B82F6' : 'none',
       outlineOffset: 2,
     };
 
@@ -452,7 +452,7 @@ export function PresentationsPage() {
           {isSelected && (
             <div
               onMouseDown={(e) => handleResizeMouseDown(e, el)}
-              className="absolute -right-1.5 -bottom-1.5 w-3 h-3 bg-blue-500 rounded-sm cursor-se-resize"
+              className="absolute -right-1.5 -bottom-1.5 w-3 h-3 bg-cx-brand rounded-sm cursor-se-resize"
             />
           )}
         </div>
@@ -495,7 +495,7 @@ export function PresentationsPage() {
           {isSelected && (
             <div
               onMouseDown={(e) => handleResizeMouseDown(e, el)}
-              className="absolute -right-1.5 -bottom-1.5 w-3 h-3 bg-blue-500 rounded-sm cursor-se-resize"
+              className="absolute -right-1.5 -bottom-1.5 w-3 h-3 bg-cx-brand rounded-sm cursor-se-resize"
             />
           )}
         </div>
@@ -516,7 +516,7 @@ export function PresentationsPage() {
           {isSelected && (
             <div
               onMouseDown={(e) => handleResizeMouseDown(e, el)}
-              className="absolute -right-1.5 -bottom-1.5 w-3 h-3 bg-blue-500 rounded-sm cursor-se-resize"
+              className="absolute -right-1.5 -bottom-1.5 w-3 h-3 bg-cx-brand rounded-sm cursor-se-resize"
             />
           )}
         </div>
@@ -596,48 +596,82 @@ export function PresentationsPage() {
 
   if (mode === 'list') {
     return (
-      <div className="flex flex-col h-full bg-bg-primary">
-        <div className="h-14 flex items-center gap-3 px-6 border-b border-border-primary flex-shrink-0">
-          <Presentation size={18} className="text-accent-blue" />
-          <h1 className="text-base font-semibold text-text-primary">Presentations</h1>
+      <div className="flex flex-col h-full bg-cx-bg">
+        {/* Toolbar */}
+        <div className="h-12 flex items-center gap-3 px-4 border-b border-white/8 flex-shrink-0" style={{ backgroundColor: '#111113' }}>
+          <Presentation size={18} className="text-cx-brand" />
+          <h1 className="text-base font-display text-[var(--cx-text-1)]">Presentations</h1>
           <div className="flex-1" />
           <button
             onClick={() => { setNewTitle(''); setNewTheme('dark'); setShowCreateModal(true); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-accent-blue text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:opacity-90 transition-opacity"
           >
             <Plus size={14} />
             New Presentation
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-bg-secondary border border-border-primary rounded-lg h-48 animate-pulse" />
-              ))}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left sidebar - slide thumbnails placeholder */}
+          <aside className="w-48 flex-shrink-0 border-r border-white/8 flex flex-col" style={{ backgroundColor: '#0C0C0E' }}>
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+              <span className="text-[11px] font-semibold text-[var(--cx-text-3)] uppercase tracking-wider">Recent</span>
             </div>
-          ) : presentations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Presentation size={48} className="text-text-tertiary mb-3" />
-              <p className="text-base text-text-secondary mb-1">No presentations</p>
-              <p className="text-sm text-text-tertiary mb-4">Create your first presentation</p>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent-blue text-white text-sm hover:opacity-90 transition-opacity"
-              >
-                <Plus size={14} />
-                Create Presentation
-              </button>
+            <div className="flex-1 overflow-y-auto py-2 px-2 space-y-2">
+              {presentations.slice(0, 8).map((p) => {
+                const theme = THEMES.find((t) => t.id === p.theme) || THEMES[0];
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => openPresentation(p)}
+                    className="w-full rounded-lg overflow-hidden border border-white/8 hover:border-cx-brand/40 transition-colors"
+                  >
+                    <div className="aspect-video flex items-center justify-center" style={{ backgroundColor: theme.bg }}>
+                      <Presentation size={16} style={{ color: theme.accent, opacity: 0.3 }} />
+                    </div>
+                    <div className="px-2 py-1.5">
+                      <p className="text-[10px] text-[var(--cx-text-2)] truncate">{p.title}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-          ) : (
+          </aside>
+
+          {/* Center */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="bg-cx-surface border border-white/8 rounded-lg h-48 animate-pulse" />
+                ))}
+              </div>
+            ) : presentations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                {/* Empty state with slide canvas preview */}
+                <div className="bg-white rounded-lg shadow-lg mb-6" style={{ width: 320, aspectRatio: '16 / 9' }}>
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Presentation size={36} className="text-gray-300" />
+                  </div>
+                </div>
+                <p className="text-base text-[var(--cx-text-2)] mb-1">No presentations</p>
+                <p className="text-sm text-[var(--cx-text-3)] mb-4">Create your first presentation</p>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cx-brand text-white text-sm hover:opacity-90 transition-opacity"
+                >
+                  <Plus size={14} />
+                  Create Presentation
+                </button>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {presentations.map((p) => {
                 const theme = THEMES.find((t) => t.id === p.theme) || THEMES[0];
                 return (
                   <div
                     key={p.id}
-                    className="bg-bg-secondary border border-border-primary rounded-lg overflow-hidden cursor-pointer hover:border-accent-blue/40 transition-colors group"
+                    className="bg-cx-surface border border-white/8 rounded-lg overflow-hidden cursor-pointer hover:border-cx-brand/40 transition-colors group"
                   >
                     <div
                       onClick={() => openPresentation(p)}
@@ -648,15 +682,15 @@ export function PresentationsPage() {
                     </div>
                     <div className="p-3 flex items-center justify-between">
                       <div className="min-w-0 flex-1" onClick={() => openPresentation(p)}>
-                        <h3 className="text-sm font-medium text-text-primary truncate">{p.title}</h3>
-                        <p className="text-[11px] text-text-tertiary mt-0.5">
+                        <h3 className="text-sm font-medium text-[var(--cx-text-1)] truncate">{p.title}</h3>
+                        <p className="text-[11px] text-[var(--cx-text-3)] mt-0.5">
                           {p.slides?.length || 0} slides &middot;{' '}
                           {new Date(p.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </p>
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}
-                        className="p-1 rounded hover:bg-bg-hover text-text-tertiary opacity-0 group-hover:opacity-100 hover:text-accent-red transition-all"
+                        className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] opacity-0 group-hover:opacity-100 hover:text-cx-danger transition-all"
                       >
                         <Trash2 size={13} />
                       </button>
@@ -666,30 +700,31 @@ export function PresentationsPage() {
               })}
             </div>
           )}
+          </div>
         </div>
 
         {/* Create Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowCreateModal(false)}>
-            <div className="bg-bg-secondary border border-border-primary rounded-xl w-[460px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-cx-surface border border-white/8 rounded-xl w-[460px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-semibold text-text-primary">New Presentation</h3>
-                <button onClick={() => setShowCreateModal(false)} className="p-1 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+                <h3 className="text-base font-semibold text-[var(--cx-text-1)]">New Presentation</h3>
+                <button onClick={() => setShowCreateModal(false)} className="p-1 rounded-lg hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
                   <X size={16} />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs text-text-tertiary mb-1.5">Title</label>
+                  <label className="block text-xs text-[var(--cx-text-3)] mb-1.5">Title</label>
                   <input
                     autoFocus type="text" placeholder="My Presentation" value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                    className="w-full h-9 px-3 rounded-lg bg-bg-primary border border-border-primary text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue"
+                    className="w-full h-9 px-3 rounded-lg bg-cx-bg border border-white/8 text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:border-cx-brand"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-text-tertiary mb-2">Theme</label>
+                  <label className="block text-xs text-[var(--cx-text-3)] mb-2">Theme</label>
                   <div className="grid grid-cols-3 gap-2">
                     {THEMES.map((t) => (
                       <button
@@ -697,7 +732,7 @@ export function PresentationsPage() {
                         onClick={() => setNewTheme(t.id)}
                         className={cn(
                           'rounded-lg p-2 border-2 transition-colors',
-                          newTheme === t.id ? 'border-accent-blue' : 'border-border-primary hover:border-border-secondary'
+                          newTheme === t.id ? 'border-cx-brand' : 'border-white/8 hover:border-white/12'
                         )}
                       >
                         <div className="h-10 rounded mb-1.5" style={{ backgroundColor: t.bg }}>
@@ -705,16 +740,16 @@ export function PresentationsPage() {
                             <div className="w-6 h-1 rounded-full" style={{ backgroundColor: t.accent }} />
                           </div>
                         </div>
-                        <span className="text-[11px] text-text-secondary">{t.name}</span>
+                        <span className="text-[11px] text-[var(--cx-text-2)]">{t.name}</span>
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
-                  <button onClick={() => setShowCreateModal(false)} className="px-3 py-1.5 rounded-lg text-sm text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors">
+                  <button onClick={() => setShowCreateModal(false)} className="px-3 py-1.5 rounded-lg text-sm text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-cx-raised transition-colors">
                     Cancel
                   </button>
-                  <button onClick={handleCreate} disabled={!newTitle.trim()} className="px-3 py-1.5 rounded-lg text-sm bg-accent-blue text-white hover:opacity-90 transition-opacity disabled:opacity-40">
+                  <button onClick={handleCreate} disabled={!newTitle.trim()} className="px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:opacity-90 transition-opacity disabled:opacity-40">
                     Create
                   </button>
                 </div>
@@ -731,17 +766,17 @@ export function PresentationsPage() {
   /* ---------------------------------------------------------------- */
 
   return (
-    <div className="flex flex-col h-full bg-bg-primary overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-cx-bg overflow-hidden select-none">
       {/* Top toolbar */}
-      <div className="h-11 flex items-center gap-2 px-3 border-b border-border-primary flex-shrink-0 bg-bg-secondary">
-        <button onClick={goBack} className="p-1.5 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+      <div className="h-11 flex items-center gap-2 px-3 border-b border-white/8 flex-shrink-0 bg-cx-surface">
+        <button onClick={goBack} className="p-1.5 rounded-lg hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
           <ChevronLeft size={16} />
         </button>
-        <span className="text-sm font-medium text-text-primary truncate max-w-[200px]">{active?.title}</span>
+        <span className="text-sm font-medium text-[var(--cx-text-1)] truncate max-w-[200px]">{active?.title}</span>
         <div className="w-px h-5 bg-border-primary mx-2" />
 
         {/* Slide tools */}
-        <button onClick={addTextBox} className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors" title="Add text box">
+        <button onClick={addTextBox} className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors" title="Add text box">
           <Type size={14} />
           <span className="hidden lg:inline">Text</span>
         </button>
@@ -749,7 +784,7 @@ export function PresentationsPage() {
         <div className="relative">
           <button
             onClick={() => setShapeDropdown((v) => !v)}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
             title="Add shape"
           >
             <Square size={14} />
@@ -757,12 +792,12 @@ export function PresentationsPage() {
             <ChevronDown size={10} />
           </button>
           {shapeDropdown && (
-            <div className="absolute top-full left-0 mt-1 bg-bg-secondary border border-border-primary rounded-lg shadow-xl py-1 z-20 w-36">
+            <div className="absolute top-full left-0 mt-1 bg-cx-surface border border-white/8 rounded-lg shadow-xl py-1 z-20 w-36">
               {SHAPE_TYPES.map(({ type, label, icon: Icon }) => (
                 <button
                   key={type}
                   onClick={() => addShape(type)}
-                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
                 >
                   <Icon size={13} />
                   {label}
@@ -772,7 +807,7 @@ export function PresentationsPage() {
           )}
         </div>
 
-        <button onClick={addImage} className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors" title="Add image">
+        <button onClick={addImage} className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors" title="Add image">
           <ImageIcon size={14} />
           <span className="hidden lg:inline">Image</span>
         </button>
@@ -780,7 +815,7 @@ export function PresentationsPage() {
         <div className="w-px h-5 bg-border-primary mx-1" />
 
         {/* Background color */}
-        <label className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover cursor-pointer" title="Slide background">
+        <label className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised cursor-pointer" title="Slide background">
           <Palette size={14} />
           <input
             type="color"
@@ -795,14 +830,14 @@ export function PresentationsPage() {
         <div className="relative">
           <button
             onClick={() => setShowThemePicker((v) => !v)}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
             title="Change theme"
           >
             <SlidersHorizontal size={14} />
             <span className="hidden lg:inline">Theme</span>
           </button>
           {showThemePicker && (
-            <div className="absolute top-full right-0 mt-1 bg-bg-secondary border border-border-primary rounded-lg shadow-xl py-2 px-2 z-20 w-48">
+            <div className="absolute top-full right-0 mt-1 bg-cx-surface border border-white/8 rounded-lg shadow-xl py-2 px-2 z-20 w-48">
               {THEMES.map((t) => (
                 <button
                   key={t.id}
@@ -812,10 +847,10 @@ export function PresentationsPage() {
                   }}
                   className={cn(
                     'w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-colors',
-                    active?.theme === t.id ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-secondary hover:bg-bg-hover'
+                    active?.theme === t.id ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-2)] hover:bg-cx-raised'
                   )}
                 >
-                  <div className="w-4 h-4 rounded-full border border-border-primary" style={{ backgroundColor: t.bg }} />
+                  <div className="w-4 h-4 rounded-full border border-white/8" style={{ backgroundColor: t.bg }} />
                   {t.name}
                 </button>
               ))}
@@ -828,7 +863,7 @@ export function PresentationsPage() {
         {/* Present */}
         <button
           onClick={() => { setPresentSlideIdx(currentSlideIdx); setPresenting(true); }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-accent-blue text-white hover:opacity-90 transition-opacity"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:opacity-90 transition-opacity"
         >
           <Play size={14} />
           Present
@@ -837,10 +872,10 @@ export function PresentationsPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left - Filmstrip */}
-        <div className="w-[180px] flex-shrink-0 bg-bg-secondary border-r border-border-primary flex flex-col">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-border-primary">
-            <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">Slides</span>
-            <button onClick={addSlide} className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors" title="Add slide">
+        <div className="w-[180px] flex-shrink-0 bg-cx-surface border-r border-white/8 flex flex-col">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+            <span className="text-[11px] font-semibold text-[var(--cx-text-3)] uppercase tracking-wider">Slides</span>
+            <button onClick={addSlide} className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors" title="Add slide">
               <Plus size={14} />
             </button>
           </div>
@@ -858,13 +893,13 @@ export function PresentationsPage() {
                 onDragEnd={() => setReorderDrag(null)}
                 className={cn(
                   'rounded-lg overflow-hidden cursor-pointer border-2 transition-colors',
-                  idx === currentSlideIdx ? 'border-accent-blue' : 'border-transparent hover:border-border-secondary',
-                  reorderDrag?.overIdx === idx && reorderDrag.fromIdx !== idx ? 'border-accent-blue/50' : ''
+                  idx === currentSlideIdx ? 'border-cx-brand' : 'border-transparent hover:border-white/12',
+                  reorderDrag?.overIdx === idx && reorderDrag.fromIdx !== idx ? 'border-cx-brand/50' : ''
                 )}
               >
                 <div className="flex items-center gap-1 px-1.5 py-0.5">
-                  <GripVertical size={10} className="text-text-tertiary cursor-grab" />
-                  <span className="text-[10px] text-text-tertiary">{idx + 1}</span>
+                  <GripVertical size={10} className="text-[var(--cx-text-3)] cursor-grab" />
+                  <span className="text-[10px] text-[var(--cx-text-3)]">{idx + 1}</span>
                 </div>
                 {renderSlidePreview(slide, 'sm')}
               </div>
@@ -874,7 +909,7 @@ export function PresentationsPage() {
 
         {/* Center - Canvas */}
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex-1 flex items-center justify-center p-6 bg-bg-primary overflow-auto">
+          <div className="flex-1 flex items-center justify-center p-6 bg-cx-bg overflow-auto">
             <div
               ref={canvasRef}
               className="relative shadow-2xl"
@@ -893,10 +928,10 @@ export function PresentationsPage() {
           </div>
 
           {/* Speaker notes */}
-          <div className={cn('border-t border-border-primary bg-bg-secondary flex-shrink-0 transition-all', showNotes ? 'h-32' : 'h-8')}>
+          <div className={cn('border-t border-white/8 bg-cx-surface flex-shrink-0 transition-all', showNotes ? 'h-32' : 'h-8')}>
             <button
               onClick={() => setShowNotes((v) => !v)}
-              className="w-full h-8 flex items-center gap-2 px-4 text-xs text-text-tertiary hover:text-text-secondary transition-colors"
+              className="w-full h-8 flex items-center gap-2 px-4 text-xs text-[var(--cx-text-3)] hover:text-[var(--cx-text-2)] transition-colors"
             >
               {showNotes ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
               Speaker Notes
@@ -906,42 +941,42 @@ export function PresentationsPage() {
                 value={currentSlide?.notes || ''}
                 onChange={(e) => updateSlide(currentSlideIdx, { notes: e.target.value })}
                 placeholder="Add speaker notes..."
-                className="w-full h-[calc(100%-2rem)] px-4 pb-2 bg-transparent text-sm text-text-primary placeholder:text-text-tertiary resize-none focus:outline-none"
+                className="w-full h-[calc(100%-2rem)] px-4 pb-2 bg-transparent text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] resize-none focus:outline-none"
               />
             )}
           </div>
         </div>
 
         {/* Right - Properties Panel */}
-        <div className="w-[220px] flex-shrink-0 bg-bg-secondary border-l border-border-primary overflow-y-auto">
-          <div className="p-3 border-b border-border-primary">
-            <h4 className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">Properties</h4>
+        <div className="w-[220px] flex-shrink-0 bg-cx-surface border-l border-white/8 overflow-y-auto">
+          <div className="p-3 border-b border-white/8">
+            <h4 className="text-[11px] font-semibold text-[var(--cx-text-3)] uppercase tracking-wider">Properties</h4>
           </div>
 
           {selectedElement ? (
             <div className="p-3 space-y-4">
               <div>
-                <span className="text-xs text-text-tertiary capitalize">{selectedElement.type}{selectedElement.shapeType ? ` (${selectedElement.shapeType})` : ''}</span>
+                <span className="text-xs text-[var(--cx-text-3)] capitalize">{selectedElement.type}{selectedElement.shapeType ? ` (${selectedElement.shapeType})` : ''}</span>
               </div>
 
               {/* Position */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Position</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Position</label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-[10px] text-text-tertiary">X</span>
+                    <span className="text-[10px] text-[var(--cx-text-3)]">X</span>
                     <input
                       type="number" value={Math.round(selectedElement.x)}
                       onChange={(e) => updateElement(selectedElement.id, { x: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-text-tertiary">Y</span>
+                    <span className="text-[10px] text-[var(--cx-text-3)]">Y</span>
                     <input
                       type="number" value={Math.round(selectedElement.y)}
                       onChange={(e) => updateElement(selectedElement.id, { y: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                 </div>
@@ -949,22 +984,22 @@ export function PresentationsPage() {
 
               {/* Size */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Size</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Size</label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-[10px] text-text-tertiary">W</span>
+                    <span className="text-[10px] text-[var(--cx-text-3)]">W</span>
                     <input
                       type="number" value={Math.round(selectedElement.width)}
                       onChange={(e) => updateElement(selectedElement.id, { width: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-text-tertiary">H</span>
+                    <span className="text-[10px] text-[var(--cx-text-3)]">H</span>
                     <input
                       type="number" value={Math.round(selectedElement.height)}
                       onChange={(e) => updateElement(selectedElement.id, { height: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                 </div>
@@ -972,17 +1007,17 @@ export function PresentationsPage() {
 
               {/* Fill color */}
               <div>
-                <label className="block text-[11px] text-text-tertiary mb-1.5">Fill Color</label>
+                <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Fill Color</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color" value={selectedElement.fillColor === 'transparent' ? '#000000' : selectedElement.fillColor}
                     onChange={(e) => updateElement(selectedElement.id, { fillColor: e.target.value })}
-                    className="w-7 h-7 rounded border border-border-primary cursor-pointer"
+                    className="w-7 h-7 rounded border border-white/8 cursor-pointer"
                   />
                   <input
                     type="text" value={selectedElement.fillColor}
                     onChange={(e) => updateElement(selectedElement.id, { fillColor: e.target.value })}
-                    className="flex-1 h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                    className="flex-1 h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                   />
                 </div>
               </div>
@@ -991,26 +1026,26 @@ export function PresentationsPage() {
               {selectedElement.type === 'text' && (
                 <>
                   <div>
-                    <label className="block text-[11px] text-text-tertiary mb-1.5">Font Size</label>
+                    <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Font Size</label>
                     <input
                       type="number" min={8} max={120} value={selectedElement.fontSize}
                       onChange={(e) => updateElement(selectedElement.id, { fontSize: Number(e.target.value) })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] text-text-tertiary mb-1.5">Font Weight</label>
+                    <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Font Weight</label>
                     <select
                       value={selectedElement.fontWeight}
                       onChange={(e) => updateElement(selectedElement.id, { fontWeight: e.target.value })}
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
                     >
                       <option value="normal">Normal</option>
                       <option value="bold">Bold</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[11px] text-text-tertiary mb-1.5">Text Align</label>
+                    <label className="block text-[11px] text-[var(--cx-text-3)] mb-1.5">Text Align</label>
                     <div className="flex gap-1">
                       {(['left', 'center', 'right'] as const).map((a) => (
                         <button
@@ -1019,8 +1054,8 @@ export function PresentationsPage() {
                           className={cn(
                             'flex-1 py-1 rounded text-[10px] transition-colors capitalize',
                             selectedElement.textAlign === a
-                              ? 'bg-accent-blue/20 text-accent-blue'
-                              : 'text-text-tertiary hover:bg-bg-hover'
+                              ? 'bg-cx-brand/20 text-cx-brand'
+                              : 'text-[var(--cx-text-3)] hover:bg-cx-raised'
                           )}
                         >
                           {a}
@@ -1032,10 +1067,10 @@ export function PresentationsPage() {
               )}
 
               {/* Delete */}
-              <div className="pt-2 border-t border-border-primary">
+              <div className="pt-2 border-t border-white/8">
                 <button
                   onClick={() => removeElement(selectedElement.id)}
-                  className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs text-accent-red hover:bg-accent-red/10 transition-colors"
+                  className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs text-cx-danger hover:bg-cx-danger/10 transition-colors"
                 >
                   <Trash2 size={12} />
                   Delete Element
@@ -1044,13 +1079,13 @@ export function PresentationsPage() {
             </div>
           ) : (
             <div className="p-3">
-              <p className="text-xs text-text-tertiary">Select an element to edit its properties</p>
+              <p className="text-xs text-[var(--cx-text-3)]">Select an element to edit its properties</p>
               <div className="mt-4 space-y-2">
-                <p className="text-[11px] text-text-tertiary font-semibold uppercase tracking-wider">Slide Info</p>
-                <p className="text-xs text-text-secondary">
+                <p className="text-[11px] text-[var(--cx-text-3)] font-semibold uppercase tracking-wider">Slide Info</p>
+                <p className="text-xs text-[var(--cx-text-2)]">
                   Slide {currentSlideIdx + 1} of {slides.length}
                 </p>
-                <p className="text-xs text-text-secondary">
+                <p className="text-xs text-[var(--cx-text-2)]">
                   {currentSlide?.elements.length || 0} elements
                 </p>
               </div>
@@ -1062,13 +1097,13 @@ export function PresentationsPage() {
       {/* Context menu for slides */}
       {contextMenu && (
         <div
-          className="fixed z-50 bg-bg-secondary border border-border-primary rounded-lg shadow-xl py-1 w-40"
+          className="fixed z-50 bg-cx-surface border border-white/8 rounded-lg shadow-xl py-1 w-40"
           style={{ left: contextMenu.x, top: contextMenu.y }}
           onClick={(e) => e.stopPropagation()}
         >
           <button
             onClick={() => { duplicateSlide(contextMenu.slideIdx); setContextMenu(null); }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
           >
             <Copy size={12} />
             Duplicate Slide
@@ -1076,7 +1111,7 @@ export function PresentationsPage() {
           {contextMenu.slideIdx > 0 && (
             <button
               onClick={() => { moveSlide(contextMenu.slideIdx, contextMenu.slideIdx - 1); setContextMenu(null); }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
             >
               <ChevronUp size={12} />
               Move Up
@@ -1085,7 +1120,7 @@ export function PresentationsPage() {
           {contextMenu.slideIdx < slides.length - 1 && (
             <button
               onClick={() => { moveSlide(contextMenu.slideIdx, contextMenu.slideIdx + 1); setContextMenu(null); }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--cx-text-2)] hover:bg-cx-raised hover:text-[var(--cx-text-1)] transition-colors"
             >
               <ChevronDown size={12} />
               Move Down
@@ -1096,7 +1131,7 @@ export function PresentationsPage() {
               <div className="h-px bg-border-primary my-1" />
               <button
                 onClick={() => { deleteSlide(contextMenu.slideIdx); setContextMenu(null); }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-accent-red hover:bg-accent-red/10 transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-cx-danger hover:bg-cx-danger/10 transition-colors"
               >
                 <Trash2 size={12} />
                 Delete Slide

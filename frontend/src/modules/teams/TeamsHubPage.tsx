@@ -45,7 +45,7 @@ export function TeamsHubPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newTeamName, setNewTeamName] = useState('');
   const [newTeamDesc, setNewTeamDesc] = useState('');
-  const [newTeamColor, setNewTeamColor] = useState('#4F8EF7');
+  const [newTeamColor, setNewTeamColor] = useState('#3B82F6');
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
 
   const filteredTeams = useMemo(() => {
@@ -101,7 +101,7 @@ export function TeamsHubPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Users className="w-6 h-6 text-accent-blue" />
-            <h1 className="text-xl font-bold text-text-primary">Teams</h1>
+            <h1 className="text-xl font-display text-text-primary">Teams</h1>
           </div>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
@@ -197,6 +197,12 @@ export function TeamsHubPage() {
               </span>
             )}
           </div>
+          {(!members || members.length === 0) ? (
+            <div className="text-center py-10 text-text-secondary text-sm">
+              <UserCircle2 className="w-10 h-10 mx-auto mb-3 text-text-tertiary" strokeWidth={1.5} />
+              <p>No team members yet</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {members?.map((m) => {
               const userTeams = userTeamMap.get(m.user?.id ?? m.id) ?? [];
@@ -237,6 +243,7 @@ export function TeamsHubPage() {
               );
             })}
           </div>
+          )}
         </div>
       </div>
     </div>

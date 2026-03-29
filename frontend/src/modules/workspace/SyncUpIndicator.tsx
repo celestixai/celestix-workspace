@@ -30,7 +30,7 @@ export function SyncUpIndicator({ channelId }: SyncUpIndicatorProps) {
         SyncUp Active
       </span>
 
-      <div className="flex items-center gap-1 text-xs text-zinc-400">
+      <div className="flex items-center gap-1 text-xs text-[var(--cx-text-2)]">
         <Users className="h-3.5 w-3.5" />
         <span>{participantCount}</span>
       </div>

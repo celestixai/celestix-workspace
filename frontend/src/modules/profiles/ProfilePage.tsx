@@ -37,11 +37,11 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 const statusColors: Record<string, string> = {
-  TODO: 'bg-gray-500',
-  IN_PROGRESS: 'bg-blue-500',
-  REVIEW: 'bg-yellow-500',
-  DONE: 'bg-green-500',
-  BACKLOG: 'bg-gray-400',
+  TODO: 'bg-[var(--cx-text-3)]',
+  IN_PROGRESS: 'bg-cx-brand',
+  REVIEW: 'bg-cx-warning',
+  DONE: 'bg-cx-success',
+  BACKLOG: 'bg-[var(--cx-text-2)]',
 };
 
 const priorityLabels: Record<string, string> = {
@@ -128,7 +128,7 @@ export function ProfilePage({ userId: propUserId, onBack }: ProfilePageProps) {
                 {workspaceRole}
               </span>
             </div>
-            <p className="text-text-secondary text-sm mt-1">{profile.email}</p>
+            <p className="text-text-secondary text-sm mt-1">{profile.username ? `@${profile.username}` : profile.email}</p>
             {profile.bio && <p className="text-text-secondary text-sm mt-2">{profile.bio}</p>}
             {profile.teamMemberships.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
@@ -242,7 +242,7 @@ export function ProfilePage({ userId: propUserId, onBack }: ProfilePageProps) {
               )}
               {filteredTasks.map((task: ProfileTask) => (
                 <div key={task.id} className="flex items-center gap-3 bg-bg-secondary border border-border-primary rounded-lg p-3">
-                  <div className={cn('w-2 h-2 rounded-full flex-shrink-0', statusColors[task.status] || 'bg-gray-500')} />
+                  <div className={cn('w-2 h-2 rounded-full flex-shrink-0', statusColors[task.status] || 'bg-[var(--cx-text-3)]')} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-text-primary truncate">{task.title}</div>
                     {task.list && <div className="text-xs text-text-secondary">{task.list.name}</div>}
@@ -265,7 +265,7 @@ export function ProfilePage({ userId: propUserId, onBack }: ProfilePageProps) {
                   {item.type === 'comment' ? (
                     <MessageCircle className="w-4 h-4 text-accent-blue" />
                   ) : (
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="w-4 h-4 text-cx-success" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -293,10 +293,10 @@ export function ProfilePage({ userId: propUserId, onBack }: ProfilePageProps) {
                     <span className="text-sm font-medium text-text-primary">{goal.name}</span>
                     <span className={cn(
                       'text-xs px-2 py-0.5 rounded',
-                      goal.status === 'ON_TRACK' ? 'bg-green-500/20 text-green-400' :
-                      goal.status === 'AT_RISK' ? 'bg-yellow-500/20 text-yellow-400' :
-                      goal.status === 'BEHIND' ? 'bg-red-500/20 text-red-400' :
-                      'bg-gray-500/20 text-gray-400'
+                      goal.status === 'ON_TRACK' ? 'bg-cx-success/20 text-cx-success' :
+                      goal.status === 'AT_RISK' ? 'bg-cx-warning/20 text-cx-warning' :
+                      goal.status === 'BEHIND' ? 'bg-cx-danger/20 text-cx-danger' :
+                      'bg-[var(--cx-text-3)]/20 text-[var(--cx-text-2)]'
                     )}>
                       {goal.status?.replace(/_/g, ' ') || 'N/A'}
                     </span>

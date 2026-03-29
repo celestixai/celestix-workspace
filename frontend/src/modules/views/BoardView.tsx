@@ -121,14 +121,14 @@ const PRIORITY_DOT_COLORS: Record<string, string> = {
   urgent: 'bg-accent-red',
   high: 'bg-orange-400',
   medium: 'bg-yellow-400',
-  low: 'bg-blue-400',
+  low: 'bg-cx-brand',
   none: 'bg-text-tertiary',
 };
 
 const DEFAULT_STATUSES: StatusDef[] = [
   { name: 'To Do', color: '#6b7280', statusGroup: 'NOT_STARTED' },
   { name: 'In Progress', color: '#3b82f6', statusGroup: 'ACTIVE' },
-  { name: 'In Review', color: '#a855f7', statusGroup: 'ACTIVE' },
+  { name: 'In Review', color: '#8B5CF6', statusGroup: 'ACTIVE' },
   { name: 'Done', color: '#22c55e', statusGroup: 'DONE' },
   { name: 'Closed', color: '#6b7280', statusGroup: 'CLOSED' },
 ];
@@ -149,7 +149,7 @@ function formatDate(dateStr: string | undefined): { label: string; className: st
     const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     if (diffDays < 0) return { label, className: 'text-accent-red' };
     if (diffDays === 0) return { label: 'Today', className: 'text-orange-400' };
-    if (diffDays === 1) return { label: 'Tomorrow', className: 'text-yellow-400' };
+    if (diffDays === 1) return { label: 'Tomorrow', className: 'text-cx-warning' };
     return { label, className: 'text-text-tertiary' };
   } catch {
     return { label: String(dateStr), className: 'text-text-tertiary' };
@@ -197,8 +197,8 @@ function SortableTaskCard({
       {...attributes}
       {...listeners}
       className={cn(
-        'transition-shadow',
-        isDragging && 'opacity-40',
+        'transition-all duration-200 mb-2',
+        isDragging && 'opacity-90 rotate-[2deg] shadow-[0_24px_48px_rgba(0,0,0,0.5)]',
       )}
     >
       <TaskCard task={task} cardSize={cardSize} onClick={() => onTaskClick(task.id)} />
@@ -235,8 +235,9 @@ function TaskCard({
     <div
       onClick={onClick}
       className={cn(
-        'bg-bg-secondary border border-border-secondary rounded-lg cursor-pointer hover:border-border-primary hover:shadow-md transition-all group/card',
-        isDragOverlay && 'shadow-xl ring-2 ring-accent-blue/30',
+        'bg-[#111113] border border-[rgba(255,255,255,0.08)] rounded-[12px] cursor-pointer transition-all duration-200 group/card',
+        'hover:border-[rgba(255,255,255,0.12)] hover:-translate-y-[1px] hover:shadow-[0_2px_8px_rgba(0,0,0,0.3)]',
+        isDragOverlay && 'rotate-[2deg] shadow-[0_24px_48px_rgba(0,0,0,0.5)] opacity-90',
       )}
     >
       {/* Cover strip */}
@@ -251,7 +252,7 @@ function TaskCard({
         />
       )}
 
-      <div className="p-2.5 space-y-1.5">
+      <div className="px-3.5 py-3 space-y-1.5">
         {/* Row 1: type icon + custom ID */}
         <div className="flex items-center gap-1.5">
           {IconComp ? (
@@ -260,7 +261,7 @@ function TaskCard({
             <Circle size={12} className="text-text-tertiary flex-shrink-0" />
           )}
           {task.customTaskId && (
-            <span className="text-[9px] font-mono text-text-tertiary bg-bg-tertiary px-1 py-0.5 rounded">
+            <span className="text-[11px] font-mono text-[rgba(255,255,255,0.20)]">
               {task.customTaskId}
             </span>
           )}
@@ -274,7 +275,7 @@ function TaskCard({
         </div>
 
         {/* Title */}
-        <p className="text-sm font-medium text-text-primary leading-snug line-clamp-2">
+        <p className="text-[14px] font-medium text-white leading-snug line-clamp-2">
           {task.title}
         </p>
 
@@ -482,7 +483,7 @@ function BoardColumn({
     return (
       <div
         onClick={onToggleCollapse}
-        className="flex-shrink-0 w-10 bg-bg-secondary border border-border-secondary rounded-xl cursor-pointer hover:bg-bg-hover transition-colors flex flex-col items-center py-3 gap-2 self-stretch"
+        className="flex-shrink-0 w-10 bg-transparent border border-[rgba(255,255,255,0.06)] rounded-[12px] cursor-pointer hover:bg-[rgba(255,255,255,0.02)] transition-colors flex flex-col items-center py-3 gap-2 self-stretch"
       >
         <span
           className="w-2.5 h-2.5 rounded-full flex-shrink-0"
@@ -499,33 +500,40 @@ function BoardColumn({
   }
 
   return (
-    <div className="flex-shrink-0 w-[280px] flex flex-col max-h-full bg-bg-primary rounded-xl border border-border-secondary/50">
+    <div className="flex-shrink-0 w-[260px] min-w-[260px] xl:w-[300px] xl:min-w-[300px] flex flex-col max-h-full bg-transparent rounded-[12px]">
       {/* Column header */}
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border-secondary/50">
+      <div className="flex items-center gap-2 px-3 h-[36px] flex-shrink-0">
         <button
           onClick={onToggleCollapse}
-          className="text-text-tertiary hover:text-text-primary transition-colors"
+          className="text-[rgba(255,255,255,0.40)] hover:text-text-primary transition-colors"
           title="Collapse column"
         >
           <ChevronDown size={14} />
         </button>
         <span
-          className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+          className="w-2 h-2 rounded-full flex-shrink-0"
           style={{ backgroundColor: statusDef.color }}
         />
-        <span className="text-xs font-semibold text-text-primary truncate">
+        <span className="text-[13px] font-semibold text-text-primary truncate">
           {statusDef.name}
         </span>
-        <span className="text-[10px] text-text-tertiary bg-bg-tertiary px-1.5 py-0.5 rounded-full ml-auto">
+        <span className="text-[12px] text-[rgba(255,255,255,0.40)]">
           {tasks.length}
         </span>
+        <button
+          className="ml-auto text-[rgba(255,255,255,0.40)] hover:text-text-primary transition-colors"
+          title="Add task"
+          onClick={() => {/* scroll to quick add */}}
+        >
+          <Plus size={14} />
+        </button>
       </div>
 
       {/* Task list — scrollable */}
-      <div className="flex-1 overflow-y-auto min-h-0 p-1.5 space-y-1.5">
+      <div className="flex-1 overflow-y-auto min-h-0 px-0 py-1">
         <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
           {tasks.length === 0 ? (
-            <div className="py-8 text-center text-[11px] text-text-tertiary">No tasks</div>
+            <div className="py-8 text-center text-[11px] text-text-tertiary border-2 border-dashed border-[#2563EB] bg-[rgba(37,99,235,0.12)] rounded-[12px]">No tasks</div>
           ) : (
             tasks.map((task) => (
               <SortableTaskCard
@@ -540,7 +548,7 @@ function BoardColumn({
       </div>
 
       {/* Quick add */}
-      <div className="border-t border-border-secondary/50 p-1.5">
+      <div className="p-1.5">
         <QuickAddCard listId={listId} statusName={statusDef.name} onCreated={onRefresh} />
       </div>
     </div>
@@ -773,7 +781,7 @@ export function BoardView({
     return (
       <div className="flex-1 flex gap-4 p-4 overflow-x-auto">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="w-[280px] flex-shrink-0 space-y-2">
+          <div key={i} className="w-[260px] xl:w-[300px] flex-shrink-0 space-y-2">
             <div className="h-10 bg-bg-tertiary rounded-lg animate-pulse" />
             <div className="h-24 bg-bg-tertiary rounded-lg animate-pulse" />
             <div className="h-24 bg-bg-tertiary rounded-lg animate-pulse" />
@@ -823,7 +831,7 @@ export function BoardView({
       </div>
 
       {/* Kanban columns */}
-      <div className="flex-1 flex gap-3 p-4 overflow-x-auto overflow-y-hidden min-h-0">
+      <div className="flex-1 flex gap-3 p-4 overflow-x-auto overflow-y-hidden min-h-0" style={{ gap: '12px', padding: '16px' }}>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
@@ -848,7 +856,7 @@ export function BoardView({
           {/* Drag overlay — the floating card that follows the cursor */}
           <DragOverlay>
             {activeTask ? (
-              <div className="w-[260px]">
+              <div className="w-[260px] xl:w-[300px]">
                 <TaskCard task={activeTask} cardSize={cardSize} isDragOverlay />
               </div>
             ) : null}

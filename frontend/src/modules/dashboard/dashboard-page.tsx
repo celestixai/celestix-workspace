@@ -102,8 +102,8 @@ export function DashboardPage() {
       <div className="max-w-[1400px] mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-text-primary mb-1">Welcome back</h1>
-          <p className="text-text-tertiary text-sm">Here's what's happening today</p>
+          <h1 className="text-2xl font-display text-[var(--cx-text-1)]" style={{ fontFamily: "'Instrument Serif', serif" }}>Dashboard</h1>
+          <p className="text-[14px] text-[rgba(255,255,255,0.65)] mt-1">Welcome back</p>
         </div>
 
         {/* Quick Actions */}
@@ -112,7 +112,7 @@ export function DashboardPage() {
             <button
               key={action.label}
               onClick={() => setActiveModule(action.module)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-bg-tertiary hover:bg-bg-hover border border-border-secondary text-text-secondary hover:text-text-primary transition-colors text-sm"
+              className="flex items-center gap-2 px-4 py-2 rounded-[8px] bg-cx-surface hover:bg-cx-raised border border-[rgba(255,255,255,0.08)] text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] transition-colors text-sm"
             >
               <action.icon size={16} />
               {action.label}
@@ -310,14 +310,14 @@ function WidgetCard({
   return (
     <div
       className={cn(
-        'bg-bg-secondary border border-border-primary rounded-xl p-4',
+        'bg-[#111113] border border-[rgba(255,255,255,0.08)] rounded-[12px] py-5 px-6',
         className
       )}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Icon size={16} className="text-text-tertiary" />
-          <span className="text-sm font-medium text-text-secondary">{title}</span>
+          <Icon size={16} className="text-[var(--cx-text-3)]" />
+          <span className="text-[16px] font-semibold text-[var(--cx-text-1)]">{title}</span>
           {badge != null && badge > 0 && (
             <span className="px-1.5 py-0.5 text-[10px] font-bold bg-accent-blue text-white rounded-full min-w-[18px] text-center">
               {badge > 99 ? '99+' : badge}
@@ -394,7 +394,7 @@ function DashboardSkeleton() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="bg-bg-secondary border border-border-primary rounded-xl p-4 space-y-3"
+              className="bg-[#111113] border border-[rgba(255,255,255,0.08)] rounded-[12px] py-5 px-6 space-y-3"
             >
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-10 w-full" />
@@ -402,7 +402,7 @@ function DashboardSkeleton() {
               <Skeleton className="h-10 w-3/4" />
             </div>
           ))}
-          <div className="md:col-span-2 bg-bg-secondary border border-border-primary rounded-xl p-4 space-y-3">
+          <div className="md:col-span-2 bg-[#111113] border border-[rgba(255,255,255,0.08)] rounded-[12px] py-5 px-6 space-y-3">
             <Skeleton className="h-4 w-32" />
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="flex gap-3">

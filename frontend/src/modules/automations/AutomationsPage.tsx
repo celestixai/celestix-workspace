@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Zap, Plus, Search, Filter } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api';
 import {
   useAutomations,
   useCreateAutomation,
@@ -19,14 +21,21 @@ import { AutomationTemplates } from './AutomationTemplates';
 
 type FilterMode = 'all' | 'active' | 'inactive';
 
-// Default workspace/location values — in a real app these would come from context
-const DEFAULT_WORKSPACE_ID = 'default';
 const DEFAULT_LOCATION_TYPE = 'WORKSPACE';
-const DEFAULT_LOCATION_ID = 'default';
 
 export function AutomationsPage() {
+  // Fetch real workspace ID
+  const { data: workspaces } = useQuery({
+    queryKey: ['workspaces'],
+    queryFn: async () => {
+      const { data } = await api.get('/workspace');
+      return data.data;
+    },
+  });
+  const workspaceId: string | undefined = workspaces?.[0]?.id;
+
   // Data
-  const { data: automations, isLoading } = useAutomations(DEFAULT_WORKSPACE_ID);
+  const { data: automations, isLoading } = useAutomations(workspaceId);
   const createMutation = useCreateAutomation();
   const [editingId, setEditingId] = useState<string | undefined>();
   const updateMutation = useUpdateAutomation(editingId);
@@ -97,9 +106,9 @@ export function AutomationsPage() {
     setEditingAutomation({
       id: '',
       name: template.name,
-      workspaceId: DEFAULT_WORKSPACE_ID,
+      workspaceId: workspaceId ?? '',
       locationType: DEFAULT_LOCATION_TYPE,
-      locationId: DEFAULT_LOCATION_ID,
+      locationId: workspaceId ?? '',
       trigger: template.trigger,
       conditions: template.conditions,
       conditionLogic: template.conditionLogic,
@@ -123,10 +132,10 @@ export function AutomationsPage() {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border-primary">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="flex items-center gap-3">
           <Zap size={20} className="text-accent-blue" />
-          <h1 className="text-lg font-semibold text-text-primary">Automations</h1>
+          <h1 className="text-lg font-display text-text-primary">Automations</h1>
           {automations && (
             <span className="text-xs text-text-tertiary bg-bg-tertiary px-2 py-0.5 rounded-full">
               {automations.length}
@@ -151,7 +160,7 @@ export function AutomationsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3 px-6 py-3 border-b border-border-primary">
+      <div className="flex items-center gap-3 px-6 py-3 border-b border-[rgba(255,255,255,0.08)]">
         {/* Search */}
         <div className="relative flex-1 max-w-xs">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
@@ -229,9 +238,9 @@ export function AutomationsPage() {
       {showBuilder && (
         <AutomationBuilder
           automation={editingAutomation}
-          workspaceId={DEFAULT_WORKSPACE_ID}
+          workspaceId={workspaceId ?? ''}
           locationType={DEFAULT_LOCATION_TYPE}
-          locationId={DEFAULT_LOCATION_ID}
+          locationId={workspaceId ?? ''}
           onSave={handleSave}
           onClose={handleCloseBuilder}
           isSaving={createMutation.isPending || updateMutation.isPending}

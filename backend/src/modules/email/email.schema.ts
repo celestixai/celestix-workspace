@@ -85,6 +85,14 @@ export const testConnectionSchema = z.object({
   smtpSecure: z.boolean().default(false),
 });
 
+export const testImapSchema = z.object({
+  imapHost: z.string().min(1),
+  imapPort: z.number().int().min(1).max(65535),
+  imapUser: z.string().min(1),
+  imapPass: z.string().min(1),
+  imapSecure: z.boolean().default(true),
+});
+
 // ==========================================
 // LABELS
 // ==========================================

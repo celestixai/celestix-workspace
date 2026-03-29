@@ -65,7 +65,7 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
   return (
     <button
       onClick={() => onClick(goal)}
-      className="w-full text-left p-4 rounded-xl bg-bg-secondary border border-border-primary hover:border-border-secondary hover:shadow-md transition-all duration-150 group"
+      className="w-full text-left px-6 py-5 rounded-[12px] bg-[#111113] border border-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.15)] hover:shadow-md transition-all duration-150 group"
     >
       {/* Top: name + color indicator */}
       <div className="flex items-start gap-2 mb-1">
@@ -73,24 +73,37 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
           className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1"
           style={{ backgroundColor: goal.color || 'var(--accent-blue)' }}
         />
-        <h3 className="text-sm font-semibold text-text-primary truncate flex-1 group-hover:text-accent-blue transition-colors">
+        <h3 className="text-[16px] font-semibold text-white truncate flex-1 group-hover:text-accent-blue transition-colors">
           {goal.name}
         </h3>
       </div>
 
       {/* Description */}
       {goal.description && (
-        <p className="text-[11px] text-text-tertiary truncate mb-3 ml-4">
+        <p className="text-[11px] text-[rgba(255,255,255,0.40)] truncate mb-3 ml-4">
           {goal.description}
         </p>
       )}
 
-      {/* Circular progress */}
-      <div className="flex justify-center my-3">
-        <CircularProgress
-          percentage={goal.progress ?? 0}
-          color={goal.color || 'var(--accent-blue)'}
-        />
+      {/* Target value */}
+      <div className="flex items-baseline gap-1.5 my-3 ml-4">
+        <span className="font-mono text-[24px] text-white font-medium">{goal.progress ?? 0}%</span>
+        <span className="font-mono text-[14px] text-[rgba(255,255,255,0.40)]">/ 100%</span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mx-4 mb-1">
+        <div className="h-2 bg-[rgba(255,255,255,0.08)] rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${goal.progress ?? 0}%`,
+              backgroundColor:
+                (goal.progress ?? 0) >= 90 ? '#22c55e' :
+                (goal.progress ?? 0) >= 60 ? '#3b82f6' : '#eab308',
+            }}
+          />
+        </div>
       </div>
 
       {/* Footer */}
@@ -116,8 +129,8 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
         {dueInfo && (
           <span
             className={cn(
-              'flex items-center gap-1 text-[10px] font-medium',
-              dueInfo.overdue ? 'text-accent-red' : 'text-text-tertiary'
+              'flex items-center gap-1 text-[12px] font-medium',
+              dueInfo.overdue ? 'text-accent-red' : 'text-[rgba(255,255,255,0.40)]'
             )}
           >
             <Clock size={10} />

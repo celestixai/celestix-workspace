@@ -88,7 +88,7 @@ export function PostView({ postId, onBack }: PostViewProps) {
           {isAuthor && (
             <button
               onClick={handleDelete}
-              className="p-1.5 rounded text-text-tertiary hover:text-red-400 hover:bg-bg-tertiary transition-colors"
+              className="p-1.5 rounded text-text-tertiary hover:text-cx-danger hover:bg-bg-tertiary transition-colors"
               title="Delete post"
             >
               <Trash2 size={16} />

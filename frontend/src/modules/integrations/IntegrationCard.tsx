@@ -43,24 +43,24 @@ export function IntegrationCard({ type, connected, onConnect, onDisconnect, onSy
       'rounded-xl border p-5 transition-all',
       connected
         ? 'border-accent-blue/30 bg-accent-blue/5'
-        : 'border-border-primary bg-bg-secondary hover:border-border-secondary',
+        : 'border-[var(--cx-border-1)] bg-cx-surface hover:border-[var(--cx-border-2)]',
     )}>
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
         <div className={cn(
           'w-10 h-10 rounded-lg flex items-center justify-center',
-          connected ? 'bg-accent-blue/20 text-accent-blue' : 'bg-bg-tertiary text-text-secondary',
+          connected ? 'bg-accent-blue/20 text-accent-blue' : 'bg-cx-raised text-[var(--cx-text-2)]',
         )}>
           <Icon size={20} />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-text-primary truncate">
+          <h3 className="text-sm font-semibold text-[var(--cx-text-1)] truncate">
             {type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
           </h3>
-          <p className="text-xs text-text-tertiary mt-0.5">{meta.category}</p>
+          <p className="text-xs text-[var(--cx-text-3)] mt-0.5">{meta.category}</p>
         </div>
         {connected && (
-          <span className="flex items-center gap-1 text-xs text-green-400">
+          <span className="flex items-center gap-1 text-xs text-cx-success">
             <CheckCircle size={12} />
             Connected
           </span>
@@ -68,19 +68,19 @@ export function IntegrationCard({ type, connected, onConnect, onDisconnect, onSy
       </div>
 
       {/* Description */}
-      <p className="text-xs text-text-secondary mb-4 line-clamp-2">{meta.description}</p>
+      <p className="text-xs text-[var(--cx-text-2)] mb-4 line-clamp-2">{meta.description}</p>
 
       {/* Connected state */}
       {connected ? (
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-text-tertiary">
+          <div className="flex items-center justify-between text-xs text-[var(--cx-text-3)]">
             <span>Last sync: {formatTime(connected.lastSyncAt)}</span>
             {connected.syncStatus && (
               <span className={cn(
                 'px-1.5 py-0.5 rounded text-[10px] font-medium',
-                connected.syncStatus === 'success' && 'bg-green-500/20 text-green-400',
-                connected.syncStatus === 'error' && 'bg-red-500/20 text-red-400',
-                connected.syncStatus === 'syncing' && 'bg-yellow-500/20 text-yellow-400',
+                connected.syncStatus === 'success' && 'bg-cx-success/20 text-cx-success',
+                connected.syncStatus === 'error' && 'bg-cx-danger/20 text-cx-danger',
+                connected.syncStatus === 'syncing' && 'bg-cx-warning/20 text-cx-warning',
               )}>
                 {connected.syncStatus}
               </span>
@@ -90,14 +90,14 @@ export function IntegrationCard({ type, connected, onConnect, onDisconnect, onSy
             <button
               onClick={onSync}
               disabled={syncing}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-bg-tertiary text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-cx-raised text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] transition-colors disabled:opacity-50"
             >
               {syncing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
               Sync
             </button>
             <button
               onClick={onDisconnect}
-              className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-bg-tertiary text-red-400 hover:bg-red-500/10 transition-colors"
+              className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-cx-raised text-cx-danger hover:bg-cx-danger/10 transition-colors"
             >
               <Trash2 size={12} />
               Disconnect

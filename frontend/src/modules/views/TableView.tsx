@@ -93,8 +93,8 @@ interface EditingCell {
 const PRIORITY_COLORS: Record<string, string> = {
   urgent: 'text-accent-red bg-accent-red/10',
   high: 'text-orange-400 bg-orange-400/10',
-  medium: 'text-yellow-400 bg-yellow-400/10',
-  low: 'text-blue-400 bg-blue-400/10',
+  medium: 'text-cx-warning bg-yellow-400/10',
+  low: 'text-cx-brand bg-cx-brand/10',
   none: 'text-text-tertiary bg-bg-tertiary',
 };
 
@@ -148,7 +148,7 @@ function formatDate(dateStr: string | undefined): { label: string; className: st
     const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     if (diffDays < 0) return { label, className: 'text-accent-red' };
     if (diffDays === 0) return { label: 'Today', className: 'text-orange-400' };
-    if (diffDays === 1) return { label: 'Tomorrow', className: 'text-yellow-400' };
+    if (diffDays === 1) return { label: 'Tomorrow', className: 'text-cx-warning' };
     return { label, className: 'text-text-secondary' };
   } catch {
     return { label: String(dateStr), className: 'text-text-secondary' };
@@ -367,8 +367,8 @@ function TableColumnHeader({
 
   return (
     <div
-      className="relative flex items-center gap-1 px-2 h-8 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary select-none group/header border-r border-border-secondary/50"
-      style={{ width: col.width, minWidth: col.minWidth }}
+      className="relative flex items-center gap-1 h-auto text-[11px] font-medium uppercase select-none group/header border-r border-[rgba(255,255,255,0.08)]"
+      style={{ width: col.width, minWidth: col.minWidth, letterSpacing: '0.05em', padding: '12px 16px', color: 'rgba(255,255,255,0.40)' }}
     >
       <button
         onClick={() => onSort(col.key)}
@@ -850,17 +850,18 @@ export function TableView({
         <div
           key={task.id}
           className={cn(
-            'flex items-stretch h-8 border-b border-border-secondary/30 hover:bg-bg-hover/30 transition-colors group/row',
+            'flex items-stretch border-b border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] transition-colors group/row',
             isSelected && 'bg-accent-blue/5',
           )}
+          style={{ height: '32px' }}
         >
           {/* Frozen: Row # */}
-          <div className="flex items-center justify-center w-[40px] flex-shrink-0 text-[10px] text-text-tertiary border-r border-border-secondary/30 bg-bg-primary sticky left-0 z-10">
+          <div className="flex items-center justify-center w-[40px] flex-shrink-0 text-[13px] text-[rgba(255,255,255,0.65)] border-r border-[rgba(255,255,255,0.04)] bg-[#09090B] sticky left-0 z-10">
             {rowNum}
           </div>
 
           {/* Frozen: Checkbox */}
-          <div className="flex items-center justify-center w-[36px] flex-shrink-0 border-r border-border-secondary/30 bg-bg-primary sticky left-[40px] z-10">
+          <div className="flex items-center justify-center w-[36px] flex-shrink-0 border-r border-[rgba(255,255,255,0.04)] bg-[#09090B] sticky left-[40px] z-10">
             <button
               onClick={() => toggleSelect(task.id)}
               className={cn(
@@ -883,9 +884,9 @@ export function TableView({
             <div
               key={col.key}
               className={cn(
-                'flex items-center px-2 border-r border-border-secondary/30 bg-bg-primary sticky z-10 min-w-0 overflow-hidden',
+                'flex items-center border-r border-[rgba(255,255,255,0.04)] bg-[#09090B] sticky z-10 min-w-0 overflow-hidden',
               )}
-              style={{ width: col.width, left: 76 }}
+              style={{ width: col.width, left: 76, padding: '8px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.65)' }}
               onDoubleClick={() => setEditingCell({ rowId: task.id, colKey: col.key })}
             >
               {renderCell(task, col, rowNum)}
@@ -896,8 +897,8 @@ export function TableView({
           {scrollCols.map((col) => (
             <div
               key={col.key}
-              className="flex items-center px-2 border-r border-border-secondary/30 min-w-0 overflow-hidden flex-shrink-0"
-              style={{ width: col.width }}
+              className="flex items-center border-r border-[rgba(255,255,255,0.04)] min-w-0 overflow-hidden flex-shrink-0"
+              style={{ width: col.width, padding: '8px 12px', fontSize: '13px', color: 'rgba(255,255,255,0.65)' }}
               onDoubleClick={() => setEditingCell({ rowId: task.id, colKey: col.key })}
             >
               {renderCell(task, col, rowNum)}
@@ -915,14 +916,14 @@ export function TableView({
       {/* Table container */}
       <div ref={scrollRef} className="flex-1 overflow-auto min-h-0">
         {/* Header row */}
-        <div className="flex items-stretch h-8 bg-bg-tertiary/80 border-b border-border-secondary sticky top-0 z-20">
+        <div className="flex items-stretch bg-[rgba(255,255,255,0.02)] border-b border-[rgba(255,255,255,0.08)] sticky top-0 z-20">
           {/* Frozen: Row # header */}
-          <div className="flex items-center justify-center w-[40px] flex-shrink-0 border-r border-border-secondary/50 sticky left-0 z-30 bg-bg-tertiary/80">
-            <span className="text-[9px] text-text-tertiary">#</span>
+          <div className="flex items-center justify-center w-[40px] flex-shrink-0 border-r border-[rgba(255,255,255,0.08)] sticky left-0 z-30 bg-[rgba(255,255,255,0.02)]">
+            <span className="text-[11px] font-medium uppercase text-[rgba(255,255,255,0.40)]" style={{ letterSpacing: '0.05em' }}>#</span>
           </div>
 
           {/* Frozen: Checkbox header */}
-          <div className="flex items-center justify-center w-[36px] flex-shrink-0 border-r border-border-secondary/50 sticky left-[40px] z-30 bg-bg-tertiary/80">
+          <div className="flex items-center justify-center w-[36px] flex-shrink-0 border-r border-[rgba(255,255,255,0.08)] sticky left-[40px] z-30 bg-[rgba(255,255,255,0.02)]">
             <button
               onClick={toggleSelectAll}
               className={cn(
@@ -944,7 +945,7 @@ export function TableView({
           {frozenCols.map((col) => (
             <div
               key={col.key}
-              className="sticky z-30 bg-bg-tertiary/80"
+              className="sticky z-30 bg-[rgba(255,255,255,0.02)]"
               style={{ left: 76 }}
             >
               <TableColumnHeader

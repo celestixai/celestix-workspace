@@ -230,26 +230,26 @@ function SpreadsheetCard({
   return (
     <div
       onClick={onOpen}
-      className="bg-bg-secondary border border-border-primary rounded-xl p-4 cursor-pointer hover:border-accent-blue/50 transition-colors group"
+      className="bg-cx-surface border border-white/8 rounded-xl p-4 cursor-pointer hover:border-cx-brand/50 transition-colors group"
     >
       <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-          <Table2 size={20} className="text-green-400" />
+        <div className="w-10 h-10 rounded-lg bg-cx-success/10 flex items-center justify-center">
+          <Table2 size={20} className="text-cx-success" />
         </div>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
           }}
-          className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-red-400 transition-opacity"
+          className="opacity-0 group-hover:opacity-100 text-[var(--cx-text-2)] hover:text-cx-danger transition-opacity"
         >
           <Trash2 size={14} />
         </button>
       </div>
-      <h3 className="text-sm font-medium text-text-primary truncate mb-1">
+      <h3 className="text-sm font-medium text-[var(--cx-text-1)] truncate mb-1">
         {sheet.title || 'Untitled Spreadsheet'}
       </h3>
-      <div className="flex items-center gap-3 text-xs text-text-secondary">
+      <div className="flex items-center gap-3 text-xs text-[var(--cx-text-2)]">
         <span>{sheet.sheets.length} sheet{sheet.sheets.length !== 1 ? 's' : ''}</span>
         <span>{new Date(sheet.updatedAt).toLocaleDateString()}</span>
       </div>
@@ -294,12 +294,12 @@ function ContextMenu({
 
   return (
     <div
-      className="fixed bg-bg-secondary border border-border-primary rounded-lg shadow-xl z-50 py-1 min-w-[180px]"
+      className="fixed bg-cx-surface border border-white/8 rounded-lg shadow-xl z-50 py-1 min-w-[180px]"
       style={{ left: x, top: y }}
     >
       {items.map((item) =>
         item.action.startsWith('separator') ? (
-          <div key={item.action} className="my-1 border-t border-border-primary" />
+          <div key={item.action} className="my-1 border-t border-white/8" />
         ) : (
           <button
             key={item.action}
@@ -308,7 +308,7 @@ function ContextMenu({
               onAction(item.action);
               onClose();
             }}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-text-primary hover:bg-bg-primary transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-[var(--cx-text-1)] hover:bg-cx-bg transition-colors"
           >
             {item.icon}
             {item.label}
@@ -729,23 +729,34 @@ export function SpreadsheetsPage() {
 
   if (!activeSpreadsheet) {
     return (
-      <div className="flex flex-col h-full bg-bg-primary text-text-primary">
-        <header className="px-6 pt-6 pb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Spreadsheets</h1>
+      <div className="flex flex-col h-full bg-cx-bg text-[var(--cx-text-1)]">
+        {/* Toolbar */}
+        <header className="h-12 flex items-center gap-3 px-4 border-b border-white/8 flex-shrink-0" style={{ backgroundColor: '#111113' }}>
+          <Table2 size={18} className="text-cx-success" />
+          <h1 className="text-base font-display text-[var(--cx-text-1)]">Spreadsheets</h1>
+          <div className="flex-1" />
           <button
             onClick={createSpreadsheet}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-600/90 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-600/90 transition-colors"
           >
-            <Plus size={16} />
+            <Plus size={14} />
             New Spreadsheet
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 pb-6">
+        <div className="flex-1 overflow-y-auto px-6 py-6">
           {spreadsheets.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-48 text-text-secondary">
+            <div className="flex flex-col items-center justify-center h-full text-[var(--cx-text-2)]">
               <Table2 size={48} className="mb-3 opacity-30" />
-              <p className="text-sm">No spreadsheets yet. Create one to get started.</p>
+              <p className="text-base mb-1">No spreadsheets yet</p>
+              <p className="text-sm text-[var(--cx-text-3)] mb-4">Create one to get started</p>
+              <button
+                onClick={createSpreadsheet}
+                className="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-600/90 transition-colors"
+              >
+                <Plus size={14} />
+                New Spreadsheet
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -771,9 +782,9 @@ export function SpreadsheetsPage() {
   const currentCell = getCellData(activeCell.col, activeCell.row);
 
   return (
-    <div className="flex flex-col h-full bg-bg-primary text-text-primary">
-      {/* Header */}
-      <header className="flex items-center gap-3 px-4 py-2 border-b border-border-primary bg-bg-secondary">
+    <div className="flex flex-col h-full bg-cx-bg text-[var(--cx-text-1)]">
+      {/* Header / Toolbar */}
+      <header className="h-10 flex items-center gap-3 px-4 border-b border-white/8 flex-shrink-0" style={{ backgroundColor: '#111113' }}>
         <button
           onClick={() => {
             setActiveSpreadsheetId(null);
@@ -781,29 +792,29 @@ export function SpreadsheetsPage() {
             setSelectionEnd(null);
             setEditingCell(null);
           }}
-          className="text-text-secondary hover:text-text-primary transition-colors"
+          className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] transition-colors"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
         </button>
         <input
           value={activeSpreadsheet.title}
           onChange={(e) =>
             updateSpreadsheet((ss) => ({ ...ss, title: e.target.value }))
           }
-          className="text-lg font-semibold bg-transparent text-text-primary outline-none border-none min-w-0 flex-1"
+          className="text-sm font-semibold bg-transparent text-[var(--cx-text-1)] outline-none border-none min-w-0 flex-1"
           placeholder="Untitled Spreadsheet"
         />
       </header>
 
-      {/* Toolbar */}
-      <div className="flex items-center gap-1 px-4 py-1.5 bg-bg-secondary border-b border-border-primary flex-wrap">
+      {/* Format toolbar */}
+      <div className="flex items-center gap-1 px-4 py-1.5 border-b border-white/8 flex-wrap" style={{ backgroundColor: '#111113' }}>
         <button
           onClick={toggleBold}
           className={cn(
             'p-1.5 rounded transition-colors',
             currentCell.bold
-              ? 'bg-accent-blue/20 text-accent-blue'
-              : 'text-text-secondary hover:text-text-primary hover:bg-bg-primary'
+              ? 'bg-cx-brand/20 text-cx-brand'
+              : 'text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg'
           )}
           title="Bold"
         >
@@ -814,8 +825,8 @@ export function SpreadsheetsPage() {
           className={cn(
             'p-1.5 rounded transition-colors',
             currentCell.italic
-              ? 'bg-accent-blue/20 text-accent-blue'
-              : 'text-text-secondary hover:text-text-primary hover:bg-bg-primary'
+              ? 'bg-cx-brand/20 text-cx-brand'
+              : 'text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg'
           )}
           title="Italic"
         >
@@ -828,22 +839,22 @@ export function SpreadsheetsPage() {
         <div className="relative">
           <button
             onClick={() => setShowFormatDropdown(!showFormatDropdown)}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-text-secondary hover:text-text-primary rounded hover:bg-bg-primary transition-colors"
+            className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] rounded hover:bg-cx-bg transition-colors"
           >
             {NUMBER_FORMATS.find((f) => f.value === (currentCell.format ?? 'general'))?.label}
             <ChevronDown size={12} />
           </button>
           {showFormatDropdown && (
-            <div className="absolute top-full left-0 mt-1 bg-bg-secondary border border-border-primary rounded-lg shadow-lg z-20 py-1 min-w-[120px]">
+            <div className="absolute top-full left-0 mt-1 bg-cx-surface border border-white/8 rounded-lg shadow-lg z-20 py-1 min-w-[120px]">
               {NUMBER_FORMATS.map((f) => (
                 <button
                   key={f.value}
                   onClick={() => setFormat(f.value as CellData['format'])}
                   className={cn(
-                    'w-full text-left px-3 py-1 text-xs hover:bg-bg-primary transition-colors',
+                    'w-full text-left px-3 py-1 text-xs hover:bg-cx-bg transition-colors',
                     (currentCell.format ?? 'general') === f.value
-                      ? 'text-accent-blue'
-                      : 'text-text-primary'
+                      ? 'text-cx-brand'
+                      : 'text-[var(--cx-text-1)]'
                   )}
                 >
                   {f.label}
@@ -857,7 +868,7 @@ export function SpreadsheetsPage() {
 
         {/* Fill color */}
         <label
-          className="p-1.5 rounded text-text-secondary hover:text-text-primary hover:bg-bg-primary transition-colors cursor-pointer"
+          className="p-1.5 rounded text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg transition-colors cursor-pointer"
           title="Fill color"
         >
           <Paintbrush size={15} />
@@ -873,7 +884,7 @@ export function SpreadsheetsPage() {
 
         {/* Text color */}
         <label
-          className="p-1.5 rounded text-text-secondary hover:text-text-primary hover:bg-bg-primary transition-colors cursor-pointer"
+          className="p-1.5 rounded text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg transition-colors cursor-pointer"
           title="Text color"
         >
           <Type size={15} />
@@ -891,7 +902,7 @@ export function SpreadsheetsPage() {
 
         {/* Borders placeholder */}
         <button
-          className="p-1.5 rounded text-text-secondary hover:text-text-primary hover:bg-bg-primary transition-colors"
+          className="p-1.5 rounded text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg transition-colors"
           title="Borders"
         >
           <Grid3X3 size={15} />
@@ -905,8 +916,8 @@ export function SpreadsheetsPage() {
           className={cn(
             'p-1.5 rounded transition-colors',
             (currentCell.align ?? 'left') === 'left'
-              ? 'text-accent-blue'
-              : 'text-text-secondary hover:text-text-primary hover:bg-bg-primary'
+              ? 'text-cx-brand'
+              : 'text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg'
           )}
           title="Align left"
         >
@@ -917,8 +928,8 @@ export function SpreadsheetsPage() {
           className={cn(
             'p-1.5 rounded transition-colors',
             currentCell.align === 'center'
-              ? 'text-accent-blue'
-              : 'text-text-secondary hover:text-text-primary hover:bg-bg-primary'
+              ? 'text-cx-brand'
+              : 'text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg'
           )}
           title="Align center"
         >
@@ -929,8 +940,8 @@ export function SpreadsheetsPage() {
           className={cn(
             'p-1.5 rounded transition-colors',
             currentCell.align === 'right'
-              ? 'text-accent-blue'
-              : 'text-text-secondary hover:text-text-primary hover:bg-bg-primary'
+              ? 'text-cx-brand'
+              : 'text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg'
           )}
           title="Align right"
         >
@@ -939,11 +950,11 @@ export function SpreadsheetsPage() {
       </div>
 
       {/* Formula bar */}
-      <div className="flex items-center px-4 py-1 bg-bg-secondary border-b border-border-primary gap-2">
-        <span className="text-xs font-mono text-text-secondary bg-bg-primary border border-border-primary rounded px-2 py-0.5 min-w-[48px] text-center">
+      <div className="h-8 flex items-center px-4 border-b border-white/8 gap-2" style={{ backgroundColor: '#0C0C0E' }}>
+        <span className="text-xs font-mono text-[var(--cx-text-2)] bg-cx-bg border border-white/8 rounded px-2 py-0.5 min-w-[48px] text-center">
           {cellKey(activeCell.col, activeCell.row)}
         </span>
-        <div className="text-text-secondary text-xs">fx</div>
+        <div className="text-[var(--cx-text-2)] text-xs">fx</div>
         <input
           value={formulaBarValue}
           onChange={(e) => setFormulaBarValue(e.target.value)}
@@ -963,7 +974,7 @@ export function SpreadsheetsPage() {
               }
             }
           }}
-          className="flex-1 bg-bg-primary border border-border-primary rounded px-2 py-0.5 text-sm text-text-primary font-mono outline-none focus:border-accent-blue"
+          className="flex-1 bg-cx-bg border border-white/8 rounded px-2 py-0.5 text-sm text-[var(--cx-text-1)] font-mono outline-none focus:border-cx-brand"
         />
       </div>
 
@@ -985,7 +996,7 @@ export function SpreadsheetsPage() {
       >
         {/* Corner cell */}
         <div
-          className="sticky top-0 left-0 z-30 bg-bg-secondary border-b border-r border-border-primary"
+          className="sticky top-0 left-0 z-30 bg-cx-surface border-b border-r border-white/8"
           style={{ width: ROW_HEADER_WIDTH, height: HEADER_HEIGHT }}
         />
 
@@ -1002,8 +1013,8 @@ export function SpreadsheetsPage() {
             <div
               key={col}
               className={cn(
-                'absolute top-0 bg-bg-secondary border-b border-r border-border-primary flex items-center justify-center text-xs text-text-secondary font-medium',
-                activeCell.col === col && 'bg-accent-blue/10 text-accent-blue'
+                'absolute top-0 bg-cx-surface border-b border-r border-white/8 flex items-center justify-center text-xs text-[var(--cx-text-2)] font-medium',
+                activeCell.col === col && 'bg-cx-brand/10 text-cx-brand'
               )}
               style={{
                 left: colOffsets[col],
@@ -1014,7 +1025,7 @@ export function SpreadsheetsPage() {
               {colToLetter(col)}
               {/* Resize handle */}
               <div
-                className="absolute right-0 top-0 w-1 h-full cursor-col-resize hover:bg-accent-blue z-10"
+                className="absolute right-0 top-0 w-1 h-full cursor-col-resize hover:bg-cx-brand z-10"
                 onMouseDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -1034,8 +1045,8 @@ export function SpreadsheetsPage() {
             <div
               key={row}
               className={cn(
-                'absolute bg-bg-secondary border-b border-r border-border-primary flex items-center justify-center text-xs text-text-secondary',
-                activeCell.row === row && 'bg-accent-blue/10 text-accent-blue'
+                'absolute bg-cx-surface border-b border-r border-white/8 flex items-center justify-center text-xs text-[var(--cx-text-2)]',
+                activeCell.row === row && 'bg-cx-brand/10 text-cx-brand'
               )}
               style={{
                 top: HEADER_HEIGHT + row * ROW_HEIGHT,
@@ -1083,9 +1094,9 @@ export function SpreadsheetsPage() {
                 <div
                   key={`${col}-${row}`}
                   className={cn(
-                    'absolute border-r border-b border-border-primary/50 px-1 flex items-center overflow-hidden text-xs',
-                    isActive && 'ring-2 ring-accent-blue ring-inset z-10',
-                    isSelected && !isActive && 'bg-accent-blue/10',
+                    'absolute border-r border-b border-white/8/50 px-1 flex items-center overflow-hidden text-xs',
+                    isActive && 'ring-2 ring-cx-brand ring-inset z-10',
+                    isSelected && !isActive && 'bg-cx-brand/10',
                     cell.bold && 'font-bold',
                     cell.italic && 'italic'
                   )}
@@ -1115,7 +1126,7 @@ export function SpreadsheetsPage() {
                       onChange={(e) => setEditValue(e.target.value)}
                       onKeyDown={handleEditKeyDown}
                       onBlur={commitEdit}
-                      className="w-full h-full bg-transparent outline-none text-xs text-text-primary font-mono"
+                      className="w-full h-full bg-transparent outline-none text-xs text-[var(--cx-text-1)] font-mono"
                       autoFocus
                     />
                   ) : (
@@ -1132,7 +1143,7 @@ export function SpreadsheetsPage() {
             if (!cell.value && !cell.formula) {
               return (
                 <div
-                  className="absolute ring-2 ring-accent-blue ring-inset z-10 pointer-events-none"
+                  className="absolute ring-2 ring-cx-brand ring-inset z-10 pointer-events-none"
                   style={{
                     left: colOffsets[activeCell.col],
                     top: activeCell.row * ROW_HEIGHT,
@@ -1148,7 +1159,7 @@ export function SpreadsheetsPage() {
       </div>
 
       {/* Sheet tabs */}
-      <div className="flex items-center gap-1 px-2 py-1 bg-bg-secondary border-t border-border-primary">
+      <div className="h-8 flex items-center gap-1 px-2 border-t border-white/8" style={{ backgroundColor: '#0C0C0E' }}>
         {activeSpreadsheet.sheets.map((sheet) => (
           <div key={sheet.id} className="relative">
             {renamingSheet === sheet.id ? (
@@ -1161,7 +1172,7 @@ export function SpreadsheetsPage() {
                   if (e.key === 'Escape') setRenamingSheet(null);
                 }}
                 onBlur={() => renameSheet(sheet.id, renameValue)}
-                className="px-3 py-1 text-xs bg-bg-primary border border-accent-blue rounded outline-none text-text-primary w-24"
+                className="px-3 py-1 text-xs bg-cx-bg border border-cx-brand rounded outline-none text-[var(--cx-text-1)] w-24"
               />
             ) : (
               <button
@@ -1175,8 +1186,8 @@ export function SpreadsheetsPage() {
                 className={cn(
                   'px-3 py-1 text-xs rounded transition-colors',
                   sheet.id === activeSpreadsheet.activeSheetId
-                    ? 'bg-bg-primary text-text-primary border border-border-primary'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-bg-primary/50'
+                    ? 'bg-cx-bg text-[var(--cx-text-1)] border border-white/8'
+                    : 'text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg/50'
                 )}
               >
                 {sheet.name}
@@ -1186,7 +1197,7 @@ export function SpreadsheetsPage() {
         ))}
         <button
           onClick={addSheet}
-          className="p-1 text-text-secondary hover:text-text-primary hover:bg-bg-primary/50 rounded transition-colors"
+          className="p-1 text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-cx-bg/50 rounded transition-colors"
           title="Add sheet"
         >
           <Plus size={14} />
@@ -1196,7 +1207,7 @@ export function SpreadsheetsPage() {
         {activeSpreadsheet.sheets.length > 1 && (
           <button
             onClick={() => deleteSheet(activeSpreadsheet.activeSheetId)}
-            className="p-1 text-text-secondary hover:text-red-400 rounded transition-colors ml-1"
+            className="p-1 text-[var(--cx-text-2)] hover:text-cx-danger rounded transition-colors ml-1"
             title="Delete current sheet"
           >
             <Trash2 size={12} />

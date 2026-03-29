@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils';
 import { ArrowLeft, Trash2, X, Shield, ChevronDown, Plus, Pencil, CheckSquare, Bug, Star, Flag, Circle } from 'lucide-react';
 
 const PRESET_COLORS = [
-  '#4A90D9', '#E91E63', '#4CAF50', '#F59E0B', '#8B5CF6',
-  '#EF4444', '#10B981', '#06B6D4', '#F97316', '#6366F1',
+  '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+  '#DC2626', '#14B8A6', '#60A5FA', '#F97316', '#22c55e',
 ];
 
 type Tab = 'general' | 'statuses' | 'task-types' | 'members' | 'danger';
@@ -35,6 +35,7 @@ interface SpaceMember {
   userId: string;
   displayName: string;
   email: string;
+  username?: string;
   avatarUrl?: string;
   role: 'OWNER' | 'ADMIN' | 'MEMBER' | 'GUEST';
 }
@@ -373,7 +374,7 @@ function MembersTab({ spaceId }: { spaceId: string }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-text-primary truncate">{m.displayName || 'Unknown'}</p>
-              <p className="text-xs text-text-tertiary truncate">{m.email}</p>
+              <p className="text-xs text-text-tertiary truncate">{m.username ? `@${m.username}` : m.email}</p>
             </div>
             <div className="relative">
               <select
@@ -413,8 +414,8 @@ const TASK_TYPE_ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const TASK_TYPE_PRESET_COLORS = [
-  '#4A90D9', '#E91E63', '#9C27B0', '#FF9800', '#4CAF50',
-  '#EF4444', '#06B6D4', '#8B5CF6', '#F59E0B', '#10B981',
+  '#3B82F6', '#EF4444', '#8B5CF6', '#F97316', '#10B981',
+  '#DC2626', '#14B8A6', '#60A5FA', '#F59E0B', '#22c55e',
 ];
 
 function TaskTypesTab({ spaceId }: { spaceId: string }) {

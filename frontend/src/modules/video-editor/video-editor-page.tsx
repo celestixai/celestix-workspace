@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { EmptyState } from '@/components/shared/EmptyState';
 import {
   Play,
   Pause,
@@ -117,7 +118,7 @@ export function VideoEditorPage() {
             { id: 'c2', mediaId: 'm2', name: 'Main.mp4', track: 'video', start: 30, duration: 60, trimStart: 0, trimEnd: 0, color: '#10B981', speed: 1 },
             { id: 'c3', mediaId: 'm3', name: 'Outro.mp4', track: 'video', start: 90, duration: 35, trimStart: 0, trimEnd: 0, color: '#F59E0B', speed: 1 },
             { id: 'c4', mediaId: 'm4', name: 'BGM.mp3', track: 'audio', start: 0, duration: 125, trimStart: 0, trimEnd: 0, color: '#8B5CF6', speed: 1 },
-            { id: 'c5', mediaId: '', name: 'Title Card', track: 'text', start: 2, duration: 5, trimStart: 0, trimEnd: 0, color: '#EC4899', speed: 1, text: 'Welcome to Our Product' },
+            { id: 'c5', mediaId: '', name: 'Title Card', track: 'text', start: 2, duration: 5, trimStart: 0, trimEnd: 0, color: '#F97316', speed: 1, text: 'Welcome to Our Product' },
           ],
           media: [
             { id: 'm1', name: 'Intro.mp4', type: 'video', duration: 30, url: '' },
@@ -239,7 +240,7 @@ export function VideoEditorPage() {
       duration: 5,
       trimStart: 0,
       trimEnd: 0,
-      color: '#EC4899',
+      color: '#F97316',
       speed: 1,
       text: 'Enter text here',
     };
@@ -293,45 +294,56 @@ export function VideoEditorPage() {
   // --- Project List View ---
   if (!activeProject) {
     return (
-      <div className="min-h-screen bg-bg-primary p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-2xl font-bold text-text-primary">Video Editor</h1>
-              <p className="text-text-secondary mt-1">Create and edit video projects</p>
-            </div>
-            <button
-              onClick={handleCreateProject}
-              className="flex items-center gap-2 px-4 py-2 bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90 transition-colors"
-            >
-              <Plus size={16} />
-              New Project
-            </button>
+      <div className="h-full flex flex-col bg-cx-bg">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4">
+          <div>
+            <h1 className="font-display text-xl text-[var(--cx-text-1)]">Video Editor</h1>
+            <p className="text-sm text-[var(--cx-text-3)] mt-1">Create and edit video projects</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((project) => (
-              <button
-                key={project.id}
-                onClick={() => setActiveProject(project)}
-                className="bg-bg-secondary border border-border-primary rounded-xl overflow-hidden text-left hover:border-accent-blue/50 transition-colors group"
-              >
-                <div className="aspect-video bg-bg-primary flex items-center justify-center">
-                  <Film size={32} className="text-text-secondary/30" />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-text-primary font-semibold group-hover:text-accent-blue transition-colors">
-                    {project.title}
-                  </h3>
-                  <div className="flex items-center gap-3 text-xs text-text-secondary mt-2">
-                    <span>{project.createdAt}</span>
-                    <span>{formatTime(project.duration)}</span>
-                    <span>{project.clips.length} clips</span>
+          <button
+            onClick={handleCreateProject}
+            className="flex items-center gap-2 px-4 py-2 bg-cx-brand text-white rounded-lg hover:bg-cx-brand-hover transition-colors"
+          >
+            <Plus size={16} />
+            New Project
+          </button>
+        </div>
+        {/* Content */}
+        <div className="flex-1 overflow-auto px-6">
+          {projects.length === 0 ? (
+            <EmptyState
+              icon={Film}
+              title="No video projects"
+              description="Create a video project to start editing"
+              actionLabel="+ New Project"
+              onAction={handleCreateProject}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {projects.map((project) => (
+                <button
+                  key={project.id}
+                  onClick={() => setActiveProject(project)}
+                  className="bg-cx-surface border border-white/8 rounded-xl overflow-hidden text-left hover:border-cx-brand/50 transition-colors group"
+                >
+                  <div className="aspect-video bg-cx-bg flex items-center justify-center">
+                    <Film size={32} className="text-[var(--cx-text-2)]/30" />
                   </div>
-                </div>
-              </button>
-            ))}
-          </div>
+                  <div className="p-4">
+                    <h3 className="text-[var(--cx-text-1)] font-semibold group-hover:text-cx-brand transition-colors">
+                      {project.title}
+                    </h3>
+                    <div className="flex items-center gap-3 text-xs text-[var(--cx-text-2)] mt-2">
+                      <span>{project.createdAt}</span>
+                      <span>{formatTime(project.duration)}</span>
+                      <span>{project.clips.length} clips</span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -339,11 +351,11 @@ export function VideoEditorPage() {
 
   // --- Editor View ---
   return (
-    <div className="h-screen bg-bg-primary flex flex-col overflow-hidden">
+    <div className="h-full bg-cx-bg flex flex-col overflow-hidden">
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary border-b border-border-primary shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-cx-surface border-b border-white/8 shrink-0">
         <div className="flex items-center gap-3">
-          <button onClick={() => { setActiveProject(null); setSelectedClip(null); setIsPlaying(false); }} className="text-text-secondary hover:text-text-primary">
+          <button onClick={() => { setActiveProject(null); setSelectedClip(null); setIsPlaying(false); }} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
             <ArrowLeft size={18} />
           </button>
           <input
@@ -353,13 +365,13 @@ export function VideoEditorPage() {
               setActiveProject(updated);
               setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
             }}
-            className="bg-transparent text-text-primary font-semibold text-lg border-none outline-none focus:ring-1 focus:ring-accent-blue/30 rounded px-1"
+            className="bg-transparent text-[var(--cx-text-1)] font-semibold text-lg border-none outline-none focus:ring-1 focus:ring-cx-brand/30 rounded px-1"
           />
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowExport(!showExport)}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90"
+            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-cx-brand text-white rounded-lg hover:bg-cx-brand/90"
           >
             <Download size={14} />
             Export
@@ -369,12 +381,12 @@ export function VideoEditorPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel: Media Library */}
-        <div className="w-56 bg-bg-secondary border-r border-border-primary flex flex-col shrink-0">
-          <div className="p-3 border-b border-border-primary">
-            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Media Library</h3>
+        <div className="w-56 bg-cx-surface border-r border-white/8 flex flex-col shrink-0">
+          <div className="p-3 border-b border-white/8">
+            <h3 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider mb-2">Media Library</h3>
             <button
               onClick={handleUploadMedia}
-              className="flex items-center gap-1 w-full px-3 py-1.5 text-sm border border-dashed border-border-primary rounded-lg text-text-secondary hover:text-accent-blue hover:border-accent-blue transition-colors"
+              className="flex items-center gap-1 w-full px-3 py-1.5 text-sm border border-dashed border-white/8 rounded-lg text-[var(--cx-text-2)] hover:text-cx-brand hover:border-cx-brand transition-colors"
             >
               <Upload size={14} />
               Upload Media
@@ -385,21 +397,21 @@ export function VideoEditorPage() {
               <div
                 key={media.id}
                 onClick={() => handleAddToTimeline(media)}
-                className="flex items-center gap-2 px-2 py-2 rounded-lg text-sm cursor-pointer hover:bg-bg-primary transition-colors group"
+                className="flex items-center gap-2 px-2 py-2 rounded-lg text-sm cursor-pointer hover:bg-cx-bg transition-colors group"
               >
                 <span className={cn(
                   'shrink-0',
-                  media.type === 'video' ? 'text-blue-400' : media.type === 'audio' ? 'text-purple-400' : 'text-green-400'
+                  media.type === 'video' ? 'text-cx-brand' : media.type === 'audio' ? 'text-purple-400' : 'text-cx-success'
                 )}>
                   <MediaIcon type={media.type} />
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-text-primary text-xs truncate">{media.name}</p>
+                  <p className="text-[var(--cx-text-1)] text-xs truncate">{media.name}</p>
                   {media.duration > 0 && (
-                    <p className="text-text-secondary text-[10px]">{formatTime(media.duration)}</p>
+                    <p className="text-[var(--cx-text-2)] text-[10px]">{formatTime(media.duration)}</p>
                   )}
                 </div>
-                <Plus size={12} className="text-text-secondary opacity-0 group-hover:opacity-100 shrink-0" />
+                <Plus size={12} className="text-[var(--cx-text-2)] opacity-0 group-hover:opacity-100 shrink-0" />
               </div>
             ))}
           </div>
@@ -409,7 +421,7 @@ export function VideoEditorPage() {
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Preview Player */}
           <div className="flex-1 flex items-center justify-center bg-black/30 relative min-h-0">
-            <div className="w-full max-w-2xl aspect-video bg-bg-primary/80 rounded-lg border border-border-primary flex items-center justify-center relative overflow-hidden">
+            <div className="w-full max-w-2xl aspect-video bg-cx-bg/80 rounded-lg border border-white/8 flex items-center justify-center relative overflow-hidden">
               {/* Current frame placeholder */}
               <div className="absolute inset-0 flex items-center justify-center">
                 {activeProject.clips.filter((c) => c.track === 'text' && currentTime >= c.start && currentTime <= c.start + c.duration).map((c) => (
@@ -418,49 +430,49 @@ export function VideoEditorPage() {
                   </div>
                 ))}
                 {activeProject.clips.filter((c) => c.track === 'video' && currentTime >= c.start && currentTime <= c.start + c.duration).length > 0 ? (
-                  <Film size={48} className="text-text-secondary/20" />
+                  <Film size={48} className="text-[var(--cx-text-2)]/20" />
                 ) : (
-                  <span className="text-text-secondary/40 text-sm">No video at current time</span>
+                  <span className="text-[var(--cx-text-2)]/40 text-sm">No video at current time</span>
                 )}
               </div>
 
               {/* Export Panel Overlay */}
               {showExport && (
-                <div className="absolute inset-0 bg-bg-secondary/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-10 p-6">
-                  <button onClick={() => setShowExport(false)} className="absolute top-3 right-3 text-text-secondary hover:text-text-primary">
+                <div className="absolute inset-0 bg-cx-surface/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-10 p-6">
+                  <button onClick={() => setShowExport(false)} className="absolute top-3 right-3 text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
                     <X size={16} />
                   </button>
-                  <h3 className="text-text-primary font-semibold text-lg">Export Video</h3>
+                  <h3 className="text-[var(--cx-text-1)] font-semibold text-lg">Export Video</h3>
                   <div className="w-full max-w-xs space-y-3">
                     <div>
-                      <label className="block text-xs text-text-secondary mb-1">Resolution</label>
+                      <label className="block text-xs text-[var(--cx-text-2)] mb-1">Resolution</label>
                       <select
                         value={exportResolution}
                         onChange={(e) => setExportResolution(e.target.value)}
-                        className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none"
+                        className="w-full bg-cx-bg border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none"
                       >
                         {RESOLUTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs text-text-secondary mb-1">Format</label>
+                      <label className="block text-xs text-[var(--cx-text-2)] mb-1">Format</label>
                       <select
                         value={exportFormat}
                         onChange={(e) => setExportFormat(e.target.value)}
-                        className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none"
+                        className="w-full bg-cx-bg border border-white/8 rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none"
                       >
                         {FORMATS.map((f) => <option key={f} value={f}>{f}</option>)}
                       </select>
                     </div>
                     {isExporting ? (
                       <div>
-                        <div className="flex justify-between text-xs text-text-secondary mb-1">
+                        <div className="flex justify-between text-xs text-[var(--cx-text-2)] mb-1">
                           <span>Exporting...</span>
                           <span>{Math.min(100, Math.round(exportProgress))}%</span>
                         </div>
-                        <div className="w-full h-2 bg-bg-primary rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-cx-bg rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-accent-blue rounded-full transition-all duration-300"
+                            className="h-full bg-cx-brand rounded-full transition-all duration-300"
                             style={{ width: `${Math.min(100, exportProgress)}%` }}
                           />
                         </div>
@@ -468,7 +480,7 @@ export function VideoEditorPage() {
                     ) : (
                       <button
                         onClick={handleExport}
-                        className="w-full py-2 bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90 text-sm font-medium"
+                        className="w-full py-2 bg-cx-brand text-white rounded-lg hover:bg-cx-brand/90 text-sm font-medium"
                       >
                         Start Export
                       </button>
@@ -480,39 +492,39 @@ export function VideoEditorPage() {
           </div>
 
           {/* Playback Controls */}
-          <div className="flex items-center justify-center gap-4 py-2 bg-bg-secondary border-y border-border-primary shrink-0">
-            <button onClick={() => setCurrentTime(0)} className="text-text-secondary hover:text-text-primary">
+          <div className="flex items-center justify-center gap-4 py-2 bg-cx-surface border-y border-white/8 shrink-0">
+            <button onClick={() => setCurrentTime(0)} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
               <SkipBack size={16} />
             </button>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="w-8 h-8 flex items-center justify-center bg-accent-blue rounded-full text-white hover:bg-accent-blue/90"
+              className="w-8 h-8 flex items-center justify-center bg-cx-brand rounded-full text-white hover:bg-cx-brand/90"
             >
               {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
             </button>
-            <button onClick={() => setCurrentTime(totalDuration)} className="text-text-secondary hover:text-text-primary">
+            <button onClick={() => setCurrentTime(totalDuration)} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
               <SkipForward size={16} />
             </button>
-            <span className="text-xs text-text-primary font-mono min-w-[100px] text-center">
+            <span className="text-xs text-[var(--cx-text-1)] font-mono min-w-[100px] text-center">
               {formatTime(currentTime)} / {formatTime(totalDuration)}
             </span>
             <div className="h-4 w-px bg-border-primary" />
-            <Volume2 size={14} className="text-text-secondary" />
+            <Volume2 size={14} className="text-[var(--cx-text-2)]" />
           </div>
 
           {/* Toolbar */}
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-bg-secondary border-b border-border-primary shrink-0">
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-cx-surface border-b border-white/8 shrink-0">
             <button
               onClick={handleSplitAtPlayhead}
               disabled={!selectedClip}
               className={cn(
                 'flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors',
-                selectedClip ? 'text-text-primary hover:bg-bg-primary' : 'text-text-secondary/40 cursor-not-allowed'
+                selectedClip ? 'text-[var(--cx-text-1)] hover:bg-cx-bg' : 'text-[var(--cx-text-2)]/40 cursor-not-allowed'
               )}
             >
               <Scissors size={13} /> Split
             </button>
-            <button onClick={handleAddTextOverlay} className="flex items-center gap-1 px-2 py-1 text-xs text-text-primary rounded hover:bg-bg-primary">
+            <button onClick={handleAddTextOverlay} className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--cx-text-1)] rounded hover:bg-cx-bg">
               <Type size={13} /> Text
             </button>
 
@@ -520,14 +532,14 @@ export function VideoEditorPage() {
             <div className="relative">
               <button
                 onClick={() => { setShowTransitionMenu(!showTransitionMenu); setShowSpeedMenu(false); setShowFilterMenu(false); }}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-text-primary rounded hover:bg-bg-primary"
+                className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--cx-text-1)] rounded hover:bg-cx-bg"
               >
                 <Layers size={13} /> Transition <ChevronDown size={10} />
               </button>
               {showTransitionMenu && (
-                <div className="absolute left-0 bottom-full mb-1 bg-bg-secondary border border-border-primary rounded-lg shadow-xl z-20 min-w-[140px]">
+                <div className="absolute left-0 bottom-full mb-1 bg-cx-surface border border-white/8 rounded-lg shadow-xl z-20 min-w-[140px]">
                   {TRANSITIONS.map((t) => (
-                    <button key={t} onClick={() => setShowTransitionMenu(false)} className="block w-full text-left px-3 py-1.5 text-xs text-text-primary hover:bg-bg-primary">
+                    <button key={t} onClick={() => setShowTransitionMenu(false)} className="block w-full text-left px-3 py-1.5 text-xs text-[var(--cx-text-1)] hover:bg-cx-bg">
                       {t}
                     </button>
                   ))}
@@ -539,12 +551,12 @@ export function VideoEditorPage() {
             <div className="relative">
               <button
                 onClick={() => { setShowSpeedMenu(!showSpeedMenu); setShowTransitionMenu(false); setShowFilterMenu(false); }}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-text-primary rounded hover:bg-bg-primary"
+                className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--cx-text-1)] rounded hover:bg-cx-bg"
               >
                 <Clock size={13} /> Speed <ChevronDown size={10} />
               </button>
               {showSpeedMenu && (
-                <div className="absolute left-0 bottom-full mb-1 bg-bg-secondary border border-border-primary rounded-lg shadow-xl z-20 min-w-[100px]">
+                <div className="absolute left-0 bottom-full mb-1 bg-cx-surface border border-white/8 rounded-lg shadow-xl z-20 min-w-[100px]">
                   {SPEEDS.map((s) => (
                     <button
                       key={s}
@@ -558,8 +570,8 @@ export function VideoEditorPage() {
                         setShowSpeedMenu(false);
                       }}
                       className={cn(
-                        'block w-full text-left px-3 py-1.5 text-xs hover:bg-bg-primary',
-                        selectedClip?.speed === s ? 'text-accent-blue' : 'text-text-primary'
+                        'block w-full text-left px-3 py-1.5 text-xs hover:bg-cx-bg',
+                        selectedClip?.speed === s ? 'text-cx-brand' : 'text-[var(--cx-text-1)]'
                       )}
                     >
                       {s}x
@@ -573,12 +585,12 @@ export function VideoEditorPage() {
             <div className="relative">
               <button
                 onClick={() => { setShowFilterMenu(!showFilterMenu); setShowSpeedMenu(false); setShowTransitionMenu(false); }}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-text-primary rounded hover:bg-bg-primary"
+                className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--cx-text-1)] rounded hover:bg-cx-bg"
               >
                 <Wand2 size={13} /> Filter <ChevronDown size={10} />
               </button>
               {showFilterMenu && (
-                <div className="absolute left-0 bottom-full mb-1 bg-bg-secondary border border-border-primary rounded-lg shadow-xl z-20 min-w-[140px]">
+                <div className="absolute left-0 bottom-full mb-1 bg-cx-surface border border-white/8 rounded-lg shadow-xl z-20 min-w-[140px]">
                   {FILTERS.map((f) => (
                     <button
                       key={f}
@@ -592,8 +604,8 @@ export function VideoEditorPage() {
                         setShowFilterMenu(false);
                       }}
                       className={cn(
-                        'block w-full text-left px-3 py-1.5 text-xs hover:bg-bg-primary',
-                        selectedClip?.filter === f ? 'text-accent-blue' : 'text-text-primary'
+                        'block w-full text-left px-3 py-1.5 text-xs hover:bg-cx-bg',
+                        selectedClip?.filter === f ? 'text-cx-brand' : 'text-[var(--cx-text-1)]'
                       )}
                     >
                       {f}
@@ -606,32 +618,32 @@ export function VideoEditorPage() {
             {selectedClip && (
               <button
                 onClick={() => handleDeleteClip(selectedClip.id)}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-red-400 rounded hover:bg-red-400/10 ml-auto"
+                className="flex items-center gap-1 px-2 py-1 text-xs text-cx-danger rounded hover:bg-red-400/10 ml-auto"
               >
                 <Trash2 size={13} /> Delete
               </button>
             )}
 
             <div className="flex items-center gap-1 ml-auto">
-              <button onClick={() => setZoom(Math.max(0.25, zoom - 0.25))} className="text-text-secondary hover:text-text-primary p-1">
+              <button onClick={() => setZoom(Math.max(0.25, zoom - 0.25))} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] p-1">
                 <ZoomOut size={14} />
               </button>
-              <span className="text-[10px] text-text-secondary min-w-[32px] text-center">{Math.round(zoom * 100)}%</span>
-              <button onClick={() => setZoom(Math.min(4, zoom + 0.25))} className="text-text-secondary hover:text-text-primary p-1">
+              <span className="text-[10px] text-[var(--cx-text-2)] min-w-[32px] text-center">{Math.round(zoom * 100)}%</span>
+              <button onClick={() => setZoom(Math.min(4, zoom + 0.25))} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] p-1">
                 <ZoomIn size={14} />
               </button>
             </div>
           </div>
 
           {/* Timeline */}
-          <div className="h-48 bg-bg-primary overflow-x-auto overflow-y-hidden shrink-0" ref={timelineRef}>
+          <div className="h-48 bg-cx-bg overflow-x-auto overflow-y-hidden shrink-0" ref={timelineRef}>
             <div className="min-w-full relative" style={{ width: `${totalDuration * pxPerSecond + 100}px` }}>
               {/* Time ruler */}
-              <div className="h-6 border-b border-border-primary relative">
+              <div className="h-6 border-b border-white/8 relative">
                 {Array.from({ length: Math.ceil(totalDuration / 5) + 1 }).map((_, i) => (
                   <div key={i} className="absolute top-0" style={{ left: `${i * 5 * pxPerSecond + 40}px` }}>
                     <div className="h-3 w-px bg-border-primary" />
-                    <span className="text-[9px] text-text-secondary absolute -translate-x-1/2 top-3">{formatTime(i * 5)}</span>
+                    <span className="text-[9px] text-[var(--cx-text-2)] absolute -translate-x-1/2 top-3">{formatTime(i * 5)}</span>
                   </div>
                 ))}
               </div>
@@ -662,8 +674,8 @@ export function VideoEditorPage() {
               {/* Track Labels */}
               <div className="absolute left-0 top-6 w-10 z-5">
                 {(['video', 'audio', 'text'] as const).map((track, i) => (
-                  <div key={track} className="h-10 flex items-center justify-center border-b border-border-primary/50">
-                    <span className="text-[9px] text-text-secondary uppercase">{track.charAt(0)}</span>
+                  <div key={track} className="h-10 flex items-center justify-center border-b border-white/8/50">
+                    <span className="text-[9px] text-[var(--cx-text-2)] uppercase">{track.charAt(0)}</span>
                   </div>
                 ))}
               </div>
@@ -671,7 +683,7 @@ export function VideoEditorPage() {
               {/* Tracks */}
               <div className="ml-10">
                 {(['video', 'audio', 'text'] as const).map((track) => (
-                  <div key={track} className="h-10 relative border-b border-border-primary/30">
+                  <div key={track} className="h-10 relative border-b border-white/8/30">
                     {activeProject.clips
                       .filter((c) => c.track === track)
                       .map((clip) => (

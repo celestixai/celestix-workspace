@@ -90,11 +90,11 @@ function DayTimeline({ date, reminders }: { date: Date; reminders: Reminder[] })
   return (
     <div className="relative">
       {HOURS.map((hour) => (
-        <div key={hour} className="flex h-14 border-b border-border-primary/50">
-          <div className="w-14 flex-shrink-0 text-[10px] text-text-tertiary text-right pr-2 -mt-1.5">
+        <div key={hour} className="flex h-14 border-b border-[var(--cx-border-1)]/50">
+          <div className="w-14 flex-shrink-0 text-[10px] text-[var(--cx-text-3)] text-right pr-2 -mt-1.5">
             {formatHour(hour)}
           </div>
-          <div className="flex-1 border-l border-border-primary/50" />
+          <div className="flex-1 border-l border-[var(--cx-border-1)]/50" />
         </div>
       ))}
       {/* Render reminder blocks */}
@@ -139,10 +139,10 @@ function WeekTimeline({ weekDays, reminders }: { weekDays: Date[]; reminders: Re
         const dayReminders = reminders.filter((r) => isSameDay(new Date(r.dueAt), day));
         const isToday = isSameDay(day, today);
         return (
-          <div key={day.toISOString()} className="flex-1 border-r border-border-primary/50 last:border-r-0 min-w-0">
+          <div key={day.toISOString()} className="flex-1 border-r border-[var(--cx-border-1)]/50 last:border-r-0 min-w-0">
             <div className={cn(
-              'text-center py-2 border-b border-border-primary text-xs font-medium sticky top-0 bg-bg-primary z-10',
-              isToday ? 'text-accent-blue' : 'text-text-secondary',
+              'text-center py-2 border-b border-[var(--cx-border-1)] text-xs font-medium sticky top-0 bg-cx-bg z-10',
+              isToday ? 'text-accent-blue' : 'text-[var(--cx-text-2)]',
             )}>
               {formatShortDay(day)}
               {isToday && <div className="w-1.5 h-1.5 rounded-full bg-accent-blue mx-auto mt-0.5" />}
@@ -200,45 +200,45 @@ export function PlannerPage() {
   const goToToday = () => setCurrentDate(new Date());
 
   return (
-    <div className="flex h-full bg-bg-primary">
+    <div className="flex h-full bg-cx-bg">
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border-primary bg-bg-secondary">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--cx-border-1)] bg-cx-surface">
           <div className="flex items-center gap-2">
             <button
               onClick={navigatePrev}
-              className="p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
+              className="p-1.5 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors"
             >
               <ChevronLeft size={16} />
             </button>
-            <h2 className="text-sm font-semibold text-text-primary min-w-[200px] text-center">
+            <h2 className="text-sm font-semibold text-[var(--cx-text-1)] min-w-[200px] text-center">
               {viewMode === 'day'
                 ? formatDateHeader(currentDate)
                 : `${weekDays[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekDays[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
             </h2>
             <button
               onClick={navigateNext}
-              className="p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
+              className="p-1.5 rounded-lg text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors"
             >
               <ChevronRight size={16} />
             </button>
             <button
               onClick={goToToday}
-              className="px-2.5 py-1 rounded-lg text-xs font-medium text-text-secondary hover:text-text-primary hover:bg-bg-hover border border-border-primary transition-colors ml-2"
+              className="px-2.5 py-1 rounded-lg text-xs font-medium text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] border border-[var(--cx-border-1)] transition-colors ml-2"
             >
               Today
             </button>
           </div>
 
-          <div className="flex items-center gap-1 bg-bg-tertiary rounded-lg p-0.5">
+          <div className="flex items-center gap-1 bg-cx-raised rounded-lg p-0.5">
             <button
               onClick={() => setViewMode('day')}
               className={cn(
                 'px-3 py-1 rounded-md text-xs font-medium transition-colors',
                 viewMode === 'day'
-                  ? 'bg-bg-primary text-text-primary shadow-sm'
-                  : 'text-text-tertiary hover:text-text-secondary',
+                  ? 'bg-cx-bg text-[var(--cx-text-1)] shadow-sm'
+                  : 'text-[var(--cx-text-3)] hover:text-[var(--cx-text-2)]',
               )}
             >
               Day
@@ -248,8 +248,8 @@ export function PlannerPage() {
               className={cn(
                 'px-3 py-1 rounded-md text-xs font-medium transition-colors',
                 viewMode === 'week'
-                  ? 'bg-bg-primary text-text-primary shadow-sm'
-                  : 'text-text-tertiary hover:text-text-secondary',
+                  ? 'bg-cx-bg text-[var(--cx-text-1)] shadow-sm'
+                  : 'text-[var(--cx-text-3)] hover:text-[var(--cx-text-2)]',
               )}
             >
               Week

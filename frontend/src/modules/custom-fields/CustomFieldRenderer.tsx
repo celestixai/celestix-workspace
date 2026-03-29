@@ -410,7 +410,7 @@ function RatingEditor({
             size={compact ? 14 : 18}
             className={cn(
               'transition-colors',
-              i < value ? 'text-yellow-400 fill-yellow-400' : 'text-text-tertiary'
+              i < value ? 'text-cx-warning fill-yellow-400' : 'text-text-tertiary'
             )}
           />
         </button>
@@ -477,7 +477,7 @@ function AITextFieldRenderer({
     <div className="flex items-center gap-2 w-full">
       <Sparkles size={compact ? 10 : 12} className="text-purple-400 flex-shrink-0" />
       {isOffline ? (
-        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-500/10 text-gray-400 border border-gray-500/20">
+        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--cx-text-3)]/10 text-[var(--cx-text-2)] border border-[var(--cx-text-3)]/20">
           AI Offline
         </span>
       ) : isPending ? (
@@ -504,9 +504,9 @@ function AITextFieldRenderer({
 }
 
 const SENTIMENT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  Positive: { bg: 'bg-green-500/10', text: 'text-green-400', border: 'border-green-500/20' },
-  Neutral: { bg: 'bg-gray-500/10', text: 'text-gray-400', border: 'border-gray-500/20' },
-  Negative: { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/20' },
+  Positive: { bg: 'bg-cx-success/10', text: 'text-cx-success', border: 'border-cx-success/20' },
+  Neutral: { bg: 'bg-[var(--cx-text-3)]/10', text: 'text-[var(--cx-text-2)]', border: 'border-[var(--cx-text-3)]/20' },
+  Negative: { bg: 'bg-cx-danger/10', text: 'text-cx-danger', border: 'border-cx-danger/20' },
   Urgent: { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20' },
 };
 
@@ -532,7 +532,7 @@ function AISentimentFieldRenderer({
     <div className="flex items-center gap-2">
       <Sparkles size={compact ? 10 : 12} className="text-purple-400 flex-shrink-0" />
       {isOffline ? (
-        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-500/10 text-gray-400 border border-gray-500/20">
+        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--cx-text-3)]/10 text-[var(--cx-text-2)] border border-[var(--cx-text-3)]/20">
           AI Offline
         </span>
       ) : isPending ? (

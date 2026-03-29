@@ -38,6 +38,18 @@ interface ViewControlsBarProps {
   onImportComplete?: () => void;
 }
 
+// Shared button style helper
+function controlBtnStyle(isActive: boolean) {
+  return {
+    fontSize: 12,
+    padding: '4px 10px',
+    borderRadius: 6,
+    color: isActive ? '#60A5FA' : 'rgba(255,255,255,0.40)',
+    background: isActive ? 'rgba(37,99,235,0.10)' : 'transparent',
+    transition: 'all 100ms',
+  } as React.CSSProperties;
+}
+
 export function ViewControlsBar({
   filters,
   sorts,
@@ -77,33 +89,63 @@ export function ViewControlsBar({
     setMeMode((prev) => {
       const next = !prev;
       if (next) {
-        // Add "assignee is me" filter
         onFiltersChange([...filters, { field: 'assignee', operator: 'is', value: 'me' }]);
       } else {
-        // Remove "assignee is me" filter
         onFiltersChange(filters.filter((f) => !(f.field === 'assignee' && f.value === 'me')));
       }
       return next;
     });
   }, [filters, onFiltersChange]);
 
+  const hoverHandlers = (isActive: boolean) => ({
+    onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!isActive) {
+        e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+        e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+      }
+    },
+    onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!isActive) {
+        e.currentTarget.style.background = 'transparent';
+        e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+      }
+    },
+  });
+
   return (
-    <div className="flex items-center gap-1 px-4 py-1.5 border-b border-border-secondary bg-bg-secondary">
+    <div
+      className="flex items-center"
+      style={{
+        height: 36,
+        padding: '0 16px',
+        gap: 2,
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: '#09090B',
+      }}
+    >
       {/* Filter */}
       <div className="relative">
         <button
           onClick={() => { setShowFilters((p) => !p); setShowSorts(false); setShowGroupBy(false); }}
-          className={cn(
-            'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md transition-colors',
-            filters.length > 0
-              ? 'text-accent-blue bg-accent-blue/10'
-              : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
-          )}
+          className="flex items-center gap-1.5"
+          style={controlBtnStyle(filters.length > 0)}
+          {...hoverHandlers(filters.length > 0)}
         >
           <Filter size={12} />
           Filter
           {filters.length > 0 && (
-            <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-medium rounded-full bg-accent-blue text-white">
+            <span
+              className="inline-flex items-center justify-center"
+              style={{
+                width: 16,
+                height: 16,
+                fontSize: 10,
+                fontWeight: 500,
+                borderRadius: 9999,
+                background: '#2563EB',
+                color: '#ffffff',
+              }}
+            >
               {filters.length}
             </span>
           )}
@@ -121,17 +163,25 @@ export function ViewControlsBar({
       <div className="relative">
         <button
           onClick={() => { setShowSorts((p) => !p); setShowFilters(false); setShowGroupBy(false); }}
-          className={cn(
-            'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md transition-colors',
-            sorts.length > 0
-              ? 'text-accent-blue bg-accent-blue/10'
-              : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
-          )}
+          className="flex items-center gap-1.5"
+          style={controlBtnStyle(sorts.length > 0)}
+          {...hoverHandlers(sorts.length > 0)}
         >
           <ArrowUpDown size={12} />
           Sort
           {sorts.length > 0 && (
-            <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-medium rounded-full bg-accent-blue text-white">
+            <span
+              className="inline-flex items-center justify-center"
+              style={{
+                width: 16,
+                height: 16,
+                fontSize: 10,
+                fontWeight: 500,
+                borderRadius: 9999,
+                background: '#2563EB',
+                color: '#ffffff',
+              }}
+            >
               {sorts.length}
             </span>
           )}
@@ -149,17 +199,14 @@ export function ViewControlsBar({
       <div className="relative">
         <button
           onClick={() => { setShowGroupBy((p) => !p); setShowFilters(false); setShowSorts(false); }}
-          className={cn(
-            'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md transition-colors',
-            groupBy
-              ? 'text-accent-blue bg-accent-blue/10'
-              : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
-          )}
+          className="flex items-center gap-1.5"
+          style={controlBtnStyle(!!groupBy)}
+          {...hoverHandlers(!!groupBy)}
         >
           <Layers size={12} />
           Group
           {groupBy && (
-            <span className="text-[10px] opacity-80">{groupBy}</span>
+            <span style={{ fontSize: 10, opacity: 0.8 }}>{groupBy}</span>
           )}
         </button>
         {showGroupBy && (
@@ -175,12 +222,9 @@ export function ViewControlsBar({
       {/* Subtasks toggle */}
       <button
         onClick={() => onShowSubtasksChange(!showSubtasks)}
-        className={cn(
-          'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md transition-colors',
-          showSubtasks
-            ? 'text-accent-blue bg-accent-blue/10'
-            : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
-        )}
+        className="flex items-center gap-1.5"
+        style={controlBtnStyle(showSubtasks)}
+        {...hoverHandlers(showSubtasks)}
         title={showSubtasks ? 'Hide subtasks' : 'Show subtasks'}
       >
         {showSubtasks ? <Eye size={12} /> : <EyeOff size={12} />}
@@ -190,12 +234,9 @@ export function ViewControlsBar({
       {/* Closed toggle */}
       <button
         onClick={() => onShowClosedTasksChange(!showClosedTasks)}
-        className={cn(
-          'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md transition-colors',
-          showClosedTasks
-            ? 'text-accent-blue bg-accent-blue/10'
-            : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
-        )}
+        className="flex items-center gap-1.5"
+        style={controlBtnStyle(showClosedTasks)}
+        {...hoverHandlers(showClosedTasks)}
       >
         Closed
       </button>
@@ -203,12 +244,9 @@ export function ViewControlsBar({
       {/* Me Mode */}
       <button
         onClick={handleMeToggle}
-        className={cn(
-          'flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md transition-colors',
-          meMode
-            ? 'text-accent-blue bg-accent-blue/10'
-            : 'text-text-tertiary hover:text-text-primary hover:bg-bg-hover',
-        )}
+        className="flex items-center gap-1.5"
+        style={controlBtnStyle(meMode)}
+        {...hoverHandlers(meMode)}
         title="Show only my tasks"
       >
         <User size={12} />
@@ -231,7 +269,9 @@ export function ViewControlsBar({
       {listId && (
         <button
           onClick={() => setShowImport(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md transition-colors text-text-tertiary hover:text-text-primary hover:bg-bg-hover"
+          className="flex items-center gap-1.5"
+          style={controlBtnStyle(false)}
+          {...hoverHandlers(false)}
           title="Import tasks from CSV"
         >
           <Upload size={12} />
@@ -242,18 +282,31 @@ export function ViewControlsBar({
       {/* Search */}
       <div className="flex items-center">
         {searchExpanded ? (
-          <div className="flex items-center gap-1 bg-bg-tertiary rounded-md border border-border-secondary px-2 py-0.5">
-            <Search size={12} className="text-text-tertiary flex-shrink-0" />
+          <div
+            className="flex items-center gap-1"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              borderRadius: 6,
+              border: '1px solid rgba(255,255,255,0.08)',
+              padding: '2px 8px',
+            }}
+          >
+            <Search size={12} style={{ color: 'rgba(255,255,255,0.40)', flexShrink: 0 }} />
             <input
               autoFocus
               value={searchValue}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search tasks..."
-              className="bg-transparent text-xs text-text-primary placeholder:text-text-tertiary outline-none w-40"
+              className="bg-transparent outline-none focus-visible:ring-1 focus-visible:ring-[#2563EB] rounded"
+              style={{
+                fontSize: 12,
+                color: '#ffffff',
+                width: 160,
+              }}
             />
             <button
               onClick={() => { setSearchExpanded(false); handleSearchChange(''); }}
-              className="text-text-tertiary hover:text-text-primary"
+              style={{ color: 'rgba(255,255,255,0.40)' }}
             >
               <X size={12} />
             </button>
@@ -261,9 +314,25 @@ export function ViewControlsBar({
         ) : (
           <button
             onClick={() => setSearchExpanded(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-text-tertiary hover:text-text-primary hover:bg-bg-hover rounded-md transition-colors"
+            className="flex items-center justify-center"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              color: 'rgba(255,255,255,0.40)',
+              background: 'transparent',
+              transition: 'all 100ms',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.40)';
+            }}
           >
-            <Search size={12} />
+            <Search size={14} />
           </button>
         )}
       </div>

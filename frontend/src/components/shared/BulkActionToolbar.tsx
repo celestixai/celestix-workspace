@@ -26,7 +26,7 @@ const PRIORITIES = [
   { value: 'HIGH', label: 'High', color: 'text-orange-400' },
   { value: 'MEDIUM', label: 'Medium', color: 'text-yellow-400' },
   { value: 'LOW', label: 'Low', color: 'text-blue-400' },
-  { value: 'NONE', label: 'None', color: 'text-gray-400' },
+  { value: 'NONE', label: 'None', color: 'text-[rgba(255,255,255,0.40)]' },
 ];
 
 export function BulkActionToolbar({

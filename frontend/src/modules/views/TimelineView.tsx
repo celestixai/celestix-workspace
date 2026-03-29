@@ -523,7 +523,7 @@ export function TimelineView({
               return (
                 <div
                   key={`overlap-${idx}`}
-                  className="absolute bg-red-500/10 border border-red-400/20 rounded-sm"
+                  className="absolute bg-cx-danger/10 border border-red-400/20 rounded-sm"
                   style={{
                     left,
                     top: rowIdx * ROW_HEIGHT + 2,

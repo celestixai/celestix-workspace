@@ -23,8 +23,8 @@ interface Props {
 }
 
 const COLORS = [
-  '#3b82f6', '#8b5cf6', '#ef4444', '#10b981', '#f59e0b',
-  '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#6366f1',
+  '#3B82F6', '#8B5CF6', '#EF4444', '#10B981', '#F59E0B',
+  '#14B8A6', '#F97316', '#22c55e', '#f97316', '#60A5FA',
 ];
 
 export function TimeReportChart({ groups, startDate, endDate }: Props) {
@@ -61,7 +61,7 @@ export function TimeReportChart({ groups, startDate, endDate }: Props) {
 
   if (chartData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-text-tertiary text-sm">
+      <div className="flex items-center justify-center h-64 text-[var(--cx-text-3)] text-sm">
         No data for selected range
       </div>
     );
@@ -71,11 +71,11 @@ export function TimeReportChart({ groups, startDate, endDate }: Props) {
     <ResponsiveContainer width="100%" height={320}>
       <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-        <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-        <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} label={{ value: 'Hours', angle: -90, position: 'insideLeft', fill: '#94a3b8', fontSize: 12 }} />
+        <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.40)', fontSize: 11 }} />
+        <YAxis tick={{ fill: 'rgba(255,255,255,0.40)', fontSize: 11 }} label={{ value: 'Hours', angle: -90, position: 'insideLeft', fill: 'rgba(255,255,255,0.40)', fontSize: 12 }} />
         <Tooltip
-          contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8 }}
-          labelStyle={{ color: '#e2e8f0' }}
+          contentStyle={{ backgroundColor: '#161618', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8 }}
+          labelStyle={{ color: 'rgba(255,255,255,0.90)' }}
           formatter={(value: number) => [`${value.toFixed(1)}h`, undefined]}
         />
         <Legend wrapperStyle={{ fontSize: 11 }} />

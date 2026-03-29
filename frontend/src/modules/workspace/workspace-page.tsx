@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { getSocket } from '@/lib/socket';
 import { useAuthStore } from '@/stores/auth.store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,6 +128,7 @@ interface WorkspaceMember {
     displayName: string;
     avatarUrl?: string;
     email: string;
+    username?: string;
     status?: string;
     lastSeenAt?: string;
   };
@@ -238,6 +240,69 @@ export function WorkspacePage() {
       queryClient.invalidateQueries({ queryKey: ['workspace-channels'] });
     }).catch(() => {});
   }, [selectedChannelId, messagesLoading]);
+
+  /* -- Socket: join channel room, listen for real-time messages -- */
+  useEffect(() => {
+    if (!selectedChannelId) return;
+    const socket = getSocket();
+
+    socket.emit('workspace:join', { channelId: selectedChannelId });
+
+    const handleNewMessage = (raw: any) => {
+      if (raw.channelId !== selectedChannelId) return;
+      const msg = normalizeMessage(raw);
+      queryClient.setQueryData<Message[]>(
+        ['workspace-messages', selectedChannelId],
+        (old) => (old ? [...old, msg] : [msg]),
+      );
+      // Refresh channel list for unread counts / last message
+      queryClient.invalidateQueries({ queryKey: ['workspace-channels'] });
+    };
+
+    const handleMessageUpdated = (raw: any) => {
+      if (raw.channelId !== selectedChannelId) return;
+      const msg = normalizeMessage(raw);
+      queryClient.setQueryData<Message[]>(
+        ['workspace-messages', selectedChannelId],
+        (old) => old?.map((m) => (m.id === msg.id ? msg : m)) ?? [],
+      );
+    };
+
+    const handleMessageDeleted = ({ messageId }: { messageId: string }) => {
+      queryClient.setQueryData<Message[]>(
+        ['workspace-messages', selectedChannelId],
+        (old) => old?.filter((m) => m.id !== messageId) ?? [],
+      );
+    };
+
+    const handleThreadReply = (raw: any) => {
+      if (raw.threadId || raw.parentMessageId) {
+        const parentId = raw.threadId || raw.parentMessageId;
+        queryClient.invalidateQueries({ queryKey: ['workspace-thread', parentId] });
+        // Update reply count on parent message
+        queryClient.setQueryData<Message[]>(
+          ['workspace-messages', selectedChannelId],
+          (old) =>
+            old?.map((m) =>
+              m.id === parentId ? { ...m, replyCount: (m.replyCount || 0) + 1 } : m,
+            ) ?? [],
+        );
+      }
+    };
+
+    socket.on('workspace:message', handleNewMessage);
+    socket.on('workspace:message-updated', handleMessageUpdated);
+    socket.on('workspace:message-deleted', handleMessageDeleted);
+    socket.on('workspace:thread-reply', handleThreadReply);
+
+    return () => {
+      socket.emit('workspace:leave', { channelId: selectedChannelId });
+      socket.off('workspace:message', handleNewMessage);
+      socket.off('workspace:message-updated', handleMessageUpdated);
+      socket.off('workspace:message-deleted', handleMessageDeleted);
+      socket.off('workspace:thread-reply', handleThreadReply);
+    };
+  }, [selectedChannelId, queryClient]);
 
   /* -- Mutations -- */
 
@@ -1418,7 +1483,7 @@ function WorkspaceSettingsPanel({
                           {member.role.toLowerCase()}
                         </span>
                       </div>
-                      <p className="text-xs text-text-tertiary truncate">{member.user.email}</p>
+                      <p className="text-xs text-text-tertiary truncate">{member.user.username ? `@${member.user.username}` : member.user.email}</p>
                     </div>
 
                     {/* Role change dropdown -- only for admins/owners editing non-owners */}

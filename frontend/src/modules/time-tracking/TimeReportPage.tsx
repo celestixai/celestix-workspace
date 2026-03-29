@@ -103,18 +103,18 @@ export function TimeReportPage() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-bg-primary overflow-hidden">
+    <div className="h-full flex flex-col bg-cx-bg overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border-primary">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--cx-border-1)]">
         <div className="flex items-center gap-3">
-          <Timer size={20} className="text-accent-blue" />
-          <h1 className="text-lg font-semibold text-text-primary">Time Tracking</h1>
+          <Timer size={20} className="text-cx-brand" />
+          <h1 className="text-lg font-display text-[var(--cx-text-1)]">Time Tracking</h1>
         </div>
-        <div className="flex items-center gap-1 bg-bg-secondary rounded-lg p-0.5">
+        <div className="flex items-center gap-1 bg-cx-surface rounded-lg p-0.5">
           <button
             onClick={() => setTab('reports')}
             className={`px-4 py-1.5 text-xs font-medium rounded-md transition-colors ${
-              tab === 'reports' ? 'bg-accent-blue text-white' : 'text-text-tertiary hover:text-text-primary'
+              tab === 'reports' ? 'bg-cx-brand text-white' : 'text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)]'
             }`}
           >
             Reports
@@ -122,7 +122,7 @@ export function TimeReportPage() {
           <button
             onClick={() => setTab('timesheet')}
             className={`px-4 py-1.5 text-xs font-medium rounded-md transition-colors ${
-              tab === 'timesheet' ? 'bg-accent-blue text-white' : 'text-text-tertiary hover:text-text-primary'
+              tab === 'timesheet' ? 'bg-cx-brand text-white' : 'text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)]'
             }`}
           >
             Timesheet
@@ -185,13 +185,13 @@ function ReportsTab({
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1 bg-bg-secondary rounded-lg p-0.5">
+        <div className="flex items-center gap-1 bg-cx-surface rounded-lg p-0.5">
           {(['this-week', 'last-week', 'this-month', 'custom'] as DatePreset[]).map((p) => (
             <button
               key={p}
               onClick={() => setPreset(p)}
               className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                preset === p ? 'bg-bg-tertiary text-text-primary' : 'text-text-tertiary hover:text-text-secondary'
+                preset === p ? 'bg-cx-raised text-[var(--cx-text-1)]' : 'text-[var(--cx-text-3)] hover:text-[var(--cx-text-2)]'
               }`}
             >
               {p === 'this-week' ? 'This Week' : p === 'last-week' ? 'Last Week' : p === 'this-month' ? 'This Month' : 'Custom'}
@@ -205,24 +205,24 @@ function ReportsTab({
               type="date"
               value={customStart}
               onChange={(e) => setCustomStart(e.target.value)}
-              className="bg-bg-secondary text-text-primary text-xs px-3 py-1.5 rounded border border-border-secondary outline-none"
+              className="bg-cx-surface text-[var(--cx-text-1)] text-xs px-3 py-1.5 rounded border border-[var(--cx-border-2)] outline-none"
             />
-            <span className="text-text-tertiary text-xs">to</span>
+            <span className="text-[var(--cx-text-3)] text-xs">to</span>
             <input
               type="date"
               value={customEnd}
               onChange={(e) => setCustomEnd(e.target.value)}
-              className="bg-bg-secondary text-text-primary text-xs px-3 py-1.5 rounded border border-border-secondary outline-none"
+              className="bg-cx-surface text-[var(--cx-text-1)] text-xs px-3 py-1.5 rounded border border-[var(--cx-border-2)] outline-none"
             />
           </div>
         )}
 
         <div className="flex items-center gap-2 ml-auto">
-          <label className="text-xs text-text-tertiary">Group by:</label>
+          <label className="text-xs text-[var(--cx-text-3)]">Group by:</label>
           <select
             value={groupBy}
             onChange={(e) => setGroupBy(e.target.value as GroupBy)}
-            className="bg-bg-secondary text-text-primary text-xs px-3 py-1.5 rounded border border-border-secondary outline-none"
+            className="bg-cx-surface text-[var(--cx-text-1)] text-xs px-3 py-1.5 rounded border border-[var(--cx-border-2)] outline-none"
           >
             <option value="user">User</option>
             <option value="task">Task</option>
@@ -232,7 +232,7 @@ function ReportsTab({
 
           <button
             onClick={onExport}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-bg-secondary hover:bg-bg-tertiary text-text-secondary rounded border border-border-secondary transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-cx-surface hover:bg-cx-raised text-[var(--cx-text-2)] rounded border border-[var(--cx-border-2)] transition-colors"
           >
             <Download size={13} />
             Export CSV
@@ -243,19 +243,19 @@ function ReportsTab({
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-4">
         <SummaryCard
-          icon={<Clock size={18} className="text-accent-blue" />}
+          icon={<Clock size={18} className="text-cx-brand" />}
           label="Total Tracked"
           value={summary ? formatMinutes(summary.totalTracked) : '--:--'}
           loading={summaryLoading}
         />
         <SummaryCard
-          icon={<DollarSign size={18} className="text-green-400" />}
+          icon={<DollarSign size={18} className="text-cx-success" />}
           label="Billable"
           value={summary ? formatMinutes(summary.totalBillable) : '--:--'}
           loading={summaryLoading}
         />
         <SummaryCard
-          icon={<Timer size={18} className="text-text-tertiary" />}
+          icon={<Timer size={18} className="text-[var(--cx-text-3)]" />}
           label="Non-Billable"
           value={summary ? formatMinutes(summary.totalNonBillable) : '--:--'}
           loading={summaryLoading}
@@ -263,26 +263,26 @@ function ReportsTab({
       </div>
 
       {/* Chart */}
-      <div className="bg-bg-secondary rounded-xl border border-border-primary p-4">
-        <h3 className="text-sm font-medium text-text-primary mb-3">Hours by Day</h3>
+      <div className="bg-cx-surface rounded-xl border border-[var(--cx-border-1)] p-4">
+        <h3 className="text-sm font-medium text-[var(--cx-text-1)] mb-3">Hours by Day</h3>
         {reportLoading ? (
-          <div className="h-80 flex items-center justify-center text-text-tertiary text-sm">Loading...</div>
+          <div className="h-80 flex items-center justify-center text-[var(--cx-text-3)] text-sm">Loading...</div>
         ) : report && report.groups.length > 0 ? (
           <TimeReportChart groups={report.groups} startDate={dateRange.start} endDate={dateRange.end} />
         ) : (
-          <div className="h-80 flex items-center justify-center text-text-tertiary text-sm">No time entries found for this period</div>
+          <div className="h-80 flex items-center justify-center text-[var(--cx-text-3)] text-sm">No time entries found for this period</div>
         )}
       </div>
 
       {/* Grouped Table */}
       {report && report.groups.length > 0 && (
-        <div className="bg-bg-secondary rounded-xl border border-border-primary overflow-hidden">
-          <div className="px-4 py-3 border-b border-border-primary">
-            <h3 className="text-sm font-medium text-text-primary">Breakdown</h3>
+        <div className="bg-cx-surface rounded-xl border border-[var(--cx-border-1)] overflow-hidden">
+          <div className="px-4 py-3 border-b border-[var(--cx-border-1)]">
+            <h3 className="text-sm font-medium text-[var(--cx-text-1)]">Breakdown</h3>
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border-primary text-text-tertiary">
+              <tr className="border-b border-[var(--cx-border-1)] text-[var(--cx-text-3)]">
                 <th className="text-left py-2 px-4 font-medium">Name</th>
                 <th className="text-right py-2 px-4 font-medium">Total</th>
                 <th className="text-right py-2 px-4 font-medium">Billable</th>
@@ -291,20 +291,20 @@ function ReportsTab({
             </thead>
             <tbody>
               {report.groups.map((g: any, i: number) => (
-                <tr key={i} className="border-b border-border-primary/50 hover:bg-bg-hover/30">
-                  <td className="py-2 px-4 text-text-primary">{g.name}</td>
-                  <td className="py-2 px-4 text-right text-text-secondary">{formatMinutes(g.totalMinutes)}</td>
-                  <td className="py-2 px-4 text-right text-green-400">{formatMinutes(g.billableMinutes)}</td>
-                  <td className="py-2 px-4 text-right text-text-tertiary">{g.entries.length}</td>
+                <tr key={i} className="border-b border-[var(--cx-border-1)]/50 hover:bg-[rgba(255,255,255,0.04)]/30">
+                  <td className="py-2 px-4 text-[var(--cx-text-1)]">{g.name}</td>
+                  <td className="py-2 px-4 text-right text-[var(--cx-text-2)]">{formatMinutes(g.totalMinutes)}</td>
+                  <td className="py-2 px-4 text-right text-cx-success">{formatMinutes(g.billableMinutes)}</td>
+                  <td className="py-2 px-4 text-right text-[var(--cx-text-3)]">{g.entries.length}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-bg-tertiary/30">
-                <td className="py-2 px-4 font-medium text-text-primary">Total</td>
-                <td className="py-2 px-4 text-right font-medium text-text-primary">{formatMinutes(report.totalMinutes)}</td>
-                <td className="py-2 px-4 text-right font-medium text-green-400">{formatMinutes(report.totalBillable)}</td>
-                <td className="py-2 px-4 text-right text-text-tertiary">
+              <tr className="bg-cx-raised/30">
+                <td className="py-2 px-4 font-medium text-[var(--cx-text-1)]">Total</td>
+                <td className="py-2 px-4 text-right font-medium text-[var(--cx-text-1)]">{formatMinutes(report.totalMinutes)}</td>
+                <td className="py-2 px-4 text-right font-medium text-cx-success">{formatMinutes(report.totalBillable)}</td>
+                <td className="py-2 px-4 text-right text-[var(--cx-text-3)]">
                   {report.groups.reduce((s: number, g: any) => s + g.entries.length, 0)}
                 </td>
               </tr>
@@ -328,14 +328,14 @@ function SummaryCard({
   loading: boolean;
 }) {
   return (
-    <div className="bg-bg-secondary rounded-xl border border-border-primary p-4">
+    <div className="bg-cx-surface rounded-xl border border-[var(--cx-border-1)] p-4">
       <div className="flex items-center gap-2 mb-2">
         {icon}
-        <span className="text-xs text-text-tertiary">{label}</span>
+        <span className="text-xs text-[var(--cx-text-3)]">{label}</span>
       </div>
-      <div className="text-2xl font-semibold text-text-primary">
+      <div className="text-2xl font-semibold text-[var(--cx-text-1)]">
         {loading ? (
-          <div className="h-8 w-20 bg-bg-tertiary rounded animate-pulse" />
+          <div className="h-8 w-20 bg-cx-raised rounded animate-pulse" />
         ) : (
           value
         )}
@@ -365,29 +365,29 @@ function TimesheetTab({
       <div className="flex items-center justify-center gap-4">
         <button
           onClick={() => onNavigateWeek(-1)}
-          className="p-1.5 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors"
+          className="p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.04)] text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors"
         >
           <ChevronLeft size={18} />
         </button>
-        <span className="text-sm font-medium text-text-primary min-w-[240px] text-center">
+        <span className="text-sm font-medium text-[var(--cx-text-1)] min-w-[240px] text-center">
           {formatWeekRange(weekStartDate)}
         </span>
         <button
           onClick={() => onNavigateWeek(1)}
-          className="p-1.5 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors"
+          className="p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.04)] text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors"
         >
           <ChevronRight size={18} />
         </button>
       </div>
 
       {/* Grid */}
-      <div className="bg-bg-secondary rounded-xl border border-border-primary overflow-hidden">
+      <div className="bg-cx-surface rounded-xl border border-[var(--cx-border-1)] overflow-hidden">
         {loading ? (
-          <div className="h-64 flex items-center justify-center text-text-tertiary text-sm">Loading timesheet...</div>
+          <div className="h-64 flex items-center justify-center text-[var(--cx-text-3)] text-sm">Loading timesheet...</div>
         ) : timesheet ? (
           <TimesheetGrid days={timesheet.days} weekTotal={timesheet.weekTotal} onRefresh={onRefresh} />
         ) : (
-          <div className="h-64 flex items-center justify-center text-text-tertiary text-sm">
+          <div className="h-64 flex items-center justify-center text-[var(--cx-text-3)] text-sm">
             No timesheet data. Start tracking time on tasks to see entries here.
           </div>
         )}

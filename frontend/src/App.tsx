@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuthStore } from '@/stores/auth.store';
 import { useUIStore } from '@/stores/ui.store';
 import { NavRail } from '@/components/layout/nav-rail';
@@ -8,7 +9,7 @@ import { Titlebar } from '@/components/layout/titlebar';
 import { SearchPalette } from '@/components/layout/search-palette';
 import { NotificationPanel } from '@/components/layout/notification-panel';
 import { UpdateBanner } from '@/components/shared/update-banner';
-import { MobileNav } from '@/components/layout/mobile-nav';
+import { BottomTabBar } from '@/components/layout/BottomTabBar';
 import { LoginPage } from '@/modules/auth/login-page';
 import { RegisterPage } from '@/modules/auth/register-page';
 import { WelcomePage } from '@/modules/auth/welcome-page';
@@ -23,6 +24,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsModal } from '@/components/shared/KeyboardShortcutsModal';
 import { QuickTaskModal } from '@/components/shared/QuickTaskModal';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 
 // Lazy load modules
 const MessengerPage = lazy(() => import('@/modules/messenger/messenger-page').then((m) => ({ default: m.MessengerPage })));
@@ -89,6 +91,35 @@ function AuthenticatedLayout() {
   const [aiCommandOpen, setAiCommandOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [quickTaskOpen, setQuickTaskOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if onboarding should show (only for truly new users)
+  useEffect(() => {
+    if (localStorage.getItem('onboarding-complete') === 'true') return;
+    // Check if user already has workspaces — if so, skip onboarding
+    const checkWorkspaces = async () => {
+      try {
+        const { data } = await (await import('@/lib/api')).api.get('/workspace');
+        if (data?.data?.length > 0) {
+          // User already has a workspace, mark onboarding complete
+          localStorage.setItem('onboarding-complete', 'true');
+          return;
+        }
+        setShowOnboarding(true);
+      } catch {
+        // If API fails, don't block the user with onboarding
+        localStorage.setItem('onboarding-complete', 'true');
+      }
+    };
+    checkWorkspaces();
+  }, []);
+
+  // Listen for onboarding completion
+  useEffect(() => {
+    const handler = () => setShowOnboarding(false);
+    window.addEventListener('onboarding-done', handler);
+    return () => window.removeEventListener('onboarding-done', handler);
+  }, []);
 
   // Cmd+J / Ctrl+J opens AI command bar
   const handleAIShortcut = useCallback((e: KeyboardEvent) => {
@@ -207,7 +238,7 @@ function AuthenticatedLayout() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-bg-primary overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#09090B] overflow-hidden">
       <Titlebar />
       <UpdateBanner />
       <div className="flex flex-1 min-h-0">
@@ -220,19 +251,31 @@ function AuthenticatedLayout() {
           <main className="flex-1 overflow-hidden pb-14 md:pb-0">
             <ErrorBoundary>
               <Suspense fallback={<LoadingFallback />}>
-                {moduleMap[activeModule] || <MessengerPage />}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeModule}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="h-full"
+                  >
+                    {moduleMap[activeModule] || <MessengerPage />}
+                  </motion.div>
+                </AnimatePresence>
               </Suspense>
             </ErrorBoundary>
           </main>
         </div>
       </div>
-      {/* Mobile bottom nav: shown on mobile only */}
-      <MobileNav />
+      {/* Mobile bottom tab bar: shown on mobile only */}
+      <BottomTabBar />
       <SearchPalette />
       <NotificationPanel />
       <AICommandBar open={aiCommandOpen} onClose={() => setAiCommandOpen(false)} />
       <KeyboardShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <QuickTaskModal open={quickTaskOpen} onClose={() => setQuickTaskOpen(false)} />
+      {showOnboarding && <OnboardingWizard />}
     </div>
   );
 }

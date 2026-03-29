@@ -52,8 +52,8 @@ interface Whiteboard {
 }
 
 const PRESET_COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e',
-  '#3b82f6', '#8b5cf6', '#ec4899', '#ffffff',
+  '#EF4444', '#F97316', '#eab308', '#22c55e',
+  '#3B82F6', '#8B5CF6', '#F97316', '#ffffff',
 ];
 
 const TOOL_LIST: { tool: ToolType; icon: typeof MousePointer2; label: string }[] = [
@@ -512,14 +512,14 @@ export function WhiteboardPage() {
 
   if (mode === 'list') {
     return (
-      <div className="flex flex-col h-full bg-[#0a0a0f]">
+      <div className="flex flex-col h-full bg-[#09090B]">
         <div className="h-14 flex items-center gap-3 px-6 border-b border-white/10 flex-shrink-0">
-          <LayoutGrid size={18} className="text-blue-400" />
-          <h1 className="text-base font-semibold text-white">Whiteboards</h1>
+          <LayoutGrid size={18} className="text-cx-brand" />
+          <h1 className="text-base font-display text-white">Whiteboards</h1>
           <div className="flex-1" />
           <button
             onClick={() => { setNewBoardName(''); setShowCreateBoard(true); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:bg-[var(--cx-brand-hover)] transition-colors"
           >
             <Plus size={14} />
             New Whiteboard
@@ -530,7 +530,7 @@ export function WhiteboardPage() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-[#12121a] border border-white/10 rounded-lg h-44 animate-pulse" />
+                <div key={i} className="bg-cx-bg border border-white/10 rounded-lg h-44 animate-pulse" />
               ))}
             </div>
           ) : boards.length === 0 ? (
@@ -540,7 +540,7 @@ export function WhiteboardPage() {
               <p className="text-sm text-white/30 mb-4">Create your first whiteboard to start drawing</p>
               <button
                 onClick={() => setShowCreateBoard(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-500 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cx-brand text-white text-sm hover:bg-[var(--cx-brand-hover)] transition-colors"
               >
                 <Plus size={14} />
                 Create Whiteboard
@@ -551,12 +551,12 @@ export function WhiteboardPage() {
               {boards.map((board) => (
                 <div
                   key={board.id}
-                  className="bg-[#12121a] border border-white/10 rounded-lg overflow-hidden cursor-pointer hover:border-white/20 transition-colors group"
+                  className="bg-cx-bg border border-white/10 rounded-lg overflow-hidden cursor-pointer hover:border-white/20 transition-colors group"
                 >
                   {/* Thumbnail area */}
                   <div
                     onClick={() => openBoard(board)}
-                    className="h-28 bg-[#1a1a2e] flex items-center justify-center"
+                    className="h-28 bg-cx-bg flex items-center justify-center"
                   >
                     {board.thumbnail ? (
                       <img src={board.thumbnail} alt="" className="w-full h-full object-cover" />
@@ -574,7 +574,7 @@ export function WhiteboardPage() {
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); setShowDeleteBoard(board.id); }}
-                      className="p-1 rounded hover:bg-white/5 text-white/15 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all"
+                      className="p-1 rounded hover:bg-white/5 text-white/15 opacity-0 group-hover:opacity-100 hover:text-cx-danger transition-all"
                       title="Delete"
                     >
                       <Trash2 size={13} />
@@ -589,7 +589,7 @@ export function WhiteboardPage() {
         {/* Create Board Dialog */}
         {showCreateBoard && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowCreateBoard(false)}>
-            <div className="bg-[#12121a] border border-white/10 rounded-xl w-[400px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-cx-bg border border-white/10 rounded-xl w-[400px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-semibold text-white">Create Whiteboard</h3>
                 <button onClick={() => setShowCreateBoard(false)} className="p-1 rounded-lg hover:bg-white/5 text-white/40 hover:text-white transition-colors">
@@ -602,11 +602,11 @@ export function WhiteboardPage() {
                   <input autoFocus type="text" placeholder="My Whiteboard" value={newBoardName}
                     onChange={(e) => setNewBoardName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleCreateBoard()}
-                    className="w-full h-9 px-3 rounded-lg bg-[#1a1a2e] border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-blue-600" />
+                    className="w-full h-9 px-3 rounded-lg bg-cx-bg border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-cx-brand" />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                   <button onClick={() => setShowCreateBoard(false)} className="px-3 py-1.5 rounded-lg text-sm text-white/50 hover:text-white hover:bg-white/5 transition-colors">Cancel</button>
-                  <button onClick={handleCreateBoard} disabled={!newBoardName.trim()} className="px-3 py-1.5 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-40">Create</button>
+                  <button onClick={handleCreateBoard} disabled={!newBoardName.trim()} className="px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:bg-[var(--cx-brand-hover)] transition-colors disabled:opacity-40">Create</button>
                 </div>
               </div>
             </div>
@@ -616,7 +616,7 @@ export function WhiteboardPage() {
         {/* Delete Board Dialog */}
         {showDeleteBoard && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowDeleteBoard(null)}>
-            <div className="bg-[#12121a] border border-white/10 rounded-xl w-[380px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-cx-bg border border-white/10 rounded-xl w-[380px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-base font-semibold text-white mb-2">Delete Whiteboard</h3>
               <p className="text-sm text-white/50 mb-5">
                 Are you sure? This whiteboard and all its contents will be permanently deleted.
@@ -637,9 +637,9 @@ export function WhiteboardPage() {
   /* ---------------------------------------------------------------- */
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0f] overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#09090B] overflow-hidden select-none">
       {/* Top bar */}
-      <div className="h-11 flex items-center gap-2 px-3 border-b border-white/10 flex-shrink-0 bg-[#12121a]">
+      <div className="h-11 flex items-center gap-2 px-3 border-b border-white/10 flex-shrink-0 bg-cx-bg">
         <button onClick={goBack} className="p-1.5 rounded-lg hover:bg-white/5 text-white/50 hover:text-white transition-colors">
           <ChevronLeft size={16} />
         </button>
@@ -659,14 +659,14 @@ export function WhiteboardPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left toolbar */}
-        <div className="w-12 flex-shrink-0 bg-[#12121a] border-r border-white/10 flex flex-col items-center py-3 gap-1">
+        <div className="w-12 flex-shrink-0 bg-cx-bg border-r border-white/10 flex flex-col items-center py-3 gap-1">
           {TOOL_LIST.map(({ tool, icon: Icon, label }) => (
             <button
               key={tool}
               onClick={() => { setActiveTool(tool); setSelectedObjectId(null); setEditingTextId(null); }}
               className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
                 activeTool === tool
-                  ? 'bg-blue-600/20 text-blue-400'
+                  ? 'bg-cx-brand/20 text-cx-brand'
                   : 'text-white/40 hover:text-white/70 hover:bg-white/5'
               }`}
               title={label}
@@ -718,7 +718,7 @@ export function WhiteboardPage() {
               <circle cx={1} cy={1} r={0.5} fill="rgba(255,255,255,0.06)" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="#0a0a0f" />
+          <rect width="100%" height="100%" fill="#09090B" />
           <rect width="100%" height="100%" fill="url(#grid)" />
 
           {/* Canvas group with pan/zoom */}
@@ -730,7 +730,7 @@ export function WhiteboardPage() {
 
         {/* Properties panel (when object selected) */}
         {selectedObject && activeTool === 'select' && (
-          <div className="w-48 flex-shrink-0 bg-[#12121a] border-l border-white/10 p-3 space-y-4">
+          <div className="w-48 flex-shrink-0 bg-cx-bg border-l border-white/10 p-3 space-y-4">
             <div>
               <h4 className="text-[11px] font-medium text-white/40 uppercase tracking-wider mb-2">Properties</h4>
               <p className="text-xs text-white/60 mb-3 capitalize">{selectedObject.type}</p>
@@ -756,7 +756,7 @@ export function WhiteboardPage() {
                 <input
                   type="range" min={1} max={10} value={selectedObject.strokeWidth}
                   onChange={(e) => setObjects((prev) => prev.map((o) => (o.id === selectedObject.id ? { ...o, strokeWidth: Number(e.target.value) } : o)))}
-                  className="w-full accent-blue-600"
+                  className="w-full accent-cx-brand"
                 />
                 <span className="text-[11px] text-white/30">{selectedObject.strokeWidth}px</span>
               </div>
@@ -768,7 +768,7 @@ export function WhiteboardPage() {
                 <input
                   type="number" min={8} max={72} value={selectedObject.fontSize}
                   onChange={(e) => setObjects((prev) => prev.map((o) => (o.id === selectedObject.id ? { ...o, fontSize: Number(e.target.value) } : o)))}
-                  className="w-full h-7 px-2 rounded bg-[#1a1a2e] border border-white/10 text-xs text-white focus:outline-none focus:border-blue-600"
+                  className="w-full h-7 px-2 rounded bg-cx-bg border border-white/10 text-xs text-white focus:outline-none focus:border-cx-brand"
                 />
               </div>
             )}
@@ -776,7 +776,7 @@ export function WhiteboardPage() {
             <div className="pt-2 border-t border-white/10">
               <button
                 onClick={() => { setObjects((prev) => prev.filter((o) => o.id !== selectedObject.id)); setSelectedObjectId(null); }}
-                className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs text-cx-danger hover:bg-cx-danger/10 transition-colors"
               >
                 <Trash2 size={12} />
                 Delete Object

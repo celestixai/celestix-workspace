@@ -280,7 +280,7 @@ export function ListsPage() {
           onClick={() => handleCellSave(item.id, col.id, !value)}
           className="flex items-center justify-center w-full h-full"
         >
-          <div className={`w-4 h-4 rounded border ${value ? 'bg-blue-600 border-blue-600' : 'border-white/20'} flex items-center justify-center`}>
+          <div className={`w-4 h-4 rounded border ${value ? 'bg-cx-brand border-cx-brand' : 'border-white/20'} flex items-center justify-center`}>
             {!!value && <Check size={10} className="text-white" />}
           </div>
         </button>
@@ -298,7 +298,7 @@ export function ListsPage() {
               handleCellSave(item.id, col.id, e.target.value);
             }}
             onBlur={() => handleCellSave(item.id, col.id, editValue)}
-            className="w-full h-full bg-[#1a1a2e] text-white text-sm px-2 py-1 border border-blue-600 rounded outline-none"
+            className="w-full h-full bg-cx-bg text-white text-sm px-2 py-1 border border-cx-brand rounded outline-none"
           >
             <option value="">-- Select --</option>
             {col.options.map((opt) => (
@@ -325,7 +325,7 @@ export function ListsPage() {
             }
             if (e.key === 'Escape') setEditingCell(null);
           }}
-          className="w-full h-full bg-[#1a1a2e] text-white text-sm px-2 py-1 border border-blue-600 rounded outline-none"
+          className="w-full h-full bg-cx-bg text-white text-sm px-2 py-1 border border-cx-brand rounded outline-none"
         />
       );
     }
@@ -339,7 +339,7 @@ export function ListsPage() {
         }}
       >
         {col.type === 'choice' && value ? (
-          <span className="inline-block px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-400 text-xs">
+          <span className="inline-block px-2 py-0.5 rounded-full bg-cx-brand/20 text-cx-brand text-xs">
             {String(value)}
           </span>
         ) : (
@@ -356,7 +356,7 @@ export function ListsPage() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* ===== Lists Sidebar ===== */}
-      <aside className="w-[240px] flex-shrink-0 bg-[#12121a] border-r border-white/10 flex flex-col">
+      <aside className="w-[240px] flex-shrink-0 bg-cx-bg border-r border-white/10 flex flex-col">
         <div className="h-12 flex items-center justify-between px-4 border-b border-white/10 flex-shrink-0">
           <span className="text-sm font-semibold text-white">Lists</span>
           <button
@@ -381,7 +381,7 @@ export function ListsPage() {
               <p className="text-sm text-white/50">No lists yet</p>
               <button
                 onClick={() => setShowCreateList(true)}
-                className="mt-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                className="mt-2 text-sm text-cx-brand hover:text-cx-brand transition-colors"
               >
                 Create your first list
               </button>
@@ -409,7 +409,7 @@ export function ListsPage() {
       </aside>
 
       {/* ===== Main Area ===== */}
-      <main className="flex-1 flex flex-col min-w-0 bg-[#0a0a0f]">
+      <main className="flex-1 flex flex-col min-w-0 bg-[#09090B]">
         {selectedList ? (
           <>
             {/* Toolbar */}
@@ -419,7 +419,7 @@ export function ListsPage() {
               <div className="flex-1" />
 
               {/* View tabs */}
-              <div className="flex items-center bg-[#12121a] rounded-lg p-0.5">
+              <div className="flex items-center bg-cx-bg rounded-lg p-0.5">
                 {(['list', 'board', 'gallery'] as const).map((view) => {
                   const Icon = VIEW_ICONS[view];
                   return (
@@ -449,7 +449,7 @@ export function ListsPage() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-7 pl-7 pr-3 rounded-lg bg-[#12121a] border border-white/10 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-blue-600 w-40"
+                  className="h-7 pl-7 pr-3 rounded-lg bg-cx-bg border border-white/10 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-cx-brand w-40"
                 />
               </div>
 
@@ -471,7 +471,7 @@ export function ListsPage() {
 
               <button
                 onClick={() => setShowDeleteList(true)}
-                className="p-1 rounded-lg text-white/30 hover:text-red-400 hover:bg-white/5 transition-colors"
+                className="p-1 rounded-lg text-white/30 hover:text-cx-danger hover:bg-white/5 transition-colors"
                 title="Delete list"
               >
                 <Trash2 size={14} />
@@ -507,7 +507,7 @@ export function ListsPage() {
                               <TypeIcon size={11} />
                               <span>{col.name}</span>
                               {sortCol === col.id && (
-                                <ArrowUpDown size={10} className="text-blue-400" />
+                                <ArrowUpDown size={10} className="text-cx-brand" />
                               )}
                             </div>
                           </th>
@@ -537,7 +537,7 @@ export function ListsPage() {
                             <span>{idx + 1}</span>
                             <button
                               onClick={() => handleDeleteItem(item.id)}
-                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-white/5 text-white/20 hover:text-red-400 transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-white/5 text-white/20 hover:text-cx-danger transition-all"
                               title="Delete item"
                             >
                               <Trash2 size={10} />
@@ -575,7 +575,7 @@ export function ListsPage() {
                   <p className="text-xs text-white/30 mb-4">Add columns to define your data structure</p>
                   <button
                     onClick={() => setShowAddColumn(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-500 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cx-brand text-white text-sm hover:bg-[var(--cx-brand-hover)] transition-colors"
                   >
                     <Plus size={14} />
                     Add Column
@@ -596,7 +596,7 @@ export function ListsPage() {
       {/* ===== Create List Dialog ===== */}
       {showCreateList && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowCreateList(false)}>
-          <div className="bg-[#12121a] border border-white/10 rounded-xl w-[400px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-cx-bg border border-white/10 rounded-xl w-[400px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-white">Create List</h3>
               <button onClick={() => setShowCreateList(false)} className="p-1 rounded-lg hover:bg-white/5 text-white/40 hover:text-white transition-colors">
@@ -613,7 +613,7 @@ export function ListsPage() {
                   value={newListName}
                   onChange={(e) => setNewListName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleCreateList()}
-                  className="w-full h-9 px-3 rounded-lg bg-[#1a1a2e] border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-blue-600"
+                  className="w-full h-9 px-3 rounded-lg bg-cx-bg border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-cx-brand"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
@@ -626,7 +626,7 @@ export function ListsPage() {
                 <button
                   onClick={handleCreateList}
                   disabled={!newListName.trim()}
-                  className="px-3 py-1.5 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:bg-[var(--cx-brand-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Create
                 </button>
@@ -639,7 +639,7 @@ export function ListsPage() {
       {/* ===== Delete List Dialog ===== */}
       {showDeleteList && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowDeleteList(false)}>
-          <div className="bg-[#12121a] border border-white/10 rounded-xl w-[380px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-cx-bg border border-white/10 rounded-xl w-[380px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-base font-semibold text-white mb-2">Delete List</h3>
             <p className="text-sm text-white/50 mb-5">
               Are you sure you want to delete <span className="text-white font-medium">{selectedList?.name}</span>? This action cannot be undone.
@@ -665,7 +665,7 @@ export function ListsPage() {
       {/* ===== Add Column Dialog ===== */}
       {showAddColumn && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowAddColumn(false)}>
-          <div className="bg-[#12121a] border border-white/10 rounded-xl w-[420px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-cx-bg border border-white/10 rounded-xl w-[420px] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-white">Add Column</h3>
               <button onClick={() => setShowAddColumn(false)} className="p-1 rounded-lg hover:bg-white/5 text-white/40 hover:text-white transition-colors">
@@ -681,7 +681,7 @@ export function ListsPage() {
                   placeholder="Column name"
                   value={newColName}
                   onChange={(e) => setNewColName(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg bg-[#1a1a2e] border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-blue-600"
+                  className="w-full h-9 px-3 rounded-lg bg-cx-bg border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-cx-brand"
                 />
               </div>
               <div>
@@ -695,7 +695,7 @@ export function ListsPage() {
                         onClick={() => setNewColType(type)}
                         className={`flex flex-col items-center gap-1 p-2 rounded-lg border text-xs transition-colors ${
                           newColType === type
-                            ? 'border-blue-600 bg-blue-600/10 text-blue-400'
+                            ? 'border-cx-brand bg-cx-brand/10 text-cx-brand'
                             : 'border-white/10 text-white/50 hover:border-white/20 hover:text-white/70'
                         }`}
                       >
@@ -714,7 +714,7 @@ export function ListsPage() {
                     placeholder="Option 1, Option 2, Option 3"
                     value={newColOptions}
                     onChange={(e) => setNewColOptions(e.target.value)}
-                    className="w-full h-9 px-3 rounded-lg bg-[#1a1a2e] border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-blue-600"
+                    className="w-full h-9 px-3 rounded-lg bg-cx-bg border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-cx-brand"
                   />
                 </div>
               )}
@@ -728,7 +728,7 @@ export function ListsPage() {
                 <button
                   onClick={handleAddColumn}
                   disabled={!newColName.trim()}
-                  className="px-3 py-1.5 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:bg-[var(--cx-brand-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Add Column
                 </button>

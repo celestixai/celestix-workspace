@@ -42,7 +42,7 @@ export function GoalFolderSidebar({
 
   if (collapsed) {
     return (
-      <div className="w-10 border-r border-border-primary bg-bg-secondary flex flex-col items-center py-3">
+      <div className="w-10 border-r border-[rgba(255,255,255,0.08)] bg-[#09090B] flex flex-col items-center py-3">
         <button
           onClick={onToggleCollapse}
           className="p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
@@ -55,9 +55,9 @@ export function GoalFolderSidebar({
   }
 
   return (
-    <div className="w-[220px] border-r border-border-primary bg-bg-secondary flex flex-col flex-shrink-0">
+    <div className="w-[220px] border-r border-[rgba(255,255,255,0.08)] bg-[#09090B] flex flex-col flex-shrink-0">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-3 border-b border-border-primary">
+      <div className="flex items-center justify-between px-3 py-3 border-b border-[rgba(255,255,255,0.08)]">
         <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Folders</span>
         <div className="flex items-center gap-1">
           <button

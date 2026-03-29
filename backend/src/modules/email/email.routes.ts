@@ -10,6 +10,7 @@ import {
   emailAccountConfigSchema,
   updateEmailAccountSchema,
   testConnectionSchema,
+  testImapSchema,
   createLabelSchema,
   updateLabelSchema,
   assignLabelSchema,
@@ -307,9 +308,25 @@ router.delete('/accounts/:accountId', authenticate, async (req: Request, res: Re
   res.json({ success: true, data: result });
 });
 
-// POST /api/v1/email/accounts/test - Test SMTP connection
+// POST /api/v1/email/accounts/test-smtp - Test SMTP connection
+router.post('/accounts/test-smtp', authenticate, validate(testConnectionSchema), async (req: Request, res: Response) => {
+  const result = await emailService.testConnection(req.body);
+  res.json({ success: true, data: result });
+});
+
+// POST /api/v1/email/accounts/test (alias for test-smtp)
 router.post('/accounts/test', authenticate, validate(testConnectionSchema), async (req: Request, res: Response) => {
   const result = await emailService.testConnection(req.body);
+  res.json({ success: true, data: result });
+});
+
+// POST /api/v1/email/accounts/test-imap - Test IMAP connection
+router.post('/accounts/test-imap', authenticate, validate(testImapSchema), async (req: Request, res: Response) => {
+  const result = await emailService.testImapConnection(req.body);
+  if (!result.success) {
+    res.status(400).json({ success: false, error: result.message });
+    return;
+  }
   res.json({ success: true, data: result });
 });
 
@@ -547,6 +564,185 @@ router.get('/focused', authenticate, async (req, res, next) => {
 
     res.json({ success: true, data: { focused, other } });
   } catch (err) { next(err); }
+});
+
+// ==========================================
+// OAUTH — GMAIL
+// ==========================================
+
+let googleOAuth2Client: any = null;
+function getGoogleOAuth2() {
+  if (googleOAuth2Client) return googleOAuth2Client;
+  try {
+    const { google } = require('googleapis');
+    googleOAuth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI,
+    );
+    return googleOAuth2Client;
+  } catch {
+    return null;
+  }
+}
+
+// GET /api/v1/email/oauth/google/authorize
+router.get('/oauth/google/authorize', authenticate, (req: Request, res: Response) => {
+  const client = getGoogleOAuth2();
+  if (!client || !process.env.GOOGLE_CLIENT_ID) {
+    res.status(501).json({ success: false, error: 'Gmail OAuth not configured' });
+    return;
+  }
+  // Store userId in state param for callback
+  const state = Buffer.from(JSON.stringify({ userId: req.user!.id })).toString('base64url');
+  const url = client.generateAuthUrl({
+    access_type: 'offline',
+    scope: [
+      'https://www.googleapis.com/auth/gmail.send',
+      'https://www.googleapis.com/auth/gmail.readonly',
+      'https://www.googleapis.com/auth/gmail.modify',
+      'https://www.googleapis.com/auth/userinfo.email',
+    ],
+    prompt: 'consent',
+    state,
+  });
+  res.json({ success: true, data: { url } });
+});
+
+// GET /api/v1/email/oauth/google/callback
+router.get('/oauth/google/callback', async (req: Request, res: Response) => {
+  const client = getGoogleOAuth2();
+  if (!client) { res.status(501).send('Gmail OAuth not configured'); return; }
+
+  try {
+    const code = req.query.code as string;
+    const stateRaw = req.query.state as string;
+    const { userId } = JSON.parse(Buffer.from(stateRaw, 'base64url').toString());
+
+    const { tokens } = await client.getToken(code);
+    client.setCredentials(tokens);
+
+    const { google } = require('googleapis');
+    const gmail = google.gmail({ version: 'v1', auth: client });
+    const profile = await gmail.users.getProfile({ userId: 'me' });
+    const email = profile.data.emailAddress;
+
+    // Save as email account
+    await prisma.emailAccount.create({
+      data: {
+        userId,
+        email,
+        displayName: email,
+        provider: 'GMAIL',
+        smtpHost: 'smtp.gmail.com',
+        smtpPort: 465,
+        smtpUser: email,
+        smtpPass: tokens.access_token || '',
+        smtpSecure: true,
+        imapHost: 'imap.gmail.com',
+        imapPort: 993,
+        imapUser: email,
+        imapPass: tokens.access_token || '',
+        imapSecure: true,
+        accessToken: tokens.access_token || null,
+        refreshToken: tokens.refresh_token || null,
+        tokenExpiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
+        syncEnabled: true,
+      },
+    });
+
+    // Redirect to frontend settings
+    const frontendUrl = process.env.FRONTEND_URL || 'https://workspace.celestix.ai';
+    res.redirect(`${frontendUrl}/settings?tab=email-accounts&connected=gmail`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'OAuth failed';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://workspace.celestix.ai';
+    res.redirect(`${frontendUrl}/settings?tab=email-accounts&error=${encodeURIComponent(msg)}`);
+  }
+});
+
+// ==========================================
+// OAUTH — MICROSOFT / OUTLOOK
+// ==========================================
+
+// GET /api/v1/email/oauth/microsoft/authorize
+router.get('/oauth/microsoft/authorize', authenticate, (req: Request, res: Response) => {
+  if (!process.env.MICROSOFT_CLIENT_ID) {
+    res.status(501).json({ success: false, error: 'Outlook OAuth not configured' });
+    return;
+  }
+  const state = Buffer.from(JSON.stringify({ userId: req.user!.id })).toString('base64url');
+  const params = new URLSearchParams({
+    client_id: process.env.MICROSOFT_CLIENT_ID,
+    response_type: 'code',
+    redirect_uri: process.env.MICROSOFT_REDIRECT_URI || '',
+    scope: 'openid profile email Mail.Read Mail.Send offline_access',
+    state,
+    prompt: 'consent',
+  });
+  const url = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?${params}`;
+  res.json({ success: true, data: { url } });
+});
+
+// GET /api/v1/email/oauth/microsoft/callback
+router.get('/oauth/microsoft/callback', async (req: Request, res: Response) => {
+  try {
+    const code = req.query.code as string;
+    const stateRaw = req.query.state as string;
+    const { userId } = JSON.parse(Buffer.from(stateRaw, 'base64url').toString());
+
+    // Exchange code for tokens
+    const tokenRes = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.MICROSOFT_CLIENT_ID || '',
+        client_secret: process.env.MICROSOFT_CLIENT_SECRET || '',
+        code,
+        redirect_uri: process.env.MICROSOFT_REDIRECT_URI || '',
+        grant_type: 'authorization_code',
+      }),
+    });
+    const tokens = await tokenRes.json() as Record<string, any>;
+    if (tokens.error) throw new Error(tokens.error_description || tokens.error);
+
+    // Get user email from Microsoft Graph
+    const profileRes = await fetch('https://graph.microsoft.com/v1.0/me', {
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+    });
+    const profile = await profileRes.json() as Record<string, any>;
+    const email = profile.mail || profile.userPrincipalName;
+
+    await prisma.emailAccount.create({
+      data: {
+        userId,
+        email,
+        displayName: (profile.displayName as string) || email,
+        provider: 'OUTLOOK',
+        smtpHost: 'smtp.office365.com',
+        smtpPort: 587,
+        smtpUser: email,
+        smtpPass: tokens.access_token as string,
+        smtpSecure: false,
+        imapHost: 'outlook.office365.com',
+        imapPort: 993,
+        imapUser: email,
+        imapPass: tokens.access_token as string,
+        imapSecure: true,
+        accessToken: (tokens.access_token as string) || null,
+        refreshToken: (tokens.refresh_token as string) || null,
+        tokenExpiry: tokens.expires_in ? new Date(Date.now() + (tokens.expires_in as number) * 1000) : null,
+        syncEnabled: true,
+      },
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'https://workspace.celestix.ai';
+    res.redirect(`${frontendUrl}/settings?tab=email-accounts&connected=outlook`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'OAuth failed';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://workspace.celestix.ai';
+    res.redirect(`${frontendUrl}/settings?tab=email-accounts&error=${encodeURIComponent(msg)}`);
+  }
 });
 
 export default router;

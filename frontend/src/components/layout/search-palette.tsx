@@ -238,40 +238,75 @@ export function SearchPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] animate-[fadeIn_150ms_ease-out]"
       role="dialog"
       aria-modal="true"
       aria-label="Search"
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
     >
-      <div className="fixed inset-0 bg-black/60" onClick={() => setSearchOpen(false)} />
+      <div className="fixed inset-0" onClick={() => setSearchOpen(false)} />
 
-      <div className="relative w-[calc(100%-2rem)] max-w-3xl bg-bg-secondary border border-border-primary rounded-xl shadow-lg overflow-hidden animate-scale-in">
+      <div
+        className="relative w-[580px] overflow-hidden animate-[scaleIn_150ms_ease-out]"
+        style={{
+          maxHeight: 480,
+          backgroundColor: '#161618',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 16,
+          boxShadow: '0 24px 48px rgba(0,0,0,0.5)',
+        }}
+      >
         {/* Search input row */}
-        <div className="flex items-center gap-3 px-4 border-b border-border-primary">
-          <Search size={18} className="text-text-tertiary flex-shrink-0" />
+        <div
+          className="flex items-center gap-3"
+          style={{
+            height: 48,
+            paddingLeft: 20,
+            paddingRight: 16,
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <Search size={18} className="flex-shrink-0" style={{ color: 'rgba(255,255,255,0.40)' }} />
           <input
             ref={inputRef}
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search tasks, docs, messages, files, contacts..."
-            className="flex-1 h-12 bg-transparent text-text-primary placeholder:text-text-tertiary outline-none text-sm"
+            placeholder="Search workspace..."
+            className="flex-1 bg-transparent outline-none focus-visible:ring-0 placeholder:text-[rgba(255,255,255,0.40)]"
+            style={{
+              fontSize: 16,
+              color: '#fff',
+              border: 'none',
+            }}
+            role="combobox"
+            aria-expanded={results.length > 0}
+            aria-controls="search-results"
+            aria-activedescendant={flatResults[selectedIndex] ? `search-result-${flatResults[selectedIndex].type}-${flatResults[selectedIndex].id}` : undefined}
             aria-label="Search query"
           />
           {/* Deep search toggle */}
           <button
             onClick={() => setDeepMode((v) => !v)}
             disabled={!aiAvailable}
+            aria-label={aiAvailable ? (deepMode ? 'AI Deep Search ON' : 'Enable AI Deep Search') : 'AI unavailable'}
             title={aiAvailable ? (deepMode ? 'AI Deep Search ON' : 'Enable AI Deep Search') : 'AI unavailable'}
             className={cn(
               'p-1.5 rounded-lg transition-colors flex-shrink-0',
               deepMode && aiAvailable
                 ? 'text-accent-purple bg-accent-purple/10'
                 : aiAvailable
-                  ? 'text-text-tertiary hover:text-accent-purple hover:bg-bg-hover'
-                  : 'text-text-tertiary/30 cursor-not-allowed',
+                  ? 'hover:bg-[rgba(255,255,255,0.08)]'
+                  : 'cursor-not-allowed',
             )}
+            style={{
+              color: deepMode && aiAvailable
+                ? undefined
+                : aiAvailable
+                  ? 'rgba(255,255,255,0.40)'
+                  : 'rgba(255,255,255,0.15)',
+            }}
           >
             <Sparkles size={16} />
           </button>
@@ -279,32 +314,44 @@ export function SearchPalette() {
           {query.length >= 2 && (
             <button
               onClick={() => setShowSaveDialog((v) => !v)}
+              aria-label="Save this search"
               title="Save this search"
-              className="p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors flex-shrink-0"
+              className="p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.08)] transition-colors flex-shrink-0"
+              style={{ color: 'rgba(255,255,255,0.40)' }}
             >
               <Bookmark size={16} />
             </button>
           )}
-          <button
-            onClick={() => setSearchOpen(false)}
-            className="p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors flex-shrink-0 focus-visible:outline-2 focus-visible:outline-accent-blue"
-            aria-label="Close search"
+          {/* ESC hint */}
+          <span
+            className="text-[10px] px-1.5 py-0.5 rounded flex-shrink-0"
+            style={{
+              color: 'rgba(255,255,255,0.30)',
+              backgroundColor: 'rgba(255,255,255,0.06)',
+            }}
           >
-            <X size={16} />
-          </button>
+            ESC
+          </span>
         </div>
 
         {/* Save search dialog */}
         {showSaveDialog && (
-          <div className="flex items-center gap-2 px-4 py-2 border-b border-border-primary bg-bg-tertiary">
-            <Bookmark size={14} className="text-text-tertiary flex-shrink-0" />
+          <div
+            className="flex items-center gap-2 px-4 py-2"
+            style={{
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              backgroundColor: 'rgba(255,255,255,0.03)',
+            }}
+          >
+            <Bookmark size={14} className="flex-shrink-0" style={{ color: 'rgba(255,255,255,0.30)' }} />
             <input
               autoFocus
               value={saveName}
               onChange={(e) => setSaveName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSaveSearch()}
               placeholder="Name this search..."
-              className="flex-1 bg-transparent text-text-primary placeholder:text-text-tertiary outline-none text-xs"
+              className="flex-1 bg-transparent outline-none text-xs"
+              style={{ color: '#fff' }}
             />
             <button
               onClick={handleSaveSearch}
@@ -315,7 +362,8 @@ export function SearchPalette() {
             </button>
             <button
               onClick={() => setShowSaveDialog(false)}
-              className="text-xs px-2 py-1 rounded text-text-tertiary hover:text-text-primary"
+              className="text-xs px-2 py-1 rounded"
+              style={{ color: 'rgba(255,255,255,0.40)' }}
             >
               Cancel
             </button>
@@ -324,15 +372,19 @@ export function SearchPalette() {
 
         {/* Facet badges */}
         {facets && Object.keys(facets.byType).length > 1 && (
-          <div className="flex items-center gap-1.5 px-4 py-2 border-b border-border-primary overflow-x-auto">
+          <div
+            className="flex items-center gap-1.5 px-4 py-2 overflow-x-auto"
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+          >
             <button
               onClick={() => setActiveTypeFilter(null)}
               className={cn(
                 'text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap transition-colors',
                 !activeTypeFilter
                   ? 'bg-accent-blue text-white'
-                  : 'bg-bg-tertiary text-text-secondary hover:bg-bg-hover',
+                  : 'text-text-secondary hover:bg-[rgba(255,255,255,0.08)]',
               )}
+              style={activeTypeFilter ? { backgroundColor: 'rgba(255,255,255,0.06)' } : undefined}
             >
               All ({total})
             </button>
@@ -346,8 +398,9 @@ export function SearchPalette() {
                     'text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap transition-colors flex items-center gap-1',
                     activeTypeFilter === type
                       ? 'bg-accent-blue text-white'
-                      : 'bg-bg-tertiary text-text-secondary hover:bg-bg-hover',
+                      : 'text-text-secondary hover:bg-[rgba(255,255,255,0.08)]',
                   )}
+                  style={activeTypeFilter !== type ? { backgroundColor: 'rgba(255,255,255,0.06)' } : undefined}
                 >
                   {categoryIcons[type]}
                   {typeLabels[type] || type} ({count})
@@ -358,22 +411,28 @@ export function SearchPalette() {
 
         {/* Deep search summary */}
         {deepMode && deepSearch.data?.aiSummary && (
-          <div className="px-4 py-2 border-b border-border-primary bg-accent-purple/5 text-xs text-accent-purple flex items-center gap-2">
+          <div
+            className="px-4 py-2 text-xs text-accent-purple flex items-center gap-2"
+            style={{
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              backgroundColor: 'rgba(147,51,234,0.05)',
+            }}
+          >
             <Sparkles size={12} />
             {deepSearch.data.aiSummary}
           </div>
         )}
 
         {/* Results */}
-        <div ref={resultsRef} className="max-h-[50vh] overflow-y-auto">
+        <div ref={resultsRef} id="search-results" role="listbox" className="overflow-y-auto" style={{ maxHeight: 'calc(480px - 48px - 36px)' }}>
           {loading && (
-            <div className="p-4 text-center text-text-secondary text-sm">
+            <div className="p-4 text-center text-sm" style={{ color: 'rgba(255,255,255,0.40)' }}>
               {deepMode ? 'AI searching...' : 'Searching...'}
             </div>
           )}
 
           {showEmpty && (
-            <div className="p-8 text-center text-text-secondary text-sm">
+            <div className="p-8 text-center text-sm" style={{ color: 'rgba(255,255,255,0.40)' }}>
               No results found for &quot;{query}&quot;
             </div>
           )}
@@ -385,7 +444,14 @@ export function SearchPalette() {
               return (
                 <div key={type}>
                   {/* Group header */}
-                  <div className="px-4 py-1.5 text-[10px] font-semibold text-text-tertiary uppercase tracking-wider bg-bg-tertiary/50 flex items-center justify-between">
+                  <div
+                    className="flex items-center justify-between px-5 py-1.5 uppercase tracking-wider"
+                    style={{
+                      fontSize: 11,
+                      color: 'rgba(255,255,255,0.20)',
+                      fontWeight: 500,
+                    }}
+                  >
                     <span className="flex items-center gap-1.5">
                       {categoryIcons[type]}
                       {typeLabels[type] || type}
@@ -393,7 +459,7 @@ export function SearchPalette() {
                     {items.length > RESULTS_PER_GROUP && (
                       <button
                         onClick={() => setActiveTypeFilter(type)}
-                        className="text-accent-blue hover:underline normal-case tracking-normal font-normal flex items-center gap-0.5"
+                        className="text-accent-blue hover:underline normal-case tracking-normal font-normal flex items-center gap-0.5 text-[11px]"
                       >
                         Show all {items.length} <ChevronRight size={10} />
                       </button>
@@ -401,31 +467,52 @@ export function SearchPalette() {
                   </div>
                   {visibleItems.map((result) => {
                     const globalIdx = flatResults.indexOf(result);
+                    const isSelected = globalIdx === selectedIndex;
                     return (
                       <button
                         key={`${result.type}-${result.id}`}
+                        id={`search-result-${result.type}-${result.id}`}
                         data-idx={globalIdx}
+                        role="option"
+                        aria-selected={isSelected}
                         onClick={() => handleSelect(result)}
-                        className={cn(
-                          'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors',
-                          globalIdx === selectedIndex ? 'bg-bg-active' : 'hover:bg-bg-hover',
-                        )}
+                        className="w-full flex items-center gap-3 text-left transition-all duration-100"
+                        style={{
+                          height: 36,
+                          paddingLeft: isSelected ? 22 : 20,
+                          paddingRight: 20,
+                          backgroundColor: isSelected
+                            ? 'rgba(37,99,235,0.12)'
+                            : undefined,
+                          borderLeft: isSelected ? '2px solid rgb(37,99,235)' : '2px solid transparent',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
+                          }
+                          setSelectedIndex(globalIdx);
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = '';
+                          }
+                        }}
                       >
-                        <span className="text-text-tertiary flex-shrink-0">
+                        <span className="flex-shrink-0" style={{ color: 'rgba(255,255,255,0.40)' }}>
                           {categoryIcons[result.type] || <Search size={14} />}
                         </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-text-primary truncate">{result.title}</p>
-                          {result.preview && (
-                            <p className="text-xs text-text-secondary truncate mt-0.5">{result.preview}</p>
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
+                          <p className="text-sm truncate" style={{ color: '#fff' }}>{result.title}</p>
+                          {result.breadcrumb && (
+                            <span
+                              className="text-[11px] flex-shrink-0 max-w-[140px] truncate"
+                              style={{ color: 'rgba(255,255,255,0.25)' }}
+                            >
+                              {result.breadcrumb}
+                            </span>
                           )}
                         </div>
-                        {result.breadcrumb && (
-                          <span className="text-[10px] text-text-tertiary flex-shrink-0 max-w-[120px] truncate">
-                            {result.breadcrumb}
-                          </span>
-                        )}
-                        <span className="text-[10px] text-text-tertiary flex-shrink-0">
+                        <span className="text-[10px] flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}>
                           {formatRelativeTime(result.timestamp)}
                         </span>
                       </button>
@@ -435,20 +522,25 @@ export function SearchPalette() {
               );
             })}
 
-          {/* History + Saved — shown when input is empty */}
+          {/* History + Saved -- shown when input is empty */}
           {showHistory && (
             <>
               {/* Recent searches */}
               {historyData && historyData.length > 0 && (
                 <div>
-                  <div className="px-4 py-1.5 text-[10px] font-semibold text-text-tertiary uppercase tracking-wider bg-bg-tertiary/50 flex items-center justify-between">
+                  <div
+                    className="flex items-center justify-between px-5 py-1.5 uppercase tracking-wider"
+                    style={{ fontSize: 11, color: 'rgba(255,255,255,0.20)', fontWeight: 500 }}
+                  >
                     <span className="flex items-center gap-1.5">
                       <Clock size={10} />
                       Recent Searches
                     </span>
                     <button
                       onClick={() => clearHistoryMut.mutate()}
-                      className="text-text-tertiary hover:text-red-400 normal-case tracking-normal font-normal"
+                      className="hover:text-red-400 normal-case tracking-normal font-normal transition-colors"
+                      style={{ color: 'rgba(255,255,255,0.25)' }}
+                      aria-label="Clear search history"
                       title="Clear history"
                     >
                       <Trash2 size={10} />
@@ -458,11 +550,14 @@ export function SearchPalette() {
                     <button
                       key={i}
                       onClick={() => handleHistoryClick(h.query)}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-bg-hover transition-colors"
+                      className="w-full flex items-center gap-3 text-left transition-all duration-100"
+                      style={{ height: 36, paddingLeft: 20, paddingRight: 20 }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
                     >
-                      <Clock size={14} className="text-text-tertiary flex-shrink-0" />
-                      <span className="text-sm text-text-secondary truncate">{h.query}</span>
-                      <span className="text-[10px] text-text-tertiary flex-shrink-0 ml-auto">
+                      <Clock size={14} className="flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }} />
+                      <span className="text-sm truncate" style={{ color: 'rgba(255,255,255,0.55)' }}>{h.query}</span>
+                      <span className="text-[10px] flex-shrink-0 ml-auto" style={{ color: 'rgba(255,255,255,0.25)' }}>
                         {formatRelativeTime(h.timestamp)}
                       </span>
                     </button>
@@ -473,25 +568,33 @@ export function SearchPalette() {
               {/* Saved searches */}
               {savedData && savedData.length > 0 && (
                 <div>
-                  <div className="px-4 py-1.5 text-[10px] font-semibold text-text-tertiary uppercase tracking-wider bg-bg-tertiary/50 flex items-center gap-1.5">
+                  <div
+                    className="px-5 py-1.5 uppercase tracking-wider flex items-center gap-1.5"
+                    style={{ fontSize: 11, color: 'rgba(255,255,255,0.20)', fontWeight: 500 }}
+                  >
                     <Bookmark size={10} />
                     Saved Searches
                   </div>
                   {savedData.map((s) => (
                     <div
                       key={s.id}
-                      className="flex items-center gap-3 px-4 py-2 hover:bg-bg-hover transition-colors group"
+                      className="flex items-center gap-3 group transition-all duration-100"
+                      style={{ height: 36, paddingLeft: 20, paddingRight: 20 }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = ''; }}
                     >
                       <button
                         onClick={() => handleSavedClick(s)}
                         className="flex-1 flex items-center gap-3 text-left min-w-0"
                       >
-                        <Bookmark size={14} className="text-text-tertiary flex-shrink-0" />
-                        <span className="text-sm text-text-secondary truncate">{s.name}</span>
+                        <Bookmark size={14} className="flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }} />
+                        <span className="text-sm truncate" style={{ color: 'rgba(255,255,255,0.55)' }}>{s.name}</span>
                       </button>
                       <button
                         onClick={() => deleteSavedMut.mutate(s.id)}
-                        className="opacity-0 group-hover:opacity-100 text-text-tertiary hover:text-red-400 transition-all flex-shrink-0"
+                        className="opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all flex-shrink-0"
+                        style={{ color: 'rgba(255,255,255,0.25)' }}
+                        aria-label={`Delete saved search: ${s.name}`}
                         title="Delete saved search"
                       >
                         <X size={12} />
@@ -503,7 +606,7 @@ export function SearchPalette() {
 
               {/* Empty state */}
               {(!historyData || historyData.length === 0) && (!savedData || savedData.length === 0) && (
-                <div className="p-8 text-center text-text-secondary text-sm">
+                <div className="p-8 text-center text-sm" style={{ color: 'rgba(255,255,255,0.30)' }}>
                   Type to search across your workspace
                 </div>
               )}
@@ -512,11 +615,26 @@ export function SearchPalette() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-2 border-t border-border-primary text-[10px] text-text-tertiary">
+        <div
+          className="flex items-center justify-between px-5 py-2 text-[10px]"
+          style={{
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            color: 'rgba(255,255,255,0.25)',
+          }}
+        >
           <span>
-            <kbd className="bg-bg-tertiary px-1 py-0.5 rounded mr-1">&#8593;&#8595;</kbd> Navigate
-            <kbd className="bg-bg-tertiary px-1 py-0.5 rounded mx-1">&#8629;</kbd> Open
-            <kbd className="bg-bg-tertiary px-1 py-0.5 rounded mx-1">Esc</kbd> Close
+            <kbd
+              className="px-1 py-0.5 rounded mr-1"
+              style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+            >&#8593;&#8595;</kbd> Navigate
+            <kbd
+              className="px-1 py-0.5 rounded mx-1"
+              style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+            >&#8629;</kbd> Open
+            <kbd
+              className="px-1 py-0.5 rounded mx-1"
+              style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+            >Esc</kbd> Close
           </span>
           <span className="flex items-center gap-2">
             {deepMode && (

@@ -111,11 +111,11 @@ const REACTION_CONFIG: { type: ReactionType; icon: React.ReactNode; label: strin
 ];
 
 const POST_TYPE_CONFIG: { type: PostType; label: string; icon: React.ReactNode; color: string }[] = [
-  { type: 'discussion', label: 'Discussion', icon: <MessageCircle size={12} />, color: 'text-blue-400 bg-blue-400/10' },
+  { type: 'discussion', label: 'Discussion', icon: <MessageCircle size={12} />, color: 'text-cx-brand bg-cx-brand/10' },
   { type: 'question', label: 'Question', icon: <HelpCircle size={12} />, color: 'text-amber-400 bg-amber-400/10' },
   { type: 'poll', label: 'Poll', icon: <BarChart3 size={12} />, color: 'text-purple-400 bg-purple-400/10' },
   { type: 'praise', label: 'Praise', icon: <Award size={12} />, color: 'text-pink-400 bg-pink-400/10' },
-  { type: 'announcement', label: 'Announcement', icon: <Megaphone size={12} />, color: 'text-red-400 bg-red-400/10' },
+  { type: 'announcement', label: 'Announcement', icon: <Megaphone size={12} />, color: 'text-cx-danger bg-red-400/10' },
 ];
 
 function generateId() {
@@ -379,22 +379,22 @@ export function SocialPage() {
   );
 
   const renderComment = (comment: Comment, postId: string, depth: number = 0) => (
-    <div key={comment.id} className={cn('mt-2', depth > 0 && 'ml-6 pl-3 border-l border-border-primary/50')}>
+    <div key={comment.id} className={cn('mt-2', depth > 0 && 'ml-6 pl-3 border-l border-[var(--cx-border-1)]/50')}>
       <div className="flex gap-2">
-        <div className="w-6 h-6 rounded-full bg-bg-primary flex items-center justify-center shrink-0">
-          <span className="text-[10px] text-text-secondary font-medium">{comment.authorName.charAt(0)}</span>
+        <div className="w-6 h-6 rounded-full bg-cx-bg flex items-center justify-center shrink-0">
+          <span className="text-[10px] text-[var(--cx-text-2)] font-medium">{comment.authorName.charAt(0)}</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-text-primary">{comment.authorName}</span>
-            <span className="text-[10px] text-text-secondary">{timeAgo(comment.createdAt)}</span>
+            <span className="text-xs font-medium text-[var(--cx-text-1)]">{comment.authorName}</span>
+            <span className="text-[10px] text-[var(--cx-text-2)]">{timeAgo(comment.createdAt)}</span>
             {comment.isBestAnswer && (
-              <span className="flex items-center gap-0.5 text-[10px] font-medium text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full">
+              <span className="flex items-center gap-0.5 text-[10px] font-medium text-cx-success bg-green-400/10 px-1.5 py-0.5 rounded-full">
                 <Check size={8} /> Best Answer
               </span>
             )}
           </div>
-          <p className="text-sm text-text-primary mt-0.5">{comment.content}</p>
+          <p className="text-sm text-[var(--cx-text-1)] mt-0.5">{comment.content}</p>
           <div className="flex items-center gap-2 mt-1">
             {comment.reactions.filter((r) => r.count > 0 || r.reacted).slice(0, 3).map((r) => {
               const config = REACTION_CONFIG.find((rc) => rc.type === r.type);
@@ -404,7 +404,7 @@ export function SocialPage() {
                   onClick={() => handleCommentReact(postId, comment.id, r.type)}
                   className={cn(
                     'flex items-center gap-0.5 text-[10px] px-1 py-0.5 rounded transition-colors',
-                    r.reacted ? 'text-accent-blue bg-accent-blue/10' : 'text-text-secondary hover:bg-bg-primary'
+                    r.reacted ? 'text-accent-blue bg-accent-blue/10' : 'text-[var(--cx-text-2)] hover:bg-cx-bg'
                   )}
                 >
                   {config?.icon} {r.count > 0 && r.count}
@@ -413,7 +413,7 @@ export function SocialPage() {
             })}
             <button
               onClick={() => setReplyingTo({ postId, commentId: comment.id })}
-              className="text-[10px] text-text-secondary hover:text-accent-blue"
+              className="text-[10px] text-[var(--cx-text-2)] hover:text-accent-blue"
             >
               Reply
             </button>
@@ -426,7 +426,7 @@ export function SocialPage() {
                 onChange={(e) => setReplyText(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleAddComment(postId, comment.id); }}
                 placeholder="Write a reply..."
-                className="flex-1 bg-bg-primary border border-border-primary rounded-lg px-3 py-1 text-xs text-text-primary outline-none"
+                className="flex-1 bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-1 text-xs text-[var(--cx-text-1)] outline-none"
               />
               <button onClick={() => handleAddComment(postId, comment.id)} className="text-accent-blue hover:text-accent-blue/80">
                 <Send size={12} />
@@ -448,20 +448,20 @@ export function SocialPage() {
       <div
         key={post.id}
         className={cn(
-          'bg-bg-secondary border rounded-xl p-4 mb-3',
-          post.pinned ? 'border-amber-500/30' : 'border-border-primary',
+          'bg-cx-surface border rounded-xl p-4 mb-3',
+          post.pinned ? 'border-amber-500/30' : 'border-[var(--cx-border-1)]',
           post.type === 'announcement' && 'ring-1 ring-red-500/10'
         )}
       >
         {/* Header */}
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-10 h-10 rounded-full bg-bg-primary flex items-center justify-center shrink-0">
-            <span className="text-sm text-text-secondary font-medium">{post.authorName.charAt(0)}</span>
+          <div className="w-10 h-10 rounded-full bg-cx-bg flex items-center justify-center shrink-0">
+            <span className="text-sm text-[var(--cx-text-2)] font-medium">{post.authorName.charAt(0)}</span>
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-medium text-text-primary">{post.authorName}</span>
-              <span className="text-xs text-text-secondary">in</span>
+              <span className="text-sm font-medium text-[var(--cx-text-1)]">{post.authorName}</span>
+              <span className="text-xs text-[var(--cx-text-2)]">in</span>
               <button
                 onClick={() => {
                   const c = communities.find((cm) => cm.id === post.communityId);
@@ -476,7 +476,7 @@ export function SocialPage() {
               </span>
               {post.pinned && <Pin size={10} className="text-amber-400" />}
             </div>
-            <span className="text-[10px] text-text-secondary">{timeAgo(post.createdAt)}</span>
+            <span className="text-[10px] text-[var(--cx-text-2)]">{timeAgo(post.createdAt)}</span>
           </div>
         </div>
 
@@ -484,14 +484,14 @@ export function SocialPage() {
         {post.type === 'praise' && post.praiseRecipient && (
           <div className="flex items-center gap-2 mb-3 p-2 bg-pink-500/5 border border-pink-500/10 rounded-lg">
             <Award size={16} className="text-pink-400" />
-            <span className="text-sm text-text-primary">
+            <span className="text-sm text-[var(--cx-text-1)]">
               Praising <span className="font-semibold text-pink-400">{post.praiseRecipient}</span>
             </span>
           </div>
         )}
 
         {/* Content */}
-        <p className="text-sm text-text-primary whitespace-pre-wrap mb-3">{post.content}</p>
+        <p className="text-sm text-[var(--cx-text-1)] whitespace-pre-wrap mb-3">{post.content}</p>
 
         {/* Poll options */}
         {post.type === 'poll' && post.pollOptions && (
@@ -505,7 +505,7 @@ export function SocialPage() {
                   disabled={!!post.pollVoted}
                   className={cn(
                     'w-full text-left relative rounded-lg border p-2.5 overflow-hidden transition-colors',
-                    post.pollVoted === opt.id ? 'border-accent-blue bg-accent-blue/5' : 'border-border-primary hover:border-accent-blue/50'
+                    post.pollVoted === opt.id ? 'border-accent-blue bg-accent-blue/5' : 'border-[var(--cx-border-1)] hover:border-accent-blue/50'
                   )}
                 >
                   {post.pollVoted && (
@@ -515,15 +515,15 @@ export function SocialPage() {
                     />
                   )}
                   <div className="relative flex items-center justify-between">
-                    <span className="text-sm text-text-primary">{opt.text}</span>
+                    <span className="text-sm text-[var(--cx-text-1)]">{opt.text}</span>
                     {post.pollVoted && (
-                      <span className="text-xs text-text-secondary">{Math.round(pct)}%</span>
+                      <span className="text-xs text-[var(--cx-text-2)]">{Math.round(pct)}%</span>
                     )}
                   </div>
                 </button>
               );
             })}
-            <p className="text-[10px] text-text-secondary">{totalPollVotes} votes</p>
+            <p className="text-[10px] text-[var(--cx-text-2)]">{totalPollVotes} votes</p>
           </div>
         )}
 
@@ -538,7 +538,7 @@ export function SocialPage() {
                 onClick={() => handleReact(post.id, r.type)}
                 className={cn(
                   'flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors',
-                  r.reacted ? 'bg-accent-blue/10 text-accent-blue border border-accent-blue/30' : 'bg-bg-primary text-text-secondary hover:bg-bg-primary/80 border border-transparent'
+                  r.reacted ? 'bg-accent-blue/10 text-accent-blue border border-accent-blue/30' : 'bg-cx-bg text-[var(--cx-text-2)] hover:bg-cx-bg/80 border border-transparent'
                 )}
               >
                 {config?.icon}
@@ -555,7 +555,7 @@ export function SocialPage() {
               <button
                 key={rc.type}
                 onClick={() => handleReact(post.id, rc.type)}
-                className="p-1 text-text-secondary/40 hover:text-text-secondary rounded transition-colors"
+                className="p-1 text-[var(--cx-text-2)]/40 hover:text-[var(--cx-text-2)] rounded transition-colors"
                 title={rc.label}
               >
                 {rc.icon}
@@ -565,14 +565,14 @@ export function SocialPage() {
         </div>
 
         {/* Comments toggle */}
-        <div className="border-t border-border-primary/50 pt-2">
+        <div className="border-t border-[var(--cx-border-1)]/50 pt-2">
           <button
             onClick={() => {
               const next = new Set(expandedComments);
               isExpanded ? next.delete(post.id) : next.add(post.id);
               setExpandedComments(next);
             }}
-            className="flex items-center gap-1 text-xs text-text-secondary hover:text-text-primary"
+            className="flex items-center gap-1 text-xs text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]"
           >
             <MessageCircle size={12} />
             {post.comments.length} comment{post.comments.length !== 1 ? 's' : ''}
@@ -589,7 +589,7 @@ export function SocialPage() {
                   onChange={(e) => { setReplyText(e.target.value); setReplyingTo({ postId: post.id }); }}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddComment(post.id); }}
                   placeholder="Write a comment..."
-                  className="flex-1 bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-xs text-text-primary outline-none"
+                  className="flex-1 bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-1.5 text-xs text-[var(--cx-text-1)] outline-none"
                 />
                 <button
                   onClick={() => { setReplyingTo({ postId: post.id }); handleAddComment(post.id); }}
@@ -606,11 +606,11 @@ export function SocialPage() {
   };
 
   return (
-    <div className="h-screen bg-bg-primary flex overflow-hidden">
+    <div className="h-screen bg-cx-bg flex overflow-hidden">
       {/* Left Sidebar */}
-      <div className="w-60 bg-bg-secondary border-r border-border-primary flex flex-col shrink-0">
-        <div className="p-4 border-b border-border-primary">
-          <h1 className="text-lg font-bold text-text-primary">Social</h1>
+      <div className="w-60 bg-cx-surface border-r border-[var(--cx-border-1)] flex flex-col shrink-0">
+        <div className="p-4 border-b border-[var(--cx-border-1)]">
+          <h1 className="text-lg font-display text-[var(--cx-text-1)]">Social</h1>
         </div>
         <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
           {[
@@ -624,7 +624,7 @@ export function SocialPage() {
               onClick={() => { setSidebarView(item.view); setSelectedCommunity(null); }}
               className={cn(
                 'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors',
-                sidebarView === item.view && !selectedCommunity ? 'bg-accent-blue/10 text-accent-blue' : 'text-text-primary hover:bg-bg-primary'
+                sidebarView === item.view && !selectedCommunity ? 'bg-accent-blue/10 text-accent-blue' : 'text-[var(--cx-text-1)] hover:bg-cx-bg'
               )}
             >
               {item.icon}
@@ -632,10 +632,10 @@ export function SocialPage() {
             </button>
           ))}
 
-          <div className="pt-3 mt-3 border-t border-border-primary">
+          <div className="pt-3 mt-3 border-t border-[var(--cx-border-1)]">
             <div className="flex items-center justify-between px-3 mb-1">
-              <span className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider">Communities</span>
-              <button onClick={() => setShowCreateCommunity(true)} className="text-text-secondary hover:text-accent-blue">
+              <span className="text-[10px] font-semibold text-[var(--cx-text-2)] uppercase tracking-wider">Communities</span>
+              <button onClick={() => setShowCreateCommunity(true)} className="text-[var(--cx-text-2)] hover:text-accent-blue">
                 <Plus size={12} />
               </button>
             </div>
@@ -645,12 +645,12 @@ export function SocialPage() {
                 onClick={() => { setSelectedCommunity(c); setSidebarView('community-detail'); }}
                 className={cn(
                   'flex items-center gap-2 w-full px-3 py-1.5 rounded-lg text-sm transition-colors',
-                  selectedCommunity?.id === c.id ? 'bg-accent-blue/10 text-accent-blue' : 'text-text-primary hover:bg-bg-primary'
+                  selectedCommunity?.id === c.id ? 'bg-accent-blue/10 text-accent-blue' : 'text-[var(--cx-text-1)] hover:bg-cx-bg'
                 )}
               >
                 <Hash size={12} className="shrink-0" />
                 <span className="truncate">{c.name}</span>
-                {c.isPrivate && <Lock size={10} className="shrink-0 text-text-secondary" />}
+                {c.isPrivate && <Lock size={10} className="shrink-0 text-[var(--cx-text-2)]" />}
               </button>
             ))}
           </div>
@@ -664,21 +664,21 @@ export function SocialPage() {
           <div className="max-w-2xl mx-auto p-6">
             {/* Community Header */}
             {selectedCommunity && (
-              <div className="mb-6 bg-bg-secondary border border-border-primary rounded-xl overflow-hidden">
+              <div className="mb-6 bg-cx-surface border border-[var(--cx-border-1)] rounded-xl overflow-hidden">
                 <div className="h-28 bg-gradient-to-r from-accent-blue/20 to-purple-600/20 flex items-end p-4">
                   <div>
-                    <h2 className="text-xl font-bold text-text-primary">{selectedCommunity.name}</h2>
-                    <p className="text-xs text-text-secondary mt-0.5">{selectedCommunity.description}</p>
+                    <h2 className="text-xl font-bold text-[var(--cx-text-1)]">{selectedCommunity.name}</h2>
+                    <p className="text-xs text-[var(--cx-text-2)] mt-0.5">{selectedCommunity.description}</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 border-t border-border-primary">
-                  <span className="text-xs text-text-secondary">{selectedCommunity.memberCount} members</span>
+                <div className="flex items-center justify-between p-3 border-t border-[var(--cx-border-1)]">
+                  <span className="text-xs text-[var(--cx-text-2)]">{selectedCommunity.memberCount} members</span>
                   <button
                     onClick={() => handleToggleCommunity(selectedCommunity.id)}
                     className={cn(
                       'flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-lg transition-colors',
                       selectedCommunity.joined
-                        ? 'bg-bg-primary text-text-secondary hover:text-red-400'
+                        ? 'bg-cx-bg text-[var(--cx-text-2)] hover:text-cx-danger'
                         : 'bg-accent-blue text-white hover:bg-accent-blue/90'
                     )}
                   >
@@ -691,21 +691,21 @@ export function SocialPage() {
             {/* Create Post */}
             <button
               onClick={() => setShowCreatePost(true)}
-              className="w-full bg-bg-secondary border border-border-primary rounded-xl p-4 mb-4 flex items-center gap-3 hover:border-accent-blue/30 transition-colors"
+              className="w-full bg-cx-surface border border-[var(--cx-border-1)] rounded-xl p-4 mb-4 flex items-center gap-3 hover:border-accent-blue/30 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-bg-primary flex items-center justify-center">
-                <span className="text-xs text-text-secondary font-medium">Y</span>
+              <div className="w-8 h-8 rounded-full bg-cx-bg flex items-center justify-center">
+                <span className="text-xs text-[var(--cx-text-2)] font-medium">Y</span>
               </div>
-              <span className="text-sm text-text-secondary">Share something with your community...</span>
+              <span className="text-sm text-[var(--cx-text-2)]">Share something with your community...</span>
             </button>
 
             {/* Create Post Modal */}
             {showCreatePost && (
               <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-                <div className="bg-bg-secondary border border-border-primary rounded-2xl p-5 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
+                <div className="bg-cx-surface border border-[var(--cx-border-1)] rounded-2xl p-5 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-text-primary">Create Post</h2>
-                    <button onClick={() => setShowCreatePost(false)} className="text-text-secondary hover:text-text-primary">
+                    <h2 className="text-lg font-semibold text-[var(--cx-text-1)]">Create Post</h2>
+                    <button onClick={() => setShowCreatePost(false)} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
                       <X size={18} />
                     </button>
                   </div>
@@ -718,7 +718,7 @@ export function SocialPage() {
                         onClick={() => setNewPostType(pt.type)}
                         className={cn(
                           'flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors',
-                          newPostType === pt.type ? pt.color : 'text-text-secondary bg-bg-primary hover:bg-bg-primary/80'
+                          newPostType === pt.type ? pt.color : 'text-[var(--cx-text-2)] bg-cx-bg hover:bg-cx-bg/80'
                         )}
                       >
                         {pt.icon} {pt.label}
@@ -730,7 +730,7 @@ export function SocialPage() {
                   <select
                     value={newPostCommunity}
                     onChange={(e) => setNewPostCommunity(e.target.value)}
-                    className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none mb-3"
+                    className="w-full bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none mb-3"
                   >
                     <option value="">Select community...</option>
                     {communities.filter((c) => c.joined).map((c) => (
@@ -744,7 +744,7 @@ export function SocialPage() {
                       value={newPraiseRecipient}
                       onChange={(e) => setNewPraiseRecipient(e.target.value)}
                       placeholder="Who are you praising?"
-                      className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none mb-3"
+                      className="w-full bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none mb-3"
                     />
                   )}
 
@@ -754,13 +754,13 @@ export function SocialPage() {
                     onChange={(e) => setNewPostContent(e.target.value)}
                     placeholder="What do you want to share?"
                     rows={4}
-                    className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none resize-none mb-3"
+                    className="w-full bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none resize-none mb-3"
                   />
 
                   {/* Poll options */}
                   {newPostType === 'poll' && (
                     <div className="space-y-2 mb-3">
-                      <label className="text-xs text-text-secondary">Poll Options</label>
+                      <label className="text-xs text-[var(--cx-text-2)]">Poll Options</label>
                       {newPollOptions.map((opt, i) => (
                         <div key={i} className="flex gap-2">
                           <input
@@ -771,12 +771,12 @@ export function SocialPage() {
                               setNewPollOptions(next);
                             }}
                             placeholder={`Option ${i + 1}`}
-                            className="flex-1 bg-bg-primary border border-border-primary rounded-lg px-3 py-1.5 text-sm text-text-primary outline-none"
+                            className="flex-1 bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none"
                           />
                           {newPollOptions.length > 2 && (
                             <button
                               onClick={() => setNewPollOptions(newPollOptions.filter((_, j) => j !== i))}
-                              className="text-text-secondary hover:text-red-400"
+                              className="text-[var(--cx-text-2)] hover:text-cx-danger"
                             >
                               <X size={14} />
                             </button>
@@ -793,7 +793,7 @@ export function SocialPage() {
                   )}
 
                   <div className="flex items-center justify-between">
-                    <button className="flex items-center gap-1 text-text-secondary hover:text-text-primary text-sm">
+                    <button className="flex items-center gap-1 text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] text-sm">
                       <Image size={16} /> Photo
                     </button>
                     <button
@@ -803,7 +803,7 @@ export function SocialPage() {
                         'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                         newPostContent.trim() && newPostCommunity
                           ? 'bg-accent-blue text-white hover:bg-accent-blue/90'
-                          : 'bg-bg-primary text-text-secondary cursor-not-allowed'
+                          : 'bg-cx-bg text-[var(--cx-text-2)] cursor-not-allowed'
                       )}
                     >
                       Post
@@ -818,8 +818,8 @@ export function SocialPage() {
 
             {sortedPosts.length === 0 && (
               <div className="text-center py-16">
-                <MessageCircle size={32} className="text-text-secondary/20 mx-auto mb-2" />
-                <p className="text-text-secondary text-sm">No posts yet. Be the first to share something!</p>
+                <MessageCircle size={32} className="text-[var(--cx-text-2)]/20 mx-auto mb-2" />
+                <p className="text-[var(--cx-text-2)] text-sm">No posts yet. Be the first to share something!</p>
               </div>
             )}
           </div>
@@ -829,7 +829,7 @@ export function SocialPage() {
         {sidebarView === 'communities' && !selectedCommunity && (
           <div className="max-w-2xl mx-auto p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-text-primary">All Communities</h2>
+              <h2 className="text-lg font-semibold text-[var(--cx-text-1)]">All Communities</h2>
               <button
                 onClick={() => setShowCreateCommunity(true)}
                 className="flex items-center gap-1 px-3 py-1.5 text-sm bg-accent-blue text-white rounded-lg hover:bg-accent-blue/90"
@@ -841,10 +841,10 @@ export function SocialPage() {
             {/* Create Community Modal */}
             {showCreateCommunity && (
               <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-                <div className="bg-bg-secondary border border-border-primary rounded-2xl p-5 max-w-md w-full mx-4">
+                <div className="bg-cx-surface border border-[var(--cx-border-1)] rounded-2xl p-5 max-w-md w-full mx-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-text-primary">Create Community</h2>
-                    <button onClick={() => setShowCreateCommunity(false)} className="text-text-secondary hover:text-text-primary">
+                    <h2 className="text-lg font-semibold text-[var(--cx-text-1)]">Create Community</h2>
+                    <button onClick={() => setShowCreateCommunity(false)} className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]">
                       <X size={18} />
                     </button>
                   </div>
@@ -852,14 +852,14 @@ export function SocialPage() {
                     value={newCommunityName}
                     onChange={(e) => setNewCommunityName(e.target.value)}
                     placeholder="Community name"
-                    className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none mb-3"
+                    className="w-full bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none mb-3"
                   />
                   <textarea
                     value={newCommunityDesc}
                     onChange={(e) => setNewCommunityDesc(e.target.value)}
                     placeholder="Description"
                     rows={3}
-                    className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary outline-none resize-none mb-3"
+                    className="w-full bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] outline-none resize-none mb-3"
                   />
                   <button
                     onClick={handleCreateCommunity}
@@ -874,23 +874,23 @@ export function SocialPage() {
 
             <div className="space-y-3">
               {communities.map((c) => (
-                <div key={c.id} className="bg-bg-secondary border border-border-primary rounded-xl p-4 flex items-center gap-4">
+                <div key={c.id} className="bg-cx-surface border border-[var(--cx-border-1)] rounded-xl p-4 flex items-center gap-4">
                   <div className="w-12 h-12 rounded-lg bg-accent-blue/10 flex items-center justify-center shrink-0">
                     <Hash size={20} className="text-accent-blue" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-text-primary font-medium">{c.name}</h3>
-                      {c.isPrivate && <Lock size={12} className="text-text-secondary" />}
+                      <h3 className="text-[var(--cx-text-1)] font-medium">{c.name}</h3>
+                      {c.isPrivate && <Lock size={12} className="text-[var(--cx-text-2)]" />}
                     </div>
-                    <p className="text-xs text-text-secondary truncate">{c.description}</p>
-                    <span className="text-[10px] text-text-secondary">{c.memberCount} members</span>
+                    <p className="text-xs text-[var(--cx-text-2)] truncate">{c.description}</p>
+                    <span className="text-[10px] text-[var(--cx-text-2)]">{c.memberCount} members</span>
                   </div>
                   <button
                     onClick={() => handleToggleCommunity(c.id)}
                     className={cn(
                       'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors shrink-0',
-                      c.joined ? 'bg-bg-primary text-text-secondary hover:text-red-400' : 'bg-accent-blue text-white hover:bg-accent-blue/90'
+                      c.joined ? 'bg-cx-bg text-[var(--cx-text-2)] hover:text-cx-danger' : 'bg-accent-blue text-white hover:bg-accent-blue/90'
                     )}
                   >
                     {c.joined ? 'Leave' : 'Join'}
@@ -904,14 +904,14 @@ export function SocialPage() {
         {/* Trending View */}
         {sidebarView === 'trending' && (
           <div className="max-w-2xl mx-auto p-6">
-            <h2 className="text-lg font-semibold text-text-primary mb-6">Trending</h2>
+            <h2 className="text-lg font-semibold text-[var(--cx-text-1)] mb-6">Trending</h2>
             <div className="space-y-2">
               {trending.map((t, i) => (
-                <div key={t.tag} className="bg-bg-secondary border border-border-primary rounded-xl p-4 flex items-center gap-4">
-                  <span className="text-lg font-bold text-text-secondary/30 w-8 text-center">{i + 1}</span>
+                <div key={t.tag} className="bg-cx-surface border border-[var(--cx-border-1)] rounded-xl p-4 flex items-center gap-4">
+                  <span className="text-lg font-bold text-[var(--cx-text-2)]/30 w-8 text-center">{i + 1}</span>
                   <div className="flex-1">
-                    <h3 className="text-text-primary font-medium">{t.tag}</h3>
-                    <span className="text-xs text-text-secondary">{t.postCount} posts</span>
+                    <h3 className="text-[var(--cx-text-1)] font-medium">{t.tag}</h3>
+                    <span className="text-xs text-[var(--cx-text-2)]">{t.postCount} posts</span>
                   </div>
                   <TrendingUp size={16} className="text-accent-blue shrink-0" />
                 </div>
@@ -924,25 +924,25 @@ export function SocialPage() {
         {sidebarView === 'people' && (
           <div className="max-w-4xl mx-auto p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-text-primary">People Directory</h2>
+              <h2 className="text-lg font-semibold text-[var(--cx-text-1)]">People Directory</h2>
               <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--cx-text-2)]" />
                 <input
                   value={peopleSearch}
                   onChange={(e) => setPeopleSearch(e.target.value)}
                   placeholder="Search people..."
-                  className="bg-bg-secondary border border-border-primary rounded-lg pl-9 pr-3 py-1.5 text-sm text-text-primary outline-none w-64"
+                  className="bg-cx-surface border border-[var(--cx-border-1)] rounded-lg pl-9 pr-3 py-1.5 text-sm text-[var(--cx-text-1)] outline-none w-64"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {filteredPeople.map((person) => (
-                <div key={person.id} className="bg-bg-secondary border border-border-primary rounded-xl p-4 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 rounded-full bg-bg-primary flex items-center justify-center mb-3">
-                    <span className="text-lg text-text-secondary font-medium">{person.name.charAt(0)}</span>
+                <div key={person.id} className="bg-cx-surface border border-[var(--cx-border-1)] rounded-xl p-4 flex flex-col items-center text-center">
+                  <div className="w-14 h-14 rounded-full bg-cx-bg flex items-center justify-center mb-3">
+                    <span className="text-lg text-[var(--cx-text-2)] font-medium">{person.name.charAt(0)}</span>
                   </div>
-                  <h3 className="text-sm font-medium text-text-primary">{person.name}</h3>
-                  <p className="text-xs text-text-secondary mt-0.5">{person.role}</p>
+                  <h3 className="text-sm font-medium text-[var(--cx-text-1)]">{person.name}</h3>
+                  <p className="text-xs text-[var(--cx-text-2)] mt-0.5">{person.role}</p>
                   <span className="text-[10px] text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded-full mt-2">
                     {person.department}
                   </span>

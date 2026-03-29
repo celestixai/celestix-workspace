@@ -126,8 +126,8 @@ function Sidebar({
   };
 
   return (
-    <aside className="w-64 min-w-[16rem] bg-bg-secondary border-r border-border-primary flex flex-col h-full">
-      <div className="p-4 text-lg font-semibold text-text-primary">Tasks</div>
+    <aside className="w-64 min-w-[16rem] bg-cx-surface border-r border-[var(--cx-border-1)] flex flex-col h-full">
+      <div className="p-4 text-lg font-semibold text-[var(--cx-text-1)]">Tasks</div>
 
       <nav className="flex-1 overflow-y-auto px-2">
         {/* Smart lists */}
@@ -139,13 +139,13 @@ function Sidebar({
               'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
               activeListId === list.id
                 ? 'bg-accent-blue/15 text-accent-blue'
-                : 'text-text-primary hover:bg-bg-primary/50'
+                : 'text-[var(--cx-text-1)] hover:bg-cx-bg/50'
             )}
           >
             {smartIcons[list.id]}
             <span className="flex-1 text-left">{list.name}</span>
             {(taskCounts[list.id] ?? 0) > 0 && (
-              <span className="text-xs text-text-secondary">
+              <span className="text-xs text-[var(--cx-text-2)]">
                 {taskCounts[list.id]}
               </span>
             )}
@@ -153,7 +153,7 @@ function Sidebar({
         ))}
 
         {/* Separator */}
-        <div className="my-3 mx-3 border-t border-border-primary" />
+        <div className="my-3 mx-3 border-t border-[var(--cx-border-1)]" />
 
         {/* Custom lists */}
         {customLists.map((list) => (
@@ -164,20 +164,20 @@ function Sidebar({
                 'flex-1 flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                 activeListId === list.id
                   ? 'bg-accent-blue/15 text-accent-blue'
-                  : 'text-text-primary hover:bg-bg-primary/50'
+                  : 'text-[var(--cx-text-1)] hover:bg-cx-bg/50'
               )}
             >
               <List size={18} />
               <span className="flex-1 text-left truncate">{list.name}</span>
               {(taskCounts[list.id] ?? 0) > 0 && (
-                <span className="text-xs text-text-secondary">
+                <span className="text-xs text-[var(--cx-text-2)]">
                   {taskCounts[list.id]}
                 </span>
               )}
             </button>
             <button
               onClick={() => onDeleteList(list.id)}
-              className="opacity-0 group-hover:opacity-100 p-1 text-text-secondary hover:text-red-400 transition-opacity"
+              className="opacity-0 group-hover:opacity-100 p-1 text-[var(--cx-text-2)] hover:text-cx-danger transition-opacity"
               title="Delete list"
             >
               <Trash2 size={14} />
@@ -197,7 +197,7 @@ function Sidebar({
                 if (e.key === 'Escape') setShowInput(false);
               }}
               placeholder="List name"
-              className="flex-1 bg-bg-primary border border-border-primary rounded px-2 py-1 text-sm text-text-primary outline-none focus:border-accent-blue"
+              className="flex-1 bg-cx-bg border border-[var(--cx-border-1)] rounded px-2 py-1 text-sm text-[var(--cx-text-1)] outline-none focus:border-accent-blue"
             />
             <button onClick={handleCreate} className="text-accent-blue">
               <Check size={16} />
@@ -206,7 +206,7 @@ function Sidebar({
         ) : (
           <button
             onClick={() => setShowInput(true)}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-accent-blue hover:bg-bg-primary/50 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-accent-blue hover:bg-cx-bg/50 transition-colors"
           >
             <Plus size={18} />
             <span>New list</span>
@@ -254,15 +254,15 @@ function TaskDetailPanel({
   };
 
   return (
-    <aside className="w-80 min-w-[20rem] bg-bg-secondary border-l border-border-primary flex flex-col h-full">
+    <aside className="w-80 min-w-[20rem] bg-cx-surface border-l border-[var(--cx-border-1)] flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border-primary">
-        <h3 className="text-sm font-semibold text-text-primary">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--cx-border-1)]">
+        <h3 className="text-sm font-semibold text-[var(--cx-text-1)]">
           Task Details
         </h3>
         <button
           onClick={onClose}
-          className="text-text-secondary hover:text-text-primary"
+          className="text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]"
         >
           <X size={18} />
         </button>
@@ -273,7 +273,7 @@ function TaskDetailPanel({
         <input
           value={task.title}
           onChange={(e) => onUpdate({ title: e.target.value })}
-          className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-2 text-text-primary text-sm outline-none focus:border-accent-blue"
+          className="w-full bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-2 text-[var(--cx-text-1)] text-sm outline-none focus:border-accent-blue"
         />
 
         {/* Toggles */}
@@ -283,8 +283,8 @@ function TaskDetailPanel({
             className={cn(
               'flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors',
               task.important
-                ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10'
-                : 'border-border-primary text-text-secondary hover:text-text-primary'
+                ? 'border-yellow-500 text-cx-warning bg-cx-warning/10'
+                : 'border-[var(--cx-border-1)] text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]'
             )}
           >
             <Star size={14} fill={task.important ? 'currentColor' : 'none'} />
@@ -296,7 +296,7 @@ function TaskDetailPanel({
               'flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors',
               task.myDay
                 ? 'border-accent-blue text-accent-blue bg-accent-blue/10'
-                : 'border-border-primary text-text-secondary hover:text-text-primary'
+                : 'border-[var(--cx-border-1)] text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)]'
             )}
           >
             <Sun size={14} />
@@ -306,14 +306,14 @@ function TaskDetailPanel({
 
         {/* Steps (sub-tasks) */}
         <div>
-          <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
+          <h4 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider mb-2">
             Steps
           </h4>
           <div className="space-y-1">
             {task.steps.map((step) => (
               <div
                 key={step.id}
-                className="flex items-center gap-2 group px-2 py-1 rounded hover:bg-bg-primary/50"
+                className="flex items-center gap-2 group px-2 py-1 rounded hover:bg-cx-bg/50"
               >
                 <button
                   onClick={() => toggleStep(step.id)}
@@ -321,7 +321,7 @@ function TaskDetailPanel({
                     'w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors',
                     step.completed
                       ? 'bg-accent-blue border-accent-blue'
-                      : 'border-border-primary'
+                      : 'border-[var(--cx-border-1)]'
                   )}
                 >
                   {step.completed && <Check size={10} className="text-white" />}
@@ -330,15 +330,15 @@ function TaskDetailPanel({
                   className={cn(
                     'flex-1 text-sm',
                     step.completed
-                      ? 'line-through text-text-secondary'
-                      : 'text-text-primary'
+                      ? 'line-through text-[var(--cx-text-2)]'
+                      : 'text-[var(--cx-text-1)]'
                   )}
                 >
                   {step.title}
                 </span>
                 <button
                   onClick={() => deleteStep(step.id)}
-                  className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-red-400"
+                  className="opacity-0 group-hover:opacity-100 text-[var(--cx-text-2)] hover:text-cx-danger"
                 >
                   <X size={14} />
                 </button>
@@ -354,30 +354,30 @@ function TaskDetailPanel({
                 if (e.key === 'Enter') addStep();
               }}
               placeholder="Add step"
-              className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-secondary outline-none"
+              className="flex-1 bg-transparent text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] outline-none"
             />
           </div>
         </div>
 
         {/* Due Date */}
         <div>
-          <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
+          <h4 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider mb-2">
             Due Date
           </h4>
           <div className="flex items-center gap-2">
-            <Calendar size={16} className="text-text-secondary" />
+            <Calendar size={16} className="text-[var(--cx-text-2)]" />
             <input
               type="date"
               value={task.dueDate ?? ''}
               onChange={(e) =>
                 onUpdate({ dueDate: e.target.value || null })
               }
-              className="bg-bg-primary border border-border-primary rounded px-2 py-1 text-sm text-text-primary outline-none focus:border-accent-blue"
+              className="bg-cx-bg border border-[var(--cx-border-1)] rounded px-2 py-1 text-sm text-[var(--cx-text-1)] outline-none focus:border-accent-blue"
             />
             {task.dueDate && (
               <button
                 onClick={() => onUpdate({ dueDate: null })}
-                className="text-text-secondary hover:text-red-400"
+                className="text-[var(--cx-text-2)] hover:text-cx-danger"
               >
                 <X size={14} />
               </button>
@@ -387,23 +387,23 @@ function TaskDetailPanel({
 
         {/* Reminder */}
         <div>
-          <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
+          <h4 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider mb-2">
             Reminder
           </h4>
           <div className="flex items-center gap-2">
-            <Bell size={16} className="text-text-secondary" />
+            <Bell size={16} className="text-[var(--cx-text-2)]" />
             <input
               type="datetime-local"
               value={task.reminder ?? ''}
               onChange={(e) =>
                 onUpdate({ reminder: e.target.value || null })
               }
-              className="bg-bg-primary border border-border-primary rounded px-2 py-1 text-sm text-text-primary outline-none focus:border-accent-blue"
+              className="bg-cx-bg border border-[var(--cx-border-1)] rounded px-2 py-1 text-sm text-[var(--cx-text-1)] outline-none focus:border-accent-blue"
             />
             {task.reminder && (
               <button
                 onClick={() => onUpdate({ reminder: null })}
-                className="text-text-secondary hover:text-red-400"
+                className="text-[var(--cx-text-2)] hover:text-cx-danger"
               >
                 <X size={14} />
               </button>
@@ -413,7 +413,7 @@ function TaskDetailPanel({
 
         {/* Notes */}
         <div>
-          <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
+          <h4 className="text-xs font-semibold text-[var(--cx-text-2)] uppercase tracking-wider mb-2">
             Notes
           </h4>
           <textarea
@@ -422,13 +422,13 @@ function TaskDetailPanel({
             onChange={(e) => onUpdate({ notes: e.target.value })}
             placeholder="Add notes..."
             rows={5}
-            className="w-full bg-bg-primary border border-border-primary rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-secondary outline-none resize-none focus:border-accent-blue"
+            className="w-full bg-cx-bg border border-[var(--cx-border-1)] rounded-lg px-3 py-2 text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] outline-none resize-none focus:border-accent-blue"
           />
         </div>
       </div>
 
       {/* Footer actions */}
-      <div className="p-4 border-t border-border-primary text-xs text-text-secondary">
+      <div className="p-4 border-t border-[var(--cx-border-1)] text-xs text-[var(--cx-text-2)]">
         Created {new Date(task.createdAt).toLocaleDateString()}
       </div>
     </aside>
@@ -462,7 +462,7 @@ function TaskItem({
         'flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-colors group',
         isSelected
           ? 'bg-accent-blue/10 border border-accent-blue/30'
-          : 'hover:bg-bg-secondary border border-transparent'
+          : 'hover:bg-cx-surface border border-transparent'
       )}
     >
       {/* Checkbox */}
@@ -487,8 +487,8 @@ function TaskItem({
           className={cn(
             'text-sm truncate',
             task.completed
-              ? 'line-through text-text-secondary'
-              : 'text-text-primary'
+              ? 'line-through text-[var(--cx-text-2)]'
+              : 'text-[var(--cx-text-1)]'
           )}
         >
           {task.title}
@@ -501,13 +501,13 @@ function TaskItem({
             </span>
           )}
           {task.myDay && (
-            <span className="text-xs text-yellow-400 flex items-center gap-1">
+            <span className="text-xs text-cx-warning flex items-center gap-1">
               <Sun size={10} />
               My Day
             </span>
           )}
           {stepsTotal > 0 && (
-            <span className="text-xs text-text-secondary">
+            <span className="text-xs text-[var(--cx-text-2)]">
               {stepsDone}/{stepsTotal} steps
             </span>
           )}
@@ -523,8 +523,8 @@ function TaskItem({
         className={cn(
           'flex-shrink-0 transition-colors',
           task.important
-            ? 'text-yellow-400'
-            : 'text-text-secondary opacity-0 group-hover:opacity-100'
+            ? 'text-cx-warning'
+            : 'text-[var(--cx-text-2)] opacity-0 group-hover:opacity-100'
         )}
       >
         <Star size={16} fill={task.important ? 'currentColor' : 'none'} />
@@ -677,7 +677,7 @@ export function TodoPage() {
   const greetingIndex = new Date().getDate() % greetings.length;
 
   return (
-    <div className="flex h-full bg-bg-primary text-text-primary">
+    <div className="flex h-full bg-cx-bg text-[var(--cx-text-1)]">
       {/* Sidebar */}
       <Sidebar
         lists={lists}
@@ -694,16 +694,16 @@ export function TodoPage() {
         <header className="px-6 pt-6 pb-4">
           {activeListId === 'my-day' ? (
             <div>
-              <h1 className="text-2xl font-bold text-text-primary flex items-center gap-3">
-                <Sun size={28} className="text-yellow-400" />
+              <h1 className="text-2xl font-display text-[var(--cx-text-1)] flex items-center gap-3">
+                <Sun size={28} className="text-cx-warning" />
                 My Day
               </h1>
-              <p className="text-sm text-text-secondary mt-1">
+              <p className="text-sm text-[var(--cx-text-2)] mt-1">
                 {getTodayString()} &mdash; {greetings[greetingIndex]}
               </p>
             </div>
           ) : (
-            <h1 className="text-2xl font-bold text-text-primary">
+            <h1 className="text-2xl font-display text-[var(--cx-text-1)]">
               {activeList?.name ?? 'Tasks'}
             </h1>
           )}
@@ -711,7 +711,7 @@ export function TodoPage() {
 
         {/* Add task input */}
         <div className="px-6 pb-4">
-          <div className="flex items-center gap-3 bg-bg-secondary border border-border-primary rounded-lg px-4 py-3">
+          <div className="flex items-center gap-3 bg-cx-surface border border-[var(--cx-border-1)] rounded-lg px-4 py-3">
             <Plus size={18} className="text-accent-blue" />
             <input
               value={newTaskTitle}
@@ -720,7 +720,7 @@ export function TodoPage() {
                 if (e.key === 'Enter') addTask();
               }}
               placeholder="Add a task"
-              className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-secondary outline-none"
+              className="flex-1 bg-transparent text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] outline-none"
             />
             {newTaskTitle.trim() && (
               <button
@@ -736,7 +736,7 @@ export function TodoPage() {
         {/* Task list */}
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           {activeTasks.length === 0 && completedTasks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-48 text-text-secondary">
+            <div className="flex flex-col items-center justify-center h-48 text-[var(--cx-text-2)]">
               <List size={48} className="mb-3 opacity-30" />
               <p className="text-sm">No tasks yet. Add one above.</p>
             </div>
@@ -765,7 +765,7 @@ export function TodoPage() {
                 <div className="mt-6">
                   <button
                     onClick={() => setShowCompleted(!showCompleted)}
-                    className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary mb-2"
+                    className="flex items-center gap-2 text-sm text-[var(--cx-text-2)] hover:text-[var(--cx-text-1)] mb-2"
                   >
                     {showCompleted ? (
                       <ChevronDown size={16} />

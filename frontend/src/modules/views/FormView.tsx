@@ -230,7 +230,7 @@ export function FormView({ listId, spaceId, onTaskClick }: FormViewProps) {
                       <label className="flex items-center gap-1.5 text-xs font-medium text-text-secondary mb-1">
                         {field.icon}
                         {field.label}
-                        {field.required && <span className="text-red-500">*</span>}
+                        {field.required && <span className="text-cx-danger">*</span>}
                       </label>
                       {field.type === 'textarea' ? (
                         <textarea
@@ -332,7 +332,7 @@ export function FormView({ listId, spaceId, onTaskClick }: FormViewProps) {
                         <span className="text-text-tertiary">{field.icon}</span>
                         <span className="text-sm text-text-primary flex-1">{field.label}</span>
                         {field.required && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-500 font-medium">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-cx-danger/10 text-cx-danger font-medium">
                             Required
                           </span>
                         )}

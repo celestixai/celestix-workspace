@@ -2,7 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { useCardData } from '@/hooks/useDashboards';
 import { CardWrapper } from './CardWrapper';
 
-const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#14b8a6'];
+const COLORS = ['#3B82F6', '#22c55e', '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6', '#F97316', '#60A5FA'];
 
 interface WorkloadCardProps {
   cardId: string;

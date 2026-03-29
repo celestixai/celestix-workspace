@@ -311,7 +311,7 @@ export function PdfPage() {
     /* In a real app we'd capture the canvas content. Here we place a placeholder. */
     const ann: Annotation = {
       id: annUid(), type: 'signature', page: currentPage,
-      x: 100, y: 300, width: 200, height: 60, color: '#1a1a2e',
+      x: 100, y: 300, width: 200, height: 60, color: '#111113',
       content: 'Signature', createdAt: new Date().toISOString(),
     };
     setAnnotations((prev) => [...prev, ann]);
@@ -354,7 +354,7 @@ export function PdfPage() {
         <div
           key={ann.id}
           onClick={(e) => { e.stopPropagation(); setSelectedAnnotation(ann.id); }}
-          className={cn('absolute rounded-sm cursor-pointer', isSel && 'ring-2 ring-accent-blue')}
+          className={cn('absolute rounded-sm cursor-pointer', isSel && 'ring-2 ring-cx-brand')}
           style={{
             left: ann.x * zoom, top: ann.y * zoom,
             width: ann.width * zoom, height: ann.height * zoom,
@@ -369,18 +369,18 @@ export function PdfPage() {
         <div
           key={ann.id}
           onClick={(e) => { e.stopPropagation(); setSelectedAnnotation(ann.id); }}
-          className={cn('absolute cursor-pointer', isSel && 'ring-2 ring-accent-blue rounded')}
+          className={cn('absolute cursor-pointer', isSel && 'ring-2 ring-cx-brand rounded')}
           style={{ left: ann.x * zoom, top: ann.y * zoom }}
         >
           <div className="w-6 h-6 rounded bg-yellow-400 flex items-center justify-center shadow-sm">
             <MessageSquare size={12} className="text-yellow-900" />
           </div>
           {isSel && (
-            <div className="absolute top-7 left-0 w-48 p-2 bg-bg-secondary border border-border-primary rounded-lg shadow-xl z-10">
+            <div className="absolute top-7 left-0 w-48 p-2 bg-cx-surface border border-white/8 rounded-lg shadow-xl z-10">
               <textarea
                 value={ann.content}
                 onChange={(e) => setAnnotations((prev) => prev.map((a) => (a.id === ann.id ? { ...a, content: e.target.value } : a)))}
-                className="w-full h-20 bg-bg-primary border border-border-primary rounded text-xs text-text-primary p-2 resize-none focus:outline-none focus:border-accent-blue"
+                className="w-full h-20 bg-cx-bg border border-white/8 rounded text-xs text-[var(--cx-text-1)] p-2 resize-none focus:outline-none focus:border-cx-brand"
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
@@ -407,7 +407,7 @@ export function PdfPage() {
         <div
           key={ann.id}
           onClick={(e) => { e.stopPropagation(); setSelectedAnnotation(ann.id); }}
-          className={cn('absolute border rounded cursor-pointer', isSel && 'ring-2 ring-accent-blue')}
+          className={cn('absolute border rounded cursor-pointer', isSel && 'ring-2 ring-cx-brand')}
           style={{
             left: ann.x * zoom, top: ann.y * zoom,
             width: ann.width * zoom, height: ann.height * zoom,
@@ -418,12 +418,12 @@ export function PdfPage() {
             <textarea
               value={ann.content}
               onChange={(e) => setAnnotations((prev) => prev.map((a) => (a.id === ann.id ? { ...a, content: e.target.value } : a)))}
-              className="w-full h-full bg-transparent text-text-primary text-xs p-1 resize-none focus:outline-none"
+              className="w-full h-full bg-transparent text-[var(--cx-text-1)] text-xs p-1 resize-none focus:outline-none"
               style={{ fontSize: 12 * zoom }}
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
-            <div className="w-full h-full p-1 text-text-primary text-xs overflow-hidden" style={{ fontSize: 12 * zoom }}>
+            <div className="w-full h-full p-1 text-[var(--cx-text-1)] text-xs overflow-hidden" style={{ fontSize: 12 * zoom }}>
               {ann.content}
             </div>
           )}
@@ -436,14 +436,14 @@ export function PdfPage() {
         <div
           key={ann.id}
           onClick={(e) => { e.stopPropagation(); setSelectedAnnotation(ann.id); }}
-          className={cn('absolute rounded border border-dashed cursor-pointer flex items-center justify-center', isSel && 'ring-2 ring-accent-blue')}
+          className={cn('absolute rounded border border-dashed cursor-pointer flex items-center justify-center', isSel && 'ring-2 ring-cx-brand')}
           style={{
             left: ann.x * zoom, top: ann.y * zoom,
             width: ann.width * zoom, height: ann.height * zoom,
-            borderColor: '#6366f1',
+            borderColor: '#8B5CF6',
           }}
         >
-          <span className="text-text-secondary italic" style={{ fontSize: 16 * zoom }}>Signature</span>
+          <span className="text-[var(--cx-text-2)] italic" style={{ fontSize: 16 * zoom }}>Signature</span>
         </div>
       );
     }
@@ -455,12 +455,12 @@ export function PdfPage() {
 
   const renderPagePlaceholder = (pageNum: number, w: number, h: number) => (
     <div
-      className="flex items-center justify-center border border-border-secondary rounded"
-      style={{ width: w, height: h, backgroundColor: '#1e1e2e' }}
+      className="flex items-center justify-center border border-white/12 rounded"
+      style={{ width: w, height: h, backgroundColor: '#161618' }}
     >
       <div className="text-center">
-        <FileText size={24} className="text-text-tertiary mx-auto mb-1" />
-        <span className="text-xs text-text-tertiary">Page {pageNum}</span>
+        <FileText size={24} className="text-[var(--cx-text-3)] mx-auto mb-1" />
+        <span className="text-xs text-[var(--cx-text-3)]">Page {pageNum}</span>
       </div>
     </div>
   );
@@ -471,65 +471,97 @@ export function PdfPage() {
 
   if (mode === 'list') {
     return (
-      <div className="flex flex-col h-full bg-bg-primary">
-        <div className="h-14 flex items-center gap-3 px-6 border-b border-border-primary flex-shrink-0">
-          <FileText size={18} className="text-accent-red" />
-          <h1 className="text-base font-semibold text-text-primary">PDF Viewer &amp; Tools</h1>
+      <div className="flex flex-col h-full bg-cx-bg">
+        {/* Toolbar */}
+        <div className="h-12 flex items-center gap-3 px-4 border-b border-white/8 flex-shrink-0" style={{ backgroundColor: '#111113' }}>
+          <FileText size={18} className="text-cx-danger" />
+          <h1 className="text-base font-display text-[var(--cx-text-1)]">PDF Tools</h1>
           <div className="flex-1" />
           <button
             onClick={handleUpload}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-accent-blue text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:opacity-90 transition-opacity"
           >
             <Upload size={14} />
             Upload PDF
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-16 bg-bg-secondary border border-border-primary rounded-lg animate-pulse" />
-              ))}
-            </div>
-          ) : files.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <FileText size={48} className="text-text-tertiary mb-3" />
-              <p className="text-base text-text-secondary mb-1">No PDF files</p>
-              <p className="text-sm text-text-tertiary mb-4">Upload a PDF to get started</p>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left sidebar - Tool buttons */}
+          <aside className="w-48 flex-shrink-0 border-r border-white/8 flex flex-col py-2" style={{ backgroundColor: '#0C0C0E' }}>
+            {[
+              { icon: Merge, label: 'Merge', tool: 'merge' as const },
+              { icon: Scissors, label: 'Split', tool: 'split' as const },
+              { icon: RotateCw, label: 'Rotate', tool: 'rotate' as const },
+              { icon: Droplets, label: 'Watermark', tool: 'watermark' as const },
+              { icon: Minus, label: 'Compress', tool: null },
+              { icon: Eye, label: 'Protect', tool: null },
+            ].map(({ icon: Icon, label }) => (
               <button
-                onClick={handleUpload}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent-blue text-white text-sm hover:opacity-90 transition-opacity"
+                key={label}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[var(--cx-text-2)] hover:bg-white/5 hover:text-[var(--cx-text-1)] transition-colors"
               >
-                <Upload size={14} />
-                Upload PDF
+                <Icon size={15} />
+                {label}
               </button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {files.map((file) => (
-                <div
-                  key={file.id}
-                  onClick={() => openFile(file)}
-                  className="flex items-center gap-4 px-4 py-3 bg-bg-secondary border border-border-primary rounded-lg cursor-pointer hover:border-accent-blue/40 transition-colors group"
-                >
-                  <div className="w-10 h-12 bg-accent-red/10 rounded flex items-center justify-center flex-shrink-0">
-                    <FileText size={20} className="text-accent-red" />
+            ))}
+          </aside>
+
+          {/* Center - File list or empty state */}
+          <div className="flex-1 overflow-y-auto">
+            {loading ? (
+              <div className="space-y-3 p-6">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-16 bg-cx-surface border border-white/8 rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : files.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center h-full">
+                <div className="flex flex-col items-center">
+                  {/* Paper preview placeholder */}
+                  <div className="bg-white rounded-lg shadow-lg w-[200px] min-h-[260px] mb-6 flex flex-col items-center justify-center">
+                    <FileText size={36} className="text-gray-300 mb-2" />
+                    <span className="text-xs text-gray-400">No PDF loaded</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-text-primary truncate">{file.name}</h3>
-                    <p className="text-[11px] text-text-tertiary mt-0.5">
-                      {file.pageCount} pages &middot; {(file.size / 1024).toFixed(0)} KB &middot;{' '}
-                      {new Date(file.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </p>
-                  </div>
-                  <button className="p-1.5 rounded-lg hover:bg-bg-hover text-text-tertiary opacity-0 group-hover:opacity-100 transition-all">
-                    <Eye size={14} />
+                  <p className="text-base text-[var(--cx-text-2)] mb-1">Upload a PDF to get started</p>
+                  <p className="text-sm text-[var(--cx-text-3)] mb-4">Merge, split, rotate, and annotate your documents</p>
+                  <button
+                    onClick={handleUpload}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cx-brand text-white text-sm hover:opacity-90 transition-opacity"
+                  >
+                    <Upload size={14} />
+                    Upload PDF
                   </button>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="p-6">
+                <div className="space-y-2">
+                  {files.map((file) => (
+                    <div
+                      key={file.id}
+                      onClick={() => openFile(file)}
+                      className="flex items-center gap-4 px-4 py-3 bg-cx-surface border border-white/8 rounded-lg cursor-pointer hover:border-cx-brand/40 transition-colors group"
+                    >
+                      <div className="w-10 h-12 bg-cx-danger/10 rounded flex items-center justify-center flex-shrink-0">
+                        <FileText size={20} className="text-cx-danger" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-[var(--cx-text-1)] truncate">{file.name}</h3>
+                        <p className="text-[11px] text-[var(--cx-text-3)] mt-0.5">
+                          {file.pageCount} pages &middot; {(file.size / 1024).toFixed(0)} KB &middot;{' '}
+                          {new Date(file.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                      <button className="p-1.5 rounded-lg hover:bg-cx-raised text-[var(--cx-text-3)] opacity-0 group-hover:opacity-100 transition-all">
+                        <Eye size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -542,45 +574,45 @@ export function PdfPage() {
   const pageAnnotations = annotations.filter((a) => a.page === currentPage);
 
   return (
-    <div className="flex flex-col h-full bg-bg-primary overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-cx-bg overflow-hidden select-none">
       {/* Top toolbar */}
-      <div className="h-11 flex items-center gap-2 px-3 border-b border-border-primary flex-shrink-0 bg-bg-secondary">
-        <button onClick={goBack} className="p-1.5 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+      <div className="h-11 flex items-center gap-2 px-3 border-b border-white/8 flex-shrink-0 bg-cx-surface">
+        <button onClick={goBack} className="p-1.5 rounded-lg hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
           <ChevronLeft size={16} />
         </button>
-        <span className="text-sm font-medium text-text-primary truncate max-w-[200px]">{activeFile?.name}</span>
+        <span className="text-sm font-medium text-[var(--cx-text-1)] truncate max-w-[200px]">{activeFile?.name}</span>
 
         <div className="w-px h-5 bg-border-primary mx-2" />
 
         {/* Page navigation */}
         <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage <= 1}
-          className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary disabled:opacity-30 transition-colors">
+          className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] disabled:opacity-30 transition-colors">
           <ChevronLeft size={14} />
         </button>
         <div className="flex items-center gap-1">
           <input
             type="number" min={1} max={totalPages} value={currentPage}
             onChange={(e) => goToPage(Number(e.target.value))}
-            className="w-10 h-6 text-center rounded bg-bg-primary border border-border-primary text-xs text-text-primary focus:outline-none focus:border-accent-blue"
+            className="w-10 h-6 text-center rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] focus:outline-none focus:border-cx-brand"
           />
-          <span className="text-xs text-text-tertiary">/ {totalPages}</span>
+          <span className="text-xs text-[var(--cx-text-3)]">/ {totalPages}</span>
         </div>
         <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPages}
-          className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary disabled:opacity-30 transition-colors">
+          className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] disabled:opacity-30 transition-colors">
           <ChevronRight size={14} />
         </button>
 
         <div className="w-px h-5 bg-border-primary mx-2" />
 
         {/* Zoom */}
-        <button onClick={handleZoomOut} className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+        <button onClick={handleZoomOut} className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
           <ZoomOut size={14} />
         </button>
-        <span className="text-[11px] text-text-tertiary min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
-        <button onClick={handleZoomIn} className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+        <span className="text-[11px] text-[var(--cx-text-3)] min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
+        <button onClick={handleZoomIn} className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
           <ZoomIn size={14} />
         </button>
-        <button onClick={handleFitWidth} className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors" title="Fit width">
+        <button onClick={handleFitWidth} className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors" title="Fit width">
           <Maximize size={14} />
         </button>
 
@@ -589,7 +621,7 @@ export function PdfPage() {
         {/* View toggle */}
         <button
           onClick={() => setTwoPageView((v) => !v)}
-          className={cn('p-1 rounded transition-colors', twoPageView ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary')}
+          className={cn('p-1 rounded transition-colors', twoPageView ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised hover:text-[var(--cx-text-1)]')}
           title="Two-page view"
         >
           <Columns size={14} />
@@ -598,7 +630,7 @@ export function PdfPage() {
         {/* Search */}
         <button
           onClick={() => setShowSearch((v) => !v)}
-          className={cn('p-1 rounded transition-colors', showSearch ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary')}
+          className={cn('p-1 rounded transition-colors', showSearch ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised hover:text-[var(--cx-text-1)]')}
           title="Search (Ctrl+F)"
         >
           <Search size={14} />
@@ -620,7 +652,7 @@ export function PdfPage() {
               }}
               className={cn(
                 'p-1.5 rounded-lg transition-colors',
-                activeTool === type ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary'
+                activeTool === type ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised hover:text-[var(--cx-text-1)]'
               )}
               title={label}
             >
@@ -633,11 +665,11 @@ export function PdfPage() {
             <div className="relative ml-1">
               <button
                 onClick={() => setShowColorPicker((v) => !v)}
-                className="w-5 h-5 rounded border border-border-primary"
+                className="w-5 h-5 rounded border border-white/8"
                 style={{ backgroundColor: highlightColor }}
               />
               {showColorPicker && (
-                <div className="absolute top-full right-0 mt-1 bg-bg-secondary border border-border-primary rounded-lg p-2 flex gap-1 z-20">
+                <div className="absolute top-full right-0 mt-1 bg-cx-surface border border-white/8 rounded-lg p-2 flex gap-1 z-20">
                   {HIGHLIGHT_COLORS.map((c) => (
                     <button
                       key={c}
@@ -658,7 +690,7 @@ export function PdfPage() {
         <button
           onClick={() => setShowTools((v) => !v)}
           className={cn('flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-colors',
-            showTools ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary'
+            showTools ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised hover:text-[var(--cx-text-1)]'
           )}
         >
           <Scissors size={13} />
@@ -669,7 +701,7 @@ export function PdfPage() {
         <button
           onClick={() => setShowAnnotations((v) => !v)}
           className={cn('p-1.5 rounded-lg transition-colors',
-            showAnnotations ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover hover:text-text-primary'
+            showAnnotations ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised hover:text-[var(--cx-text-1)]'
           )}
           title="Annotations"
         >
@@ -679,15 +711,15 @@ export function PdfPage() {
 
       {/* Search bar */}
       {showSearch && (
-        <div className="h-10 flex items-center gap-2 px-4 border-b border-border-primary bg-bg-secondary flex-shrink-0">
-          <Search size={14} className="text-text-tertiary" />
+        <div className="h-10 flex items-center gap-2 px-4 border-b border-white/8 bg-cx-surface flex-shrink-0">
+          <Search size={14} className="text-[var(--cx-text-3)]" />
           <input
             autoFocus type="text" placeholder="Search in document..."
             value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 h-7 bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none"
+            className="flex-1 h-7 bg-transparent text-sm text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none"
           />
           <button onClick={() => { setShowSearch(false); setSearchQuery(''); }}
-            className="p-1 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+            className="p-1 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
             <X size={14} />
           </button>
         </div>
@@ -696,10 +728,10 @@ export function PdfPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left - Thumbnails */}
         {showThumbnails && (
-          <div className="w-[140px] flex-shrink-0 bg-bg-secondary border-r border-border-primary flex flex-col">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-border-primary">
-              <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">Pages</span>
-              <button onClick={() => setShowThumbnails(false)} className="p-0.5 rounded hover:bg-bg-hover text-text-tertiary">
+          <div className="w-[140px] flex-shrink-0 bg-cx-surface border-r border-white/8 flex flex-col">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+              <span className="text-[11px] font-semibold text-[var(--cx-text-3)] uppercase tracking-wider">Pages</span>
+              <button onClick={() => setShowThumbnails(false)} className="p-0.5 rounded hover:bg-cx-raised text-[var(--cx-text-3)]">
                 <X size={12} />
               </button>
             </div>
@@ -710,11 +742,11 @@ export function PdfPage() {
                   onClick={() => setCurrentPage(i + 1)}
                   className={cn(
                     'w-full rounded-lg overflow-hidden border-2 transition-colors',
-                    currentPage === i + 1 ? 'border-accent-blue' : 'border-transparent hover:border-border-secondary'
+                    currentPage === i + 1 ? 'border-cx-brand' : 'border-transparent hover:border-white/12'
                   )}
                 >
-                  <div className="bg-[#1e1e2e] aspect-[3/4] flex items-center justify-center">
-                    <span className="text-xs text-text-tertiary">{i + 1}</span>
+                  <div className="bg-[#161618] aspect-[3/4] flex items-center justify-center">
+                    <span className="text-xs text-[var(--cx-text-3)]">{i + 1}</span>
                   </div>
                 </button>
               ))}
@@ -724,12 +756,12 @@ export function PdfPage() {
 
         {/* Center - Document */}
         <div className="flex-1 overflow-auto flex flex-col items-center py-6 px-4"
-          style={{ backgroundColor: '#161622' }}
+          style={{ backgroundColor: '#161618' }}
         >
           {!showThumbnails && (
             <button
               onClick={() => setShowThumbnails(true)}
-              className="absolute left-2 top-14 z-10 p-1 rounded bg-bg-secondary border border-border-primary text-text-tertiary hover:text-text-primary transition-colors"
+              className="absolute left-2 top-14 z-10 p-1 rounded bg-cx-surface border border-white/8 text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors"
             >
               <ChevronRight size={14} />
             </button>
@@ -757,14 +789,13 @@ export function PdfPage() {
               onMouseUp={handleCanvasMouseUp}
               onMouseLeave={() => { if (isDrawing) handleCanvasMouseUp(); }}
             >
-              {/* PDF page placeholder */}
+              {/* PDF page - white paper preview */}
               <div
-                className="w-full h-full rounded flex flex-col items-center justify-center border border-border-secondary"
-                style={{ backgroundColor: '#1e1e2e' }}
+                className="w-full h-full rounded-lg shadow-lg flex flex-col items-center justify-center bg-white"
               >
-                <FileText size={48 * zoom} className="text-text-tertiary mb-2" />
-                <span className="text-text-tertiary" style={{ fontSize: 14 * zoom }}>Page {currentPage}</span>
-                <span className="text-text-tertiary mt-1" style={{ fontSize: 11 * zoom }}>{activeFile?.name}</span>
+                <FileText size={48 * zoom} className="text-gray-300 mb-2" />
+                <span className="text-gray-400" style={{ fontSize: 14 * zoom }}>Page {currentPage}</span>
+                <span className="text-gray-400 mt-1" style={{ fontSize: 11 * zoom }}>{activeFile?.name}</span>
 
                 {/* Simulated text lines */}
                 <div className="mt-6 w-3/4 space-y-2">
@@ -775,7 +806,7 @@ export function PdfPage() {
                       style={{
                         height: 8 * zoom,
                         width: `${60 + Math.random() * 40}%`,
-                        backgroundColor: 'rgba(255,255,255,0.04)',
+                        backgroundColor: 'rgba(0,0,0,0.06)',
                       }}
                     />
                   ))}
@@ -800,14 +831,14 @@ export function PdfPage() {
 
         {/* Right - Annotations panel */}
         {showAnnotations && (
-          <div className="w-[220px] flex-shrink-0 bg-bg-secondary border-l border-border-primary flex flex-col">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-border-primary">
-              <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">Annotations</span>
-              <span className="text-[10px] text-text-tertiary">{annotations.length}</span>
+          <div className="w-[220px] flex-shrink-0 bg-cx-surface border-l border-white/8 flex flex-col">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+              <span className="text-[11px] font-semibold text-[var(--cx-text-3)] uppercase tracking-wider">Annotations</span>
+              <span className="text-[10px] text-[var(--cx-text-3)]">{annotations.length}</span>
             </div>
             <div className="flex-1 overflow-y-auto">
               {annotations.length === 0 ? (
-                <p className="text-xs text-text-tertiary p-3">No annotations yet</p>
+                <p className="text-xs text-[var(--cx-text-3)] p-3">No annotations yet</p>
               ) : (
                 <div className="divide-y divide-border-primary">
                   {annotations.map((ann) => (
@@ -816,23 +847,23 @@ export function PdfPage() {
                       onClick={() => { setSelectedAnnotation(ann.id); setCurrentPage(ann.page); }}
                       className={cn(
                         'px-3 py-2 cursor-pointer transition-colors',
-                        selectedAnnotation === ann.id ? 'bg-bg-active' : 'hover:bg-bg-hover'
+                        selectedAnnotation === ann.id ? 'bg-cx-highest' : 'hover:bg-cx-raised'
                       )}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-text-secondary capitalize font-medium">{ann.type}</span>
+                        <span className="text-xs text-[var(--cx-text-2)] capitalize font-medium">{ann.type}</span>
                         <div className="flex items-center gap-1">
-                          <span className="text-[10px] text-text-tertiary">p.{ann.page}</span>
+                          <span className="text-[10px] text-[var(--cx-text-3)]">p.{ann.page}</span>
                           <button
                             onClick={(e) => { e.stopPropagation(); deleteAnnotation(ann.id); }}
-                            className="p-0.5 rounded hover:bg-bg-hover text-text-tertiary hover:text-accent-red transition-colors"
+                            className="p-0.5 rounded hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-cx-danger transition-colors"
                           >
                             <Trash2 size={10} />
                           </button>
                         </div>
                       </div>
                       {ann.content && (
-                        <p className="text-[11px] text-text-tertiary truncate">{ann.content}</p>
+                        <p className="text-[11px] text-[var(--cx-text-3)] truncate">{ann.content}</p>
                       )}
                     </div>
                   ))}
@@ -844,10 +875,10 @@ export function PdfPage() {
 
         {/* Tools panel (right side, replaces annotations when open) */}
         {showTools && !showAnnotations && (
-          <div className="w-[240px] flex-shrink-0 bg-bg-secondary border-l border-border-primary flex flex-col">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-border-primary">
-              <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">PDF Tools</span>
-              <button onClick={() => setShowTools(false)} className="p-0.5 rounded hover:bg-bg-hover text-text-tertiary">
+          <div className="w-[240px] flex-shrink-0 bg-cx-surface border-l border-white/8 flex flex-col">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-white/8">
+              <span className="text-[11px] font-semibold text-[var(--cx-text-3)] uppercase tracking-wider">PDF Tools</span>
+              <button onClick={() => setShowTools(false)} className="p-0.5 rounded hover:bg-cx-raised text-[var(--cx-text-3)]">
                 <X size={12} />
               </button>
             </div>
@@ -858,7 +889,7 @@ export function PdfPage() {
                   onClick={() => setActivePdfTool(activePdfTool === 'merge' ? null : 'merge')}
                   className={cn(
                     'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
-                    activePdfTool === 'merge' ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-secondary hover:bg-bg-hover'
+                    activePdfTool === 'merge' ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-2)] hover:bg-cx-raised'
                   )}
                 >
                   <Merge size={14} />
@@ -866,16 +897,16 @@ export function PdfPage() {
                 </button>
                 {activePdfTool === 'merge' && (
                   <div className="pl-3 space-y-2">
-                    <p className="text-[11px] text-text-tertiary">Drag files to reorder</p>
+                    <p className="text-[11px] text-[var(--cx-text-3)]">Drag files to reorder</p>
                     {mergeFiles.length === 0 ? (
-                      <p className="text-[11px] text-text-tertiary italic">No files added</p>
+                      <p className="text-[11px] text-[var(--cx-text-3)] italic">No files added</p>
                     ) : (
                       <div className="space-y-1">
                         {mergeFiles.map((f, i) => (
-                          <div key={f.id} className="flex items-center gap-1.5 px-2 py-1 bg-bg-primary rounded text-xs text-text-secondary">
-                            <GripVertical size={10} className="text-text-tertiary cursor-grab" />
+                          <div key={f.id} className="flex items-center gap-1.5 px-2 py-1 bg-cx-bg rounded text-xs text-[var(--cx-text-2)]">
+                            <GripVertical size={10} className="text-[var(--cx-text-3)] cursor-grab" />
                             <span className="truncate flex-1">{f.name}</span>
-                            <button onClick={() => setMergeFiles((prev) => prev.filter((_, idx) => idx !== i))} className="p-0.5 text-text-tertiary hover:text-accent-red">
+                            <button onClick={() => setMergeFiles((prev) => prev.filter((_, idx) => idx !== i))} className="p-0.5 text-[var(--cx-text-3)] hover:text-cx-danger">
                               <X size={10} />
                             </button>
                           </div>
@@ -884,11 +915,11 @@ export function PdfPage() {
                     )}
                     <button
                       onClick={() => { if (activeFile) setMergeFiles((prev) => [...prev, activeFile]); }}
-                      className="text-[11px] text-accent-blue hover:underline"
+                      className="text-[11px] text-cx-brand hover:underline"
                     >
                       + Add current file
                     </button>
-                    <button className="w-full py-1.5 rounded-lg bg-accent-blue text-white text-xs hover:opacity-90 transition-opacity disabled:opacity-40" disabled={mergeFiles.length < 2}>
+                    <button className="w-full py-1.5 rounded-lg bg-cx-brand text-white text-xs hover:opacity-90 transition-opacity disabled:opacity-40" disabled={mergeFiles.length < 2}>
                       Merge
                     </button>
                   </div>
@@ -901,7 +932,7 @@ export function PdfPage() {
                   onClick={() => setActivePdfTool(activePdfTool === 'split' ? null : 'split')}
                   className={cn(
                     'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
-                    activePdfTool === 'split' ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-secondary hover:bg-bg-hover'
+                    activePdfTool === 'split' ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-2)] hover:bg-cx-raised'
                   )}
                 >
                   <Scissors size={14} />
@@ -909,13 +940,13 @@ export function PdfPage() {
                 </button>
                 {activePdfTool === 'split' && (
                   <div className="pl-3 space-y-2">
-                    <label className="text-[11px] text-text-tertiary">Page range (e.g. 1-3, 5, 7-10)</label>
+                    <label className="text-[11px] text-[var(--cx-text-3)]">Page range (e.g. 1-3, 5, 7-10)</label>
                     <input
                       type="text" value={splitRange} onChange={(e) => setSplitRange(e.target.value)}
                       placeholder="1-3, 5, 7-10"
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:border-cx-brand"
                     />
-                    <button className="w-full py-1.5 rounded-lg bg-accent-blue text-white text-xs hover:opacity-90 transition-opacity disabled:opacity-40" disabled={!splitRange.trim()}>
+                    <button className="w-full py-1.5 rounded-lg bg-cx-brand text-white text-xs hover:opacity-90 transition-opacity disabled:opacity-40" disabled={!splitRange.trim()}>
                       Split
                     </button>
                   </div>
@@ -925,7 +956,7 @@ export function PdfPage() {
               {/* Rotate */}
               <button
                 onClick={() => { /* rotate current page */ }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-text-secondary hover:bg-bg-hover transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--cx-text-2)] hover:bg-cx-raised transition-colors"
               >
                 <RotateCw size={14} />
                 Rotate Page
@@ -937,7 +968,7 @@ export function PdfPage() {
                   onClick={() => setActivePdfTool(activePdfTool === 'watermark' ? null : 'watermark')}
                   className={cn(
                     'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
-                    activePdfTool === 'watermark' ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-secondary hover:bg-bg-hover'
+                    activePdfTool === 'watermark' ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-2)] hover:bg-cx-raised'
                   )}
                 >
                   <Droplets size={14} />
@@ -945,13 +976,13 @@ export function PdfPage() {
                 </button>
                 {activePdfTool === 'watermark' && (
                   <div className="pl-3 space-y-2">
-                    <label className="text-[11px] text-text-tertiary">Text</label>
+                    <label className="text-[11px] text-[var(--cx-text-3)]">Text</label>
                     <input
                       type="text" value={watermarkText} onChange={(e) => setWatermarkText(e.target.value)}
                       placeholder="CONFIDENTIAL"
-                      className="w-full h-7 px-2 rounded bg-bg-primary border border-border-primary text-xs text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-blue"
+                      className="w-full h-7 px-2 rounded bg-cx-bg border border-white/8 text-xs text-[var(--cx-text-1)] placeholder:text-[var(--cx-text-3)] focus:outline-none focus:border-cx-brand"
                     />
-                    <label className="text-[11px] text-text-tertiary">Position</label>
+                    <label className="text-[11px] text-[var(--cx-text-3)]">Position</label>
                     <div className="flex gap-1">
                       {(['top', 'center', 'bottom'] as const).map((pos) => (
                         <button
@@ -959,14 +990,14 @@ export function PdfPage() {
                           onClick={() => setWatermarkPos(pos)}
                           className={cn(
                             'flex-1 py-1 rounded text-[10px] capitalize transition-colors',
-                            watermarkPos === pos ? 'bg-accent-blue/20 text-accent-blue' : 'text-text-tertiary hover:bg-bg-hover'
+                            watermarkPos === pos ? 'bg-cx-brand/20 text-cx-brand' : 'text-[var(--cx-text-3)] hover:bg-cx-raised'
                           )}
                         >
                           {pos}
                         </button>
                       ))}
                     </div>
-                    <button className="w-full py-1.5 rounded-lg bg-accent-blue text-white text-xs hover:opacity-90 transition-opacity disabled:opacity-40" disabled={!watermarkText.trim()}>
+                    <button className="w-full py-1.5 rounded-lg bg-cx-brand text-white text-xs hover:opacity-90 transition-opacity disabled:opacity-40" disabled={!watermarkText.trim()}>
                       Apply Watermark
                     </button>
                   </div>
@@ -980,14 +1011,14 @@ export function PdfPage() {
       {/* Signature Modal */}
       {showSignatureModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowSignatureModal(false)}>
-          <div className="bg-bg-secondary border border-border-primary rounded-xl w-[420px] p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-cx-surface border border-white/8 rounded-xl w-[420px] p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-text-primary">Draw Signature</h3>
-              <button onClick={() => setShowSignatureModal(false)} className="p-1 rounded-lg hover:bg-bg-hover text-text-tertiary hover:text-text-primary transition-colors">
+              <h3 className="text-base font-semibold text-[var(--cx-text-1)]">Draw Signature</h3>
+              <button onClick={() => setShowSignatureModal(false)} className="p-1 rounded-lg hover:bg-cx-raised text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] transition-colors">
                 <X size={16} />
               </button>
             </div>
-            <div className="border border-border-primary rounded-lg overflow-hidden mb-3 bg-bg-primary">
+            <div className="border border-white/8 rounded-lg overflow-hidden mb-3 bg-cx-bg">
               <canvas
                 ref={sigCanvasRef}
                 width={380}
@@ -1008,14 +1039,14 @@ export function PdfPage() {
               />
             </div>
             <div className="flex justify-between">
-              <button onClick={clearSigCanvas} className="px-3 py-1.5 rounded-lg text-sm text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors">
+              <button onClick={clearSigCanvas} className="px-3 py-1.5 rounded-lg text-sm text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-cx-raised transition-colors">
                 Clear
               </button>
               <div className="flex gap-2">
-                <button onClick={() => setShowSignatureModal(false)} className="px-3 py-1.5 rounded-lg text-sm text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors">
+                <button onClick={() => setShowSignatureModal(false)} className="px-3 py-1.5 rounded-lg text-sm text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-cx-raised transition-colors">
                   Cancel
                 </button>
-                <button onClick={handleSignatureSave} className="px-3 py-1.5 rounded-lg text-sm bg-accent-blue text-white hover:opacity-90 transition-opacity">
+                <button onClick={handleSignatureSave} className="px-3 py-1.5 rounded-lg text-sm bg-cx-brand text-white hover:opacity-90 transition-opacity">
                   Place Signature
                 </button>
               </div>

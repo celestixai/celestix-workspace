@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils';
 import type { TimeOff, TimeOffType } from '@/hooks/useSchedules';
 
 const TYPE_COLORS: Record<TimeOffType, string> = {
-  VACATION: 'bg-blue-500/80',
-  SICK: 'bg-red-500/80',
-  PERSONAL: 'bg-green-500/80',
+  VACATION: 'bg-cx-brand/80',
+  SICK: 'bg-cx-danger/80',
+  PERSONAL: 'bg-cx-success/80',
   HOLIDAY: 'bg-purple-500/80',
-  OTHER: 'bg-gray-500/80',
+  OTHER: 'bg-[var(--cx-text-3)]/80',
 };
 
 const TYPE_LABELS: Record<TimeOffType, string> = {

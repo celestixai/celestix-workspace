@@ -52,7 +52,7 @@ function ReminderItem({ reminder }: { reminder: Reminder }) {
       'group px-3 py-2 rounded-lg border transition-colors',
       isOverdue
         ? 'border-accent-red/30 bg-accent-red/5'
-        : 'border-border-primary bg-bg-tertiary hover:bg-bg-hover',
+        : 'border-[var(--cx-border-1)] bg-cx-raised hover:bg-[rgba(255,255,255,0.04)]',
     )}>
       <div className="flex items-start gap-2">
         <button
@@ -61,7 +61,7 @@ function ReminderItem({ reminder }: { reminder: Reminder }) {
             'mt-0.5 w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors',
             reminder.isCompleted
               ? 'bg-accent-emerald border-accent-emerald text-white'
-              : 'border-border-secondary hover:border-accent-blue',
+              : 'border-[var(--cx-border-2)] hover:border-accent-blue',
           )}
         >
           {reminder.isCompleted && <Check size={10} />}
@@ -69,7 +69,7 @@ function ReminderItem({ reminder }: { reminder: Reminder }) {
         <div className="flex-1 min-w-0">
           <p className={cn(
             'text-xs font-medium truncate',
-            reminder.isCompleted ? 'text-text-tertiary line-through' : 'text-text-primary',
+            reminder.isCompleted ? 'text-[var(--cx-text-3)] line-through' : 'text-[var(--cx-text-1)]',
           )}>
             {reminder.title}
           </p>
@@ -77,7 +77,7 @@ function ReminderItem({ reminder }: { reminder: Reminder }) {
             {isOverdue && <AlertTriangle size={10} className="text-accent-red" />}
             <span className={cn(
               'text-[10px]',
-              isOverdue ? 'text-accent-red' : 'text-text-tertiary',
+              isOverdue ? 'text-accent-red' : 'text-[var(--cx-text-3)]',
             )}>
               {formatDate(reminder.dueAt)} {formatTime(reminder.dueAt)}
             </span>
@@ -86,14 +86,14 @@ function ReminderItem({ reminder }: { reminder: Reminder }) {
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => setShowSnooze(!showSnooze)}
-            className="p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-colors"
+            className="p-1 rounded text-[var(--cx-text-3)] hover:text-[var(--cx-text-1)] hover:bg-[rgba(255,255,255,0.04)] transition-colors"
             title="Snooze"
           >
             <Clock size={12} />
           </button>
           <button
             onClick={() => deleteMut.mutate()}
-            className="p-1 rounded text-text-tertiary hover:text-accent-red hover:bg-bg-hover transition-colors"
+            className="p-1 rounded text-[var(--cx-text-3)] hover:text-accent-red hover:bg-[rgba(255,255,255,0.04)] transition-colors"
             title="Delete"
           >
             <Trash2 size={12} />
@@ -109,7 +109,7 @@ function ReminderItem({ reminder }: { reminder: Reminder }) {
                 snoozeMut.mutate({ reminderId: reminder.id, duration: opt.value });
                 setShowSnooze(false);
               }}
-              className="px-2 py-0.5 text-[10px] rounded-full bg-bg-primary border border-border-secondary text-text-secondary hover:bg-bg-hover transition-colors"
+              className="px-2 py-0.5 text-[10px] rounded-full bg-cx-bg border border-[var(--cx-border-2)] text-[var(--cx-text-2)] hover:bg-[rgba(255,255,255,0.04)] transition-colors"
             >
               {opt.label}
             </button>
@@ -128,18 +128,18 @@ export function PlannerSidebar() {
 
   return (
     <>
-      <div className="w-72 border-l border-border-primary bg-bg-secondary flex flex-col h-full overflow-hidden">
+      <div className="w-72 border-l border-[var(--cx-border-1)] bg-cx-surface flex flex-col h-full overflow-hidden">
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {/* Reminders section */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-1.5">
                 <Bell size={14} className="text-accent-blue" />
-                <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">Reminders</h3>
+                <h3 className="text-xs font-semibold text-[var(--cx-text-1)] uppercase tracking-wider">Reminders</h3>
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="p-1 rounded-lg text-text-tertiary hover:text-accent-blue hover:bg-bg-hover transition-colors"
+                className="p-1 rounded-lg text-[var(--cx-text-3)] hover:text-accent-blue hover:bg-[rgba(255,255,255,0.04)] transition-colors"
                 title="Add Reminder"
               >
                 <Plus size={14} />
@@ -164,7 +164,7 @@ export function PlannerSidebar() {
             {/* Upcoming */}
             {upcomingReminders && upcomingReminders.length > 0 && (
               <div>
-                <p className="text-[10px] font-medium text-text-tertiary uppercase tracking-wider mb-1.5">
+                <p className="text-[10px] font-medium text-[var(--cx-text-3)] uppercase tracking-wider mb-1.5">
                   Upcoming
                 </p>
                 <div className="space-y-1.5">
@@ -177,7 +177,7 @@ export function PlannerSidebar() {
 
             {(!overdueReminders || overdueReminders.length === 0) &&
               (!upcomingReminders || upcomingReminders.length === 0) && (
-                <p className="text-xs text-text-tertiary text-center py-4">
+                <p className="text-xs text-[var(--cx-text-3)] text-center py-4">
                   No reminders. Click + to add one.
                 </p>
               )}
@@ -187,9 +187,9 @@ export function PlannerSidebar() {
           <div>
             <div className="flex items-center gap-1.5 mb-3">
               <ListTodo size={14} className="text-accent-amber" />
-              <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">My Tasks</h3>
+              <h3 className="text-xs font-semibold text-[var(--cx-text-1)] uppercase tracking-wider">My Tasks</h3>
             </div>
-            <p className="text-xs text-text-tertiary text-center py-4">
+            <p className="text-xs text-[var(--cx-text-3)] text-center py-4">
               Task overview coming from your assigned tasks.
             </p>
           </div>
@@ -197,10 +197,10 @@ export function PlannerSidebar() {
           {/* Unplanned section */}
           <div>
             <div className="flex items-center gap-1.5 mb-3">
-              <CalendarDays size={14} className="text-text-tertiary" />
-              <h3 className="text-xs font-semibold text-text-primary uppercase tracking-wider">Unplanned</h3>
+              <CalendarDays size={14} className="text-[var(--cx-text-3)]" />
+              <h3 className="text-xs font-semibold text-[var(--cx-text-1)] uppercase tracking-wider">Unplanned</h3>
             </div>
-            <p className="text-xs text-text-tertiary text-center py-4">
+            <p className="text-xs text-[var(--cx-text-3)] text-center py-4">
               Tasks with no due date will appear here.
             </p>
           </div>

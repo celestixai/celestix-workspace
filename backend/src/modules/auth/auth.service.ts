@@ -61,7 +61,7 @@ export class AuthService {
     return { user, ...tokens };
   }
 
-  async login(input: LoginInput) {
+  async login(input: LoginInput, meta?: { deviceInfo?: string | null; ipAddress?: string | null }) {
     const user = await prisma.user.findUnique({
       where: { email: input.email, deletedAt: null },
     });
@@ -90,13 +90,16 @@ export class AuthService {
       }
     }
 
-    const tokens = await this.generateTokens(user.id, user.email, input.rememberMe);
+    const tokens = await this.generateTokens(user.id, user.email, input.rememberMe, {
+      deviceInfo: meta?.deviceInfo || undefined,
+      ipAddress: meta?.ipAddress || undefined,
+    });
 
     const { passwordHash: _, totpSecret: __, ...safeUser } = user;
     return { user: safeUser, ...tokens };
   }
 
-  async generateTokens(userId: string, email: string, rememberMe = false) {
+  async generateTokens(userId: string, email: string, rememberMe = false, meta?: { deviceInfo?: string; ipAddress?: string }) {
     const payload: JwtPayload = { userId, email };
 
     const accessToken = jwt.sign(payload, config.jwt.secret, {
@@ -107,18 +110,20 @@ export class AuthService {
       expiresIn: (rememberMe ? config.jwt.refreshExpiresIn : '7d') as jwt.SignOptions['expiresIn'],
     });
 
-    // Store session
+    // Store session with device/IP metadata
     const sessionId = uuidv4();
     await prisma.session.create({
       data: {
         id: sessionId,
         userId,
         token: accessToken,
+        deviceInfo: meta?.deviceInfo || null,
+        ipAddress: meta?.ipAddress || null,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, sessionId };
   }
 
   async refreshToken(token: string) {
@@ -174,6 +179,7 @@ export class AuthService {
         storageUsed: true,
         storageQuota: true,
         navOrder: true,
+        notificationPrefs: true,
         createdAt: true,
       },
     });
@@ -215,6 +221,7 @@ export class AuthService {
         customStatus: true,
         customStatusEmoji: true,
         navOrder: true,
+        notificationPrefs: true,
       },
     });
     return user;
@@ -236,14 +243,13 @@ export class AuthService {
 
     const validPassword = await bcrypt.compare(input.currentPassword, user.passwordHash);
     if (!validPassword) {
-      throw new AppError(401, 'Current password is incorrect', 'INVALID_PASSWORD');
+      throw new AppError(400, 'Current password is incorrect', 'INVALID_PASSWORD');
     }
 
     const passwordHash = await bcrypt.hash(input.newPassword, SALT_ROUNDS);
     await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
 
-    // Invalidate all sessions
-    await prisma.session.deleteMany({ where: { userId } });
+    // Do NOT invalidate sessions — user stays logged in
   }
 
   async forgotPassword(email: string) {
@@ -336,12 +342,16 @@ export class AuthService {
     return { enabled: false };
   }
 
-  async getSessions(userId: string) {
-    return prisma.session.findMany({
+  async getSessions(userId: string, currentToken?: string) {
+    const sessions = await prisma.session.findMany({
       where: { userId, expiresAt: { gt: new Date() } },
-      select: { id: true, deviceInfo: true, ipAddress: true, createdAt: true, expiresAt: true },
+      select: { id: true, token: true, deviceInfo: true, ipAddress: true, createdAt: true, expiresAt: true },
       orderBy: { createdAt: 'desc' },
     });
+    return sessions.map(({ token, ...s }) => ({
+      ...s,
+      isCurrent: currentToken ? token === currentToken : false,
+    }));
   }
 
   async revokeSession(userId: string, sessionId: string) {
