@@ -75,6 +75,7 @@ export function EmailPage() {
   const queryClient = useQueryClient();
 
   const [activeFolder, setActiveFolder] = useState<Folder>('inbox');
+  const [activeLabel, setActiveLabel] = useState<string | null>(null);
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
   const [showCompose, setShowCompose] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -142,16 +143,24 @@ export function EmailPage() {
   });
 
   const filteredEmails = useMemo(() => {
-    if (!searchQuery.trim()) return emails;
-    const q = searchQuery.toLowerCase();
-    return emails.filter(
-      (e) =>
-        e.subject.toLowerCase().includes(q) ||
-        e.from.name.toLowerCase().includes(q) ||
-        e.from.email.toLowerCase().includes(q) ||
-        e.preview.toLowerCase().includes(q)
-    );
-  }, [emails, searchQuery]);
+    let result = emails;
+    if (activeLabel) {
+      result = result.filter((e) =>
+        e.labels?.some((l) => l.toLowerCase() === activeLabel.toLowerCase())
+      );
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (e) =>
+          e.subject.toLowerCase().includes(q) ||
+          e.from.name.toLowerCase().includes(q) ||
+          e.from.email.toLowerCase().includes(q) ||
+          e.preview.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [emails, searchQuery, activeLabel]);
 
   const selectedEmail = emails.find((e) => e.id === selectedEmailId) || null;
 
@@ -270,6 +279,7 @@ export function EmailPage() {
               key={folder.id}
               onClick={() => {
                 setActiveFolder(folder.id);
+                setActiveLabel(null);
                 setSelectedEmailId(null);
               }}
               className={cn(
@@ -296,7 +306,16 @@ export function EmailPage() {
             {['Work', 'Personal', 'Important'].map((label) => (
               <button
                 key={label}
-                className="w-full flex items-center gap-2 px-2 py-1 rounded-md text-xs text-[rgba(255,255,255,0.40)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[rgba(255,255,255,0.65)] transition-colors"
+                onClick={() => {
+                  setActiveLabel(activeLabel === label ? null : label);
+                  setSelectedEmailId(null);
+                }}
+                className={cn(
+                  'w-full flex items-center gap-2 px-2 py-1 rounded-md text-xs transition-colors',
+                  activeLabel === label
+                    ? 'bg-[rgba(255,255,255,0.08)] text-white font-medium'
+                    : 'text-[rgba(255,255,255,0.40)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[rgba(255,255,255,0.65)]'
+                )}
               >
                 <Tag size={12} />
                 {label}

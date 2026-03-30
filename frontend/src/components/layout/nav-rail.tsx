@@ -63,6 +63,7 @@ const coreItems: NavItem[] = [
 ];
 
 const workItems: NavItem[] = [
+  { id: 'email', icon: Mail, label: 'Email' },
   { id: 'calendar', icon: Calendar, label: 'Calendar' },
   { id: 'documents', icon: FileText, label: 'Docs' },
   { id: 'goals', icon: Target, label: 'Goals' },
@@ -84,7 +85,6 @@ type MoreAppItem = {
 };
 
 const moreApps: MoreAppItem[] = [
-  { id: 'email', icon: Mail, label: 'Email' },
   { id: 'contacts', icon: Contact, label: 'Contacts' },
   { id: 'forms', icon: ClipboardList, label: 'Forms' },
   { id: 'spreadsheets', icon: Sheet, label: 'Spreadsheets' },
